@@ -1,0 +1,74 @@
+from ast import *
+
+class CompileVisitor:
+    def __init__(self):
+        pass
+
+    def visit_ArithLit(self, val):
+        ...
+
+    def visit_ArithVar(self, var):
+        ...
+
+    def visit_ArithBinop(self, op, a1, a2):
+        ...
+        # v1 = a1.accept(self)
+        # v2 = a2.accept(self)
+        # if op == ArithOp.Add:
+        #     return v1 + v2
+        # if op == ArithOp.Sub:
+        #     return v1 - v2
+        # if op == ArithOp.Mul:
+        #     return v1 * v2
+        # if op == ArithOp.Div:
+        #     return v1 // v2
+        # if op == ArithOp.Mod:
+        #     return v1 % v2
+
+    def visit_BoolBinop(self, op, a1, a2):
+        ...
+        # v1 = a1.accept(self)
+        # v2 = a2.accept(self)
+        # if op == BoolOp.Eq:
+        #     return v1 == v2
+        # if op == BoolOp.Neq:
+        #     return v1 != v2
+        # if op == BoolOp.Leq:
+        #     return v1 <= v2
+        # if op == BoolOp.Lt:
+        #     return v1 < v2
+        # if op == BoolOp.Geq:
+        #     return v1 >= v2
+        # if op == BoolOp.Gt:
+        #     return v1 > v2
+
+    def visit_StmAssign(self, var, a):
+        ...
+        # val = a.accept(self)
+        # self.state[var] = val
+
+    def visit_StmIf(self, b, ss1, ss2):
+        ...
+        # val = b.accept(self)
+        # if val:
+        #     self.visit_many(ss1)
+        # else:
+        #     self.visit_many(ss2)
+    
+    def visit_StmWhile(self, b, ss):
+        ...
+        # while b.accept(self):
+        #     self.visit_many(ss)
+
+    def visit_StmPrint(self, a):
+        ...
+        # val = a.accept(self)
+        # print(val)
+
+    def visit_many(self, stms):
+        ...
+        # for stm in stms:
+        #     stm.accept(self)
+
+def compile_many(stms):
+    CompileVisitor().visit_many(stms)

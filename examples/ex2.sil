@@ -1,0 +1,6 @@
+# x = 10
+# print x
+[
+    StmAssign("x", ArithLit(10)),
+    StmPrint(ArithVar("x")),
+]

@@ -1,0 +1,43 @@
+# iterative fibonacci
+# x = 0
+# y = 1
+# n = 20
+# while n > 0:
+#     print x
+#     y = x + y
+#     x = y - x
+#     n = n -1
+#     """
+[
+    StmAssign("x", ArithLit(0)),
+    StmAssign("y", ArithLit(1)),
+    StmAssign("n", ArithLit(20)),
+    StmWhile(
+        BoolBinop(
+            BoolOp.Gt,
+            ArithVar("n"),
+            ArithLit(0)
+        ),
+        [
+            StmPrint(ArithVar("x")),
+            StmAssign("y", 
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithVar("x"),
+                    ArithVar("y")
+            )),
+            StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Sub,
+                    ArithVar("y"),
+                    ArithVar("x")
+            )),
+            StmAssign("n", 
+                ArithBinop(
+                    ArithOp.Sub,
+                    ArithVar("n"),
+                    ArithLit(1)
+            )),
+        ]
+    ),
+]
