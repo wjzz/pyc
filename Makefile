@@ -1,9 +1,14 @@
-.PHONY: std
+.PHONY: std primes
 
 std:
 	# NOTE: this contains debugging flags
 	nasm -f elf64 -g -o std.o std.asm -l std.lst
 	ld -g -o std std.o
+
+primes:
+	nasm -f elf64 -o prime.o primes.asm \
+	&& ld -o prime prime.o \
+        && rm prime.o
 
 ## Examples for eventual use
 

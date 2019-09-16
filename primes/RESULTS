@@ -4,10 +4,24 @@ Results:
 
 Interpreter |   Time        |  Result
 ------------+---------------+---------
-Cpython2.7  |   11.1s       |   78498
-Cpython3    |   13.5s       |   78498
-pypy3       |    1s         |   78498 
-my compiler |   0,9s        |   78498 
+Cpython2.7  |   11.1s       |   OK
+Cpython3    |   13.5s       |   OK
+pypy3       |    1s         |   OK 
+my compiler |   0,9s        |   OK 
+hand_asm    |   0,5s        |   OK
+gcc -o2     |   0,6s        |   OK
+clang       |   0.66s       |   OK
+-------------------------------------------
+
+# Before hand-optimization
+wc -l primes.asm
+256 primes.asm
+
+$ time ./prime
+78498
+1,253s
+
+-------------------------------------------
 
 Interpretation in python:
 10_000 => 
