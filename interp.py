@@ -45,6 +45,9 @@ class InterpretVisitor:
         if op == BoolOp.Gt:
             return v1 > v2
 
+    def visit_BoolNeg(self, b):
+        return not (b.accept(self))
+
     def visit_StmAssign(self, var, a):
         val = a.accept(self)
         self.state[var] = val
@@ -238,6 +241,35 @@ def example4():
         )
     ]
 
+def example5():
+    """
+    x = 10
+    if not (x % 2 == 0):
+        print 0
+    else:
+        print 1
+    """
+    return [
+        StmAssign("x", ArithLit(10)),
+        StmIf(
+            BoolNeg(
+                BoolBinop(
+                    BoolOp.Eq,
+                    ArithBinop(
+                        ArithOp.Mod,
+                        ArithVar("x"),
+                        ArithLit(2)),
+                    ArithLit(0))),
+            [
+                StmPrint(ArithLit(0))
+            ],
+            [
+                StmPrint(ArithLit(1))
+            ]
+        )
+    ]
+
+
 examples = [
     example0,
     example01,
@@ -245,6 +277,7 @@ examples = [
     example2,
     example3,
     example4,
+    example5,
 ]
 
 if __name__ == "__main__":

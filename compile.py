@@ -95,6 +95,20 @@ class CompileVisitor:
 _cmp_ret{label_id}:
     push r9\
     """
+
+    def visit_BoolNeg(self, b):
+        # trick:
+        # given not 0 = 1
+        #       not 1 = 0
+        # we can implement not b as 1 - b = -(b - 1)
+        c = b.accept(self)
+        return c + """
+    pop rax
+    dec rax
+    neg rax
+    push rax\
+"""
+
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
         var = mangle(var)

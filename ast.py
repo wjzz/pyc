@@ -60,6 +60,13 @@ class BoolBinop(namedtuple("BoolBinop", "op a1 a2")):
     def accept(self, visitor):
         return visitor.visit_BoolBinop(self.op, self.a1, self.a2)
 
+class BoolNeg(namedtuple("BoolNeg", "b")):
+    def __str__(self):
+        return f"(not {self.b})"
+
+    def accept(self, visitor):
+        return visitor.visit_BoolNeg(self.b)
+
 #-----------------------------------------
 # Statements
 #-----------------------------------------
@@ -125,6 +132,7 @@ if __name__ == "__main__":
         lit,
         abinop,
         bex,
+        BoolNeg(bex),
         assignex,
         StmIf(bex, [assignex], [assignex]),
         StmWhile(bex, [assignex, assignex]),

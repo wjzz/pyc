@@ -22,6 +22,9 @@ class VarsVisitor:
         a1.accept(self)
         a2.accept(self)
 
+    def visit_BoolNeg(self, b):
+        b.accept(self)
+
     def visit_StmAssign(self, var, a):
         self._vars.add(var)
         # TODO: we check a just in case
