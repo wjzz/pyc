@@ -77,7 +77,6 @@ class CompileVisitor:
             operator = "jle"
         if op == ArithCmp.Lt:
             operator = "jl"
-            raise NotImplementedError
         if op == ArithCmp.Geq:
             operator = "jge"
         if op == ArithCmp.Gt:
@@ -107,6 +106,34 @@ _cmp_ret{label_id}:
     dec rax
     neg rax
     push rax\
+"""
+
+    def visit_BoolBinop(self, op, b1, b2):
+        c1 = b1.accept(self)
+        c2 = b2.accept(self)
+        label_id = CompileVisitor.fresh_id()
+
+        if op == BoolOp.And:
+            return c1 + f"""
+    pop rax
+    cmp rax, 0
+    jne _and_right{label_id}
+    push 0
+    jmp _and_ret{label_id}
+_and_right{label_id}:
+{c2}
+_and_ret{label_id}:
+"""
+        elif op == BoolOp.Or:
+            return c1 + f"""
+    pop rax
+    cmp rax, 0
+    je _or_right{label_id}
+    push 1
+    jmp _or_ret{label_id}
+_or_right{label_id}:
+{c2}
+_or_ret{label_id}:
 """
 
     def visit_StmAssign(self, var, a):

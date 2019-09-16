@@ -67,6 +67,22 @@ class BoolNeg(namedtuple("BoolNeg", "b")):
     def accept(self, visitor):
         return visitor.visit_BoolNeg(self.b)
 
+class BoolOp(Enum):
+    And = "&&"
+    Or  = "||"
+
+    def __str__(self):
+        return self.value
+
+class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
+    def __str__(self):
+        [op, b1, b2] = [self.op, self.b1, self.b2]
+        return f"({b1} {op} {b2})"
+
+    def accept(self, visitor):
+        return visitor.visit_BoolBinop(self.op, self.b1, self.b2)
+
+
 #-----------------------------------------
 # Statements
 #-----------------------------------------
@@ -133,6 +149,16 @@ if __name__ == "__main__":
         abinop,
         bex,
         BoolNeg(bex),
+        BoolBinop(
+            BoolOp.And,
+            bex,
+            BoolNeg(bex)
+        ),
+        BoolBinop(
+            BoolOp.Or,
+            bex,
+            BoolNeg(bex)
+        ),
         assignex,
         StmIf(bex, [assignex], [assignex]),
         StmWhile(bex, [assignex, assignex]),

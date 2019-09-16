@@ -48,6 +48,13 @@ class InterpretVisitor:
     def visit_BoolNeg(self, b):
         return not (b.accept(self))
 
+    def visit_BoolBinop(self, op, b1, b2):
+        v1 = b1.accept(self)
+        if op == BoolOp.Or:
+            return v1 or b2.accept(self)
+        elif op == BoolOp.And:
+            return v1 and b2.accept(self)
+
     def visit_StmAssign(self, var, a):
         val = a.accept(self)
         self.state[var] = val
@@ -269,6 +276,69 @@ def example5():
         )
     ]
 
+def example6():
+    """
+    x = 10
+    if x % 2 == 0 and x < 11:
+        print 0
+    """
+    return [
+        StmAssign("x", ArithLit(10)),
+        StmIf(
+            BoolBinop(
+                BoolOp.And,
+                BoolArithCmp(
+                    ArithCmp.Eq,
+                    ArithBinop(
+                        ArithOp.Mod,
+                        ArithVar("x"),
+                        ArithLit(2)),
+                    ArithLit(0)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    ArithVar("x"),
+                    ArithLit(11)
+                )
+            ),
+            [
+                StmPrint(ArithLit(0))
+            ],
+            [
+            ]
+        )
+    ]
+
+def example7():
+    """
+    x = 10
+    if x % 2 == 1 or x < 11:
+        print 0
+    """
+    return [
+        StmAssign("x", ArithLit(10)),
+        StmIf(
+            BoolBinop(
+                BoolOp.Or,
+                BoolArithCmp(
+                    ArithCmp.Eq,
+                    ArithBinop(
+                        ArithOp.Mod,
+                        ArithVar("x"),
+                        ArithLit(2)),
+                    ArithLit(1)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    ArithVar("x"),
+                    ArithLit(11)
+                )
+            ),
+            [
+                StmPrint(ArithLit(0))
+            ],
+            [
+            ]
+        )
+    ]
 
 examples = [
     example0,
@@ -278,6 +348,8 @@ examples = [
     example3,
     example4,
     example5,
+    example6,
+    example7,
 ]
 
 if __name__ == "__main__":

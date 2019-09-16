@@ -1,0 +1,28 @@
+# x = 10
+# if x % 2 == 1 or x < 11:
+#     print 0
+[
+    StmAssign("x", ArithLit(10)),
+    StmIf(
+        BoolBinop(
+            BoolOp.Or,
+            BoolArithCmp(
+                ArithCmp.Eq,
+                ArithBinop(
+                    ArithOp.Mod,
+                    ArithVar("x"),
+                    ArithLit(2)),
+                ArithLit(1)),
+            BoolArithCmp(
+                ArithCmp.Lt,
+                ArithVar("x"),
+                ArithLit(11)
+            )
+        ),
+        [
+            StmPrint(ArithLit(0))
+        ],
+        [
+        ]
+    )
+]
