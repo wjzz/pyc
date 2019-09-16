@@ -26,6 +26,13 @@ s in Stm ::=
  
 ss := s*   # (possibly empty) statemenst list
 
+Running the tests
+=================
+
+```
+$ ./test_all.sh
+```
+
 Running the code
 ================
 

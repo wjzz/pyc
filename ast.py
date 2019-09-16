@@ -52,13 +52,13 @@ class ArithCmp(Enum):
     def __str__(self):
         return self.value
 
-class BoolBinop(namedtuple("BoolBinop", "op a1 a2")):
+class BoolArithCmp(namedtuple("BoolArithCmp", "op a1 a2")):
     def __str__(self):
         [op, a1, a2] = [self.op, self.a1, self.a2]
         return f"({a1} {op} {a2})"
 
     def accept(self, visitor):
-        return visitor.visit_BoolBinop(self.op, self.a1, self.a2)
+        return visitor.visit_BoolArithCmp(self.op, self.a1, self.a2)
 
 class BoolNeg(namedtuple("BoolNeg", "b")):
     def __str__(self):
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     var = ArithVar("x")
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
-    bex = BoolBinop(ArithCmp.Leq, var, lit)
+    bex = BoolArithCmp(ArithCmp.Leq, var, lit)
     assignex = StmAssign("x", abinop)
     exprs = [
         var,

@@ -29,7 +29,7 @@ class InterpretVisitor:
         if op == ArithOp.Mod:
             return v1 % v2
 
-    def visit_BoolBinop(self, op, a1, a2):
+    def visit_BoolArithCmp(self, op, a1, a2):
         v1 = a1.accept(self)
         v2 = a2.accept(self)
         if op == ArithCmp.Eq:
@@ -131,7 +131,7 @@ def example2():
     return [
         StmAssign("x", ArithLit(10)),
         StmIf(
-            BoolBinop(
+            BoolArithCmp(
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
@@ -164,7 +164,7 @@ def example3():
         StmAssign("y", ArithLit(1)),
         StmAssign("n", ArithLit(20)),
         StmWhile(
-            BoolBinop(
+            BoolArithCmp(
                 ArithCmp.Gt,
                 ArithVar("n"),
                 ArithLit(0)
@@ -210,7 +210,7 @@ def example4():
     return [
         StmAssign("x", ArithLit(10)),
         StmIf(
-            BoolBinop(
+            BoolArithCmp(
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
@@ -225,7 +225,7 @@ def example4():
             ]
         ),
         StmIf(
-            BoolBinop(
+            BoolArithCmp(
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
@@ -253,7 +253,7 @@ def example5():
         StmAssign("x", ArithLit(10)),
         StmIf(
             BoolNeg(
-                BoolBinop(
+                BoolArithCmp(
                     ArithCmp.Eq,
                     ArithBinop(
                         ArithOp.Mod,

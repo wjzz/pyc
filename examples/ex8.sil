@@ -13,7 +13,7 @@
     StmAssign("y", ArithLit(1)),
     StmAssign("n", ArithLit(20)),
     StmWhile(
-        BoolBinop(
+        BoolArithCmp(
             ArithCmp.Gt,
             ArithVar("n"),
             ArithLit(0)

@@ -62,7 +62,7 @@ class CompileVisitor:
     push r10\n\
 """
         
-    def visit_BoolBinop(self, op, a1, a2):
+    def visit_BoolArithCmp(self, op, a1, a2):
         c1 = a1.accept(self)
         c2 = a2.accept(self)
 

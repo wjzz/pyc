@@ -18,7 +18,7 @@ class VarsVisitor:
         a1.accept(self)
         a2.accept(self)
 
-    def visit_BoolBinop(self, op, a1, a2):
+    def visit_BoolArithCmp(self, op, a1, a2):
         a1.accept(self)
         a2.accept(self)
 
