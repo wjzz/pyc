@@ -190,12 +190,61 @@ def example3():
         ),
     ]
 
+# two ifs
+def example4():
+    """
+    x = 10
+    if x % 2 == 0:
+        print 0
+    else:
+        print 1
+    if x % 3 == 0:
+        print 0
+    else:
+        print 1
+    
+    """
+    return [
+        StmAssign("x", ArithLit(10)),
+        StmIf(
+            BoolBinop(
+                BoolOp.Eq,
+                ArithBinop(
+                    ArithOp.Mod,
+                    ArithVar("x"),
+                    ArithLit(2)),
+                ArithLit(0)),
+            [
+                StmPrint(ArithLit(0))
+            ],
+            [
+                StmPrint(ArithLit(1))
+            ]
+        ),
+        StmIf(
+            BoolBinop(
+                BoolOp.Eq,
+                ArithBinop(
+                    ArithOp.Mod,
+                    ArithVar("x"),
+                    ArithLit(3)),
+                ArithLit(0)),
+            [
+                StmPrint(ArithLit(0))
+            ],
+            [
+                StmPrint(ArithLit(1))
+            ]
+        )
+    ]
+
 examples = [
     example0,
     example01,
     example1,
     example2,
     example3,
+    example4,
 ]
 
 if __name__ == "__main__":

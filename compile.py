@@ -3,6 +3,13 @@ from freevars import vars_many
 import sys
 
 class CompileVisitor:
+    labelId = 0
+
+    @staticmethod
+    def fresh_id():
+        CompileVisitor.labelId += 1
+        return CompileVisitor.labelId
+
     def __init__(self):
         pass
 
@@ -59,30 +66,33 @@ class CompileVisitor:
         c1 = a1.accept(self)
         c2 = a2.accept(self)
 
+        label_id = CompileVisitor.fresh_id()
+        label = f"_cmp_change{label_id}"
+
         if op == BoolOp.Eq:
-            operator = "je _cmp_change"
+            operator = "je"
         if op == BoolOp.Neq:
-            operator = "jne _cmp_change"
+            operator = "jne"
         if op == BoolOp.Leq:
-            operator = "jle _cmp_change"
+            operator = "jle"
         if op == BoolOp.Lt:
-            operator = "jl _cmp_change"
+            operator = "jl"
             raise NotImplementedError
         if op == BoolOp.Geq:
-            operator = "jge _cmp_change"
+            operator = "jge"
         if op == BoolOp.Gt:
-            operator = "jg _cmp_change"
+            operator = "jg"
 
         return c1 + c2 + f"""
     pop r11
     pop r10
     mov r9, 0
     cmp r10, r11
-    {operator}
-    jmp _cmp_ret
-_cmp_change:
+    {operator} {label}
+    jmp _cmp_ret{label_id}
+{label}:
     mov r9, 1
-_cmp_ret:
+_cmp_ret{label_id}:
     push r9\
     """
     def visit_StmAssign(self, var, a):
@@ -97,28 +107,31 @@ _cmp_ret:
         bc = b.accept(self)
         cc1 = self.visit_many(ss1)
         cc2 = self.visit_many(ss2)
+        label_id = CompileVisitor.fresh_id()
+
         return bc + f"""
     pop rax
     cmp rax, 0
-    je _if_false
-_if_true:
+    je _if_false{label_id}
+_if_true{label_id}:
 {cc1}\
-    jmp _if_ret
-_if_false:
+    jmp _if_ret{label_id}
+_if_false{label_id}:
 {cc2}\
-_if_ret:
+_if_ret{label_id}:
 """
     
     def visit_StmWhile(self, b, ss):
         bc = b.accept(self)
         cc = self.visit_many(ss)
-        return "_loop_while:\n" + bc + f"""
+        label_id = CompileVisitor.fresh_id()
+        return "_loop_while{label_id}:\n" + bc + f"""
     pop rax
     cmp rax, 0
-    je _while_ret
+    je _while_ret{label_id}
 {cc}\
-    jmp _loop_while
-_while_ret:\n\
+    jmp _loop_while{label_id}
+_while_ret{label_id}:\n\
 """
 
     def visit_StmPrint(self, a):
