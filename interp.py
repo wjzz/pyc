@@ -340,6 +340,136 @@ def example7():
         )
     ]
 
+def example8_primes():
+    """
+    limit = 1000
+    count = 0
+    current = 2
+    while current <= limit:
+        is_prime = 1
+        if current != 2 and current % 2 == 0:
+            is_prime = 0
+        candidate = 3
+        while is_prime == 1 and candidate * candidate <= current:
+            if current % candidate == 0:
+                is_prime = 0
+            candidate += 1
+        if is_prime == 1:
+            #print(current)
+            count += 1
+        current += 1
+    print("Total =", count)
+    """
+    return [
+        StmAssign("limit", ArithLit(1000)),
+        StmAssign("count", ArithLit(0)),
+        StmAssign("current", ArithLit(2)),
+        StmWhile(
+            BoolArithCmp(
+                ArithCmp.Leq,
+                ArithVar("current"),
+                ArithVar("limit")    
+            ),
+            [
+            StmAssign("is_prime", ArithLit(1)),
+            StmIf(
+                BoolBinop(
+                    BoolOp.And,
+                    BoolArithCmp(
+                        ArithCmp.Neq,
+                        ArithVar("current"),
+                        ArithLit(2)
+                    ),
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithBinop(
+                            ArithOp.Mod,
+                            ArithVar("current"),
+                            ArithLit(2)
+                        ),
+                        ArithLit(0)
+                    ),
+                ),
+                [
+                StmAssign("is_prime", ArithLit(0)),
+                ],
+                []
+            ),
+            StmAssign("candidate", ArithLit(3)),
+            StmWhile(
+                BoolBinop(
+                    BoolOp.And,
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithVar("is_prime"),
+                        ArithLit(1)
+                    ),
+                    BoolArithCmp(
+                        ArithCmp.Leq,
+                        ArithBinop(
+                            ArithOp.Mul,
+                            ArithVar("candidate"),
+                            ArithVar("candidate")
+                        ),
+                        ArithVar("current")
+                    )   
+                ),
+                [
+                StmIf(
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithBinop(
+                            ArithOp.Mod,
+                            ArithVar("current"),
+                            ArithVar("candidate")
+                        ),
+                        ArithLit(0)
+                    ),
+                    [
+                        StmAssign("is_prime", ArithLit(0)),
+                    ],
+                    []
+                ),
+                StmAssign("candidate", 
+                    ArithBinop(
+                        ArithOp.Add,
+                        ArithVar("candidate"),
+                        ArithLit(1)
+                    )
+                )    
+                ]
+            ),
+            # while is_prime
+            StmIf(
+                BoolArithCmp(
+                    ArithCmp.Eq,
+                    ArithVar("is_prime"),
+                    ArithLit(1)
+                ),
+                [StmAssign("count", 
+                    ArithBinop(
+                        ArithOp.Add,
+                        ArithVar("count"),
+                        ArithLit(1)
+                    )
+                )],
+                []
+            ),
+            # if is_prime
+            StmAssign("current", 
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithVar("current"),
+                    ArithLit(1)
+                )
+            ),
+            ]
+        ),
+        StmPrint(
+            ArithVar("count")
+        ),
+    ]
+
 examples = [
     example0,
     example01,
@@ -350,6 +480,7 @@ examples = [
     example5,
     example6,
     example7,
+    example8_primes,
 ]
 
 if __name__ == "__main__":

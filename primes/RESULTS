@@ -7,3 +7,31 @@ Interpreter |   Time        |  Result
 Cpython2.7  |   11.1s       |   78498
 Cpython3    |   13.5s       |   78498
 pypy3       |    1s         |   78498 
+my compiler |   0,9s        |   78498 
+
+Interpretation in python:
+10_000 => 
+
+1229
+real	0m0,955s
+
+# Compiled version
+
+time ./target/ex13_primes 
+1229
+
+real	0m0,005s
+
+100_000 => 
+
+# time ./target/ex13_primes 
+9592
+
+real	0m0,045s
+
+1_000_000 =>
+
+$ time ./target/ex13_primes 
+78498
+
+real	0m0,906s
