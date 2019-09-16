@@ -1,0 +1,9 @@
+Task: find the number of primes under 1_000_000
+
+Results:
+
+Interpreter |   Time        |  Result
+------------+---------------+---------
+Cpython2.7  |   11.1s       |   78498
+Cpython3    |   13.5s       |   78498
+pypy3       |    1s         |   78498 

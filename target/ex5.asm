@@ -30,9 +30,9 @@ _start:
     pop r11
     pop r10
     
-            mov rax, r10
-            mul r11
-            mov r10, rax
+    mov rax, r10
+    mul r11
+    mov r10, rax
             
     push r10
     pop rax
@@ -43,10 +43,10 @@ _start:
     pop r11
     pop r10
     
-            mov rax, r10
-            xor rdx, rdx
-            div r11
-            mov r10, rax
+    mov rax, r10
+    xor rdx, rdx
+    div r11
+    mov r10, rax
             
     push r10
     pop rax
@@ -57,10 +57,10 @@ _start:
     pop r11
     pop r10
     
-            mov rax, r10
-            xor rdx, rdx
-            div r11
-            mov r10, rdx
+    mov rax, r10
+    xor rdx, rdx
+    div r11
+    mov r10, rdx
             
     push r10
     pop rax

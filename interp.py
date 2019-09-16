@@ -32,17 +32,17 @@ class InterpretVisitor:
     def visit_BoolBinop(self, op, a1, a2):
         v1 = a1.accept(self)
         v2 = a2.accept(self)
-        if op == BoolOp.Eq:
+        if op == ArithCmp.Eq:
             return v1 == v2
-        if op == BoolOp.Neq:
+        if op == ArithCmp.Neq:
             return v1 != v2
-        if op == BoolOp.Leq:
+        if op == ArithCmp.Leq:
             return v1 <= v2
-        if op == BoolOp.Lt:
+        if op == ArithCmp.Lt:
             return v1 < v2
-        if op == BoolOp.Geq:
+        if op == ArithCmp.Geq:
             return v1 >= v2
-        if op == BoolOp.Gt:
+        if op == ArithCmp.Gt:
             return v1 > v2
 
     def visit_BoolNeg(self, b):
@@ -132,7 +132,7 @@ def example2():
         StmAssign("x", ArithLit(10)),
         StmIf(
             BoolBinop(
-                BoolOp.Eq,
+                ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
                     ArithVar("x"),
@@ -165,7 +165,7 @@ def example3():
         StmAssign("n", ArithLit(20)),
         StmWhile(
             BoolBinop(
-                BoolOp.Gt,
+                ArithCmp.Gt,
                 ArithVar("n"),
                 ArithLit(0)
             ),
@@ -211,7 +211,7 @@ def example4():
         StmAssign("x", ArithLit(10)),
         StmIf(
             BoolBinop(
-                BoolOp.Eq,
+                ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
                     ArithVar("x"),
@@ -226,7 +226,7 @@ def example4():
         ),
         StmIf(
             BoolBinop(
-                BoolOp.Eq,
+                ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
                     ArithVar("x"),
@@ -254,7 +254,7 @@ def example5():
         StmIf(
             BoolNeg(
                 BoolBinop(
-                    BoolOp.Eq,
+                    ArithCmp.Eq,
                     ArithBinop(
                         ArithOp.Mod,
                         ArithVar("x"),

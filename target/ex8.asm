@@ -1,9 +1,9 @@
 %include "std.asm"
 
 section .data
-  var_n dq 0
-  var_x dq 0
   var_y dq 0
+  var_x dq 0
+  var_n dq 0
 
 section .text
     global _start
@@ -21,7 +21,7 @@ _start:
     pop rax
     mov [var_n], rax
 
-_loop_while:
+_loop_while2:
     mov rax, [var_n]
     push rax
     push 0
@@ -30,15 +30,15 @@ _loop_while:
     pop r10
     mov r9, 0
     cmp r10, r11
-    jg _cmp_change
-    jmp _cmp_ret
-_cmp_change:
+    jg _cmp_change1
+    jmp _cmp_ret1
+_cmp_change1:
     mov r9, 1
-_cmp_ret:
+_cmp_ret1:
     push r9    
     pop rax
     cmp rax, 0
-    je _while_ret
+    je _while_ret2
     mov rax, [var_x]
     push rax
     pop rax
@@ -75,6 +75,6 @@ _cmp_ret:
     push r10
     pop rax
     mov [var_n], rax
-    jmp _loop_while
-_while_ret:
+    jmp _loop_while2
+_while_ret2:
     exit    

@@ -6,7 +6,7 @@
 [
     StmIf(
         BoolBinop(
-            BoolOp.Eq,
+            ArithCmp.Eq,
             ArithLit(1),
             ArithLit(0)),
         [

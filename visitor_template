@@ -29,17 +29,17 @@ class CompileVisitor:
         ...
         # v1 = a1.accept(self)
         # v2 = a2.accept(self)
-        # if op == BoolOp.Eq:
+        # if op == ArithCmp.Eq:
         #     return v1 == v2
-        # if op == BoolOp.Neq:
+        # if op == ArithCmp.Neq:
         #     return v1 != v2
-        # if op == BoolOp.Leq:
+        # if op == ArithCmp.Leq:
         #     return v1 <= v2
-        # if op == BoolOp.Lt:
+        # if op == ArithCmp.Lt:
         #     return v1 < v2
-        # if op == BoolOp.Geq:
+        # if op == ArithCmp.Geq:
         #     return v1 >= v2
-        # if op == BoolOp.Gt:
+        # if op == ArithCmp.Gt:
         #     return v1 > v2
 
     def visit_StmAssign(self, var, a):

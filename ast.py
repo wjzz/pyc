@@ -41,7 +41,7 @@ class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
 # Boolean operations
 #-----------------------------------------
 
-class BoolOp(Enum):
+class ArithCmp(Enum):
     Eq  = "=="
     Neq = "!="
     Leq = "<="
@@ -119,13 +119,13 @@ if __name__ == "__main__":
     print(ops) # uses repr
     print(list(map(str, ops)))
 
-    bops = list(BoolOp)
+    bops = list(ArithCmp)
     print(list(map(str, bops)))
 
     var = ArithVar("x")
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
-    bex = BoolBinop(BoolOp.Leq, var, lit)
+    bex = BoolBinop(ArithCmp.Leq, var, lit)
     assignex = StmAssign("x", abinop)
     exprs = [
         var,

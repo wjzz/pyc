@@ -14,7 +14,7 @@
     StmAssign("n", ArithLit(20)),
     StmWhile(
         BoolBinop(
-            BoolOp.Gt,
+            ArithCmp.Gt,
             ArithVar("n"),
             ArithLit(0)
         ),

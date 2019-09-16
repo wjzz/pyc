@@ -8,7 +8,7 @@
     StmAssign("x", ArithLit(10)),
     StmIf(
         BoolBinop(
-            BoolOp.Eq,
+            ArithCmp.Eq,
             ArithBinop(
                 ArithOp.Mod,
                 ArithVar("x"),

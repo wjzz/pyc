@@ -69,18 +69,18 @@ class CompileVisitor:
         label_id = CompileVisitor.fresh_id()
         label = f"_cmp_change{label_id}"
 
-        if op == BoolOp.Eq:
+        if op == ArithCmp.Eq:
             operator = "je"
-        if op == BoolOp.Neq:
+        if op == ArithCmp.Neq:
             operator = "jne"
-        if op == BoolOp.Leq:
+        if op == ArithCmp.Leq:
             operator = "jle"
-        if op == BoolOp.Lt:
+        if op == ArithCmp.Lt:
             operator = "jl"
             raise NotImplementedError
-        if op == BoolOp.Geq:
+        if op == ArithCmp.Geq:
             operator = "jge"
-        if op == BoolOp.Gt:
+        if op == ArithCmp.Gt:
             operator = "jg"
 
         return c1 + c2 + f"""
@@ -139,7 +139,7 @@ _if_ret{label_id}:
         bc = b.accept(self)
         cc = self.visit_many(ss)
         label_id = CompileVisitor.fresh_id()
-        return "_loop_while{label_id}:\n" + bc + f"""
+        return f"_loop_while{label_id}:\n" + bc + f"""
     pop rax
     cmp rax, 0
     je _while_ret{label_id}
