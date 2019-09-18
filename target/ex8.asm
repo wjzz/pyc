@@ -1,9 +1,9 @@
 %include "std.asm"
 
 section .data
+  var_n dq 0
   var_x dq 0
   var_y dq 0
-  var_n dq 0
 
 section .text
     global _start
