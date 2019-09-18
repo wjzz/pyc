@@ -1,6 +1,7 @@
 from ast import *
 from freevars import vars_many
 import sys
+from optimize import optimize
 
 class CompileVisitor:
     labelId = 0
@@ -230,6 +231,9 @@ if __name__ == "__main__":
                 # print(free_vars)
                 result = compile_top(c)
                 print(result)
+                print("--------------------------")
+                result2 = optimize(result)
+                print(result2)
             except Exception as e:
                 print("Got lines", lines)
                 print("Failed to parse the file", f=sys.stderr)
