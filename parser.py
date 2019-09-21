@@ -61,6 +61,12 @@ class Parser:
             self.expect(Token.RPAREN)
             self.expect(Token.SEMI)
             return E.StmPrint(a)
+        elif token.tag == Token.ID:
+            var = token.value
+            self.expect(Token.EQUAL)
+            a = self.parse_expr()
+            self.expect(Token.SEMI)
+            return E.StmAssign(var, a)
         else:
             raise Exception(f"unexpected tag = {token.tag}")
 
