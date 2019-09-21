@@ -1,0 +1,13 @@
+x = 0;
+
+while (x <= 20) {
+    print(x);
+    fact = 1;
+    y = x;
+    while (y > 0) {
+        fact = fact * y;
+        y = y - 1;
+    }
+    print(fact);
+    x = x + 1;
+}
