@@ -31,6 +31,29 @@ def apply_reductions_top(commands):
     print(commands)
     return "\n".join(commands)
 
+def red_push_pop_star(commands):
+    """
+    Looks for patterns of the form
+    push x1
+    push x2
+    ...
+    push xn
+    pop an
+    ...
+    pop a2
+    pop a1
+    and transforms them into
+    mov an, xn
+    ...
+    mov a2, x2
+    mov a1, x1
+    """
+    if len(commands) < 2:
+        return None
+    
+    pushes = []
+    ...
+
 def red_push_pop(commands):
     if len(commands) < 2:
         return None

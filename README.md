@@ -7,17 +7,28 @@ assembly for linux written in Python 3.7.
 The goal of the project is to learn how compilers work, so for 
 simplicity SIL will have many missing parts.
 
+Todo
+====
+
+Add:
+  [ ] Functions
+  [ ] Arrays
+  [ ] Compound assignment
+  [ ] Floating-point operations
+  [ ] Parser
+  [ ] Type checker
+
 SIL Syntax
 ==========
 
 a in ArithExpr ::= var | lit | a1 aop a2
 aop ::= + | - | * | / | %
 
-b in BoolExpr ::= a1 bop a2
+b in BoolExpr ::= a1 bop a2 | not b | b1 and b2 | b1 or b2
 bop ::= == | != | <= | < | > | >=
 
 s in Stm ::= 
-  | var = a           # assingment
+  | var = a           # assignment
   | var aop= a        # compound assignment
   | if b { ss1 } else { ss2 }
   | while b { ss }
