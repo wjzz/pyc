@@ -1,13 +1,12 @@
 from lexer import tokenize, Token, TokenInfo
 import ast as E
 
-# STM_TOP ::= <STM> EOF
+# STM_TOP ::= <STM_LIST> EOF
+# STM_LIST ::= <STM> | <STM> <STM_LIST>
 # STM ::= PRINT ( <EXPR> ) SEMI
 #       | VAR = <EXPR> SEMI
 #       | WHILE ( <BOOL> ) <BLOCK>
 #       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
-
-
 
 # EXPR_TOP ::= <EXPR> EOF
 # EXPR ::= <FACTOR> | <FACTOR> [+-] <EXPR>
@@ -46,9 +45,13 @@ class Parser:
         return s
     
     def parse_stm_many(self):
-        # TODO: parse more than one
         s = self.parse_stm()
-        return [s]
+        token = self.peek
+        if token.tag != Token.EOF:
+            ss = self.parse_stm_many()
+            return [s] + ss
+        else:
+            return [s]
 
     def parse_stm(self):
         token = self.get_token
