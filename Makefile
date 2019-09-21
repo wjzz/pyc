@@ -1,4 +1,7 @@
-.PHONY: std primes
+.PHONY: std primes test
+
+test:
+	python3.7 -m unittest -v
 
 std:
 	# NOTE: this contains debugging flags

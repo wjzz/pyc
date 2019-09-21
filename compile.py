@@ -227,13 +227,11 @@ if __name__ == "__main__":
             try:
                 c = eval(lines)
                 # print(c)
-                free_vars = vars_many(c)
-                # print(free_vars)
                 result = compile_top(c)
                 print(result)
-                print("--------------------------")
-                result2 = optimize(result)
-                print(result2)
+                # print("--------------------------")
+                # result2 = optimize(result)
+                # print(result2)
             except Exception as e:
                 print("Got lines", lines)
                 print("Failed to parse the file", f=sys.stderr)
