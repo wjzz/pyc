@@ -11,11 +11,11 @@ Todo
 ====
 
 Add:
+  [+] Parser
   [ ] Functions
   [ ] Arrays
   [ ] Compound assignment
   [ ] Floating-point operations
-  [ ] Parser
   [ ] Type checker
 
 SIL Syntax
