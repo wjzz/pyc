@@ -1,7 +1,7 @@
 import unittest
 #from expr import NumberLit, Variable, Op, BinaryOp, LetIn
 from lexer import tokenize, simplify
-from parser import parse_stm, parse_expr
+from parser import parse_stm, parse_bool, parse_expr
 from ast import *
 #from evaluator import evaluate
 #from top import ev
@@ -43,6 +43,31 @@ class Tests(unittest.TestCase):
             'TIMES', ('NUMBER', 22), 'RPAREN', 'EOF']
         
         self.assertEqual(expected, result)
+
+    def test_lexer_ops(self):
+        inputs = [
+            ("x == 0", 
+                [('ID', 'x'), 'DBL_EQ', ('NUMBER', 0), 'EOF']),
+            ("x != 0", 
+                [('ID', 'x'), 'NOT_EQ', ('NUMBER', 0), 'EOF']),
+            ("x >= 0", 
+                [('ID', 'x'), 'GREATER_EQ', ('NUMBER', 0), 'EOF']),
+            ("x > 0", 
+                [('ID', 'x'), 'GREATER', ('NUMBER', 0), 'EOF']),
+            ("x <= 0", 
+                [('ID', 'x'), 'LESS_EQ', ('NUMBER', 0), 'EOF']),
+            ("x < 0", 
+                [('ID', 'x'), 'LESS', ('NUMBER', 0), 'EOF']),
+            ("! (x == 0)", 
+                ['BANG', 'LPAREN', ('ID', 'x'), 'DBL_EQ', 
+                    ('NUMBER', 0), 'RPAREN', 'EOF']),
+            
+        ]
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
 
     def test_lexer_while(self):
         input_str = "while (x > 0) { x = 10; } "
@@ -101,8 +126,8 @@ class Tests(unittest.TestCase):
 
         e4 = "(1 + 2)"
         r4 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Add,
+                ArithLit(1),
                 ArithLit(2))
         self.assertEqual(parse_expr(e4), r4)
 
@@ -111,8 +136,8 @@ class Tests(unittest.TestCase):
 
         e6 = "(1 * 2)"
         r6 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Mul,
+                ArithLit(1),
                 ArithLit(2))
         self.assertEqual(parse_expr(e6), r6)
 
@@ -121,45 +146,139 @@ class Tests(unittest.TestCase):
 
         e8 = "1 + 2 * 3"
         r8 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Add,
+                ArithLit(1),
                 ArithBinop(
-                    ArithLit(2),
                     ArithOp.Mul,
+                    ArithLit(2),
                     ArithLit(3)
                 ))
         self.assertEqual(parse_expr(e8), r8)
 
         e9 = "(1 - 2)"
         r9 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Sub,
+                ArithLit(1),
                 ArithLit(2))
         self.assertEqual(parse_expr(e9), r9)
 
         e10 = "(1 / 2)"
         r10 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Div,
+                ArithLit(1),
                 ArithLit(2))
         self.assertEqual(parse_expr(e10), r10)
 
         e11 = "(1 % 2)"
         r11 = ArithBinop(
-                ArithLit(1),
                 ArithOp.Mod,
+                ArithLit(1),
                 ArithLit(2))
         self.assertEqual(parse_expr(e11), r11)
+
+    def test_parser_bool(self):
+        b1 = "x == 1"
+        self.assertEqual(parse_bool(b1), 
+            BoolArithCmp(
+                ArithCmp.Eq,
+                ArithVar("x"),
+                ArithLit(1)))
+
+        # b1a = "(x == 1)"
+        # self.assertEqual(parse_bool(b1a), 
+        #     BoolArithCmp(
+        #         ArithCmp.Eq,
+        #         ArithVar("x"),
+        #         ArithLit(1)))
+
+        b2 = "x != 1"
+        self.assertEqual(parse_bool(b2), 
+            BoolArithCmp(
+                ArithCmp.Neq,
+                ArithVar("x"),
+                ArithLit(1)))
+
+        b3 = "x > 1"
+        self.assertEqual(parse_bool(b3), 
+            BoolArithCmp(
+                ArithCmp.Gt,
+                ArithVar("x"),
+                ArithLit(1)))
+
 
     def test_parser_stm(self):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 
-            StmPrint(ArithVar("x")))
+            [StmPrint(ArithVar("x"))])
 
         s2 = "print(15);"
         self.assertEqual(parse_stm(s2), 
-            StmPrint(ArithLit(15)))
+            [StmPrint(ArithLit(15))])
 
+        s3 = "x = 1;"
+        self.assertEqual(parse_stm(s3), 
+            [StmAssign("x", ArithLit(1))])
+
+        s4 = "while (x == 1) {}"
+        self.assertEqual(parse_stm(s4), 
+            [
+                StmWhile(
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithVar("x"),
+                        ArithLit(1)
+                    ),
+                    [])
+            ])
+
+
+        s5 = "while (x == 1) { x = x + 1; }"
+        self.assertEqual(parse_stm(s5), 
+            [
+                StmWhile(
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithVar("x"),
+                        ArithLit(1)
+                    ),
+                    [
+                        StmAssign("x", 
+                            ArithBinop(
+                                ArithOp.Add,
+                                ArithVar("x"),
+                                ArithLit(1))
+                            )
+                    ])
+            ])
+
+
+        s6 = "if (x == 1) {}"
+        self.assertEqual(parse_stm(s6), 
+            [
+                StmIf(
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithVar("x"),
+                        ArithLit(1)
+                    ),
+                    [],
+                    [])
+            ])
+
+        s7 = "if (x == 1) {} else {}"
+        self.assertEqual(parse_stm(s7), 
+            [
+                StmIf(
+                    BoolArithCmp(
+                        ArithCmp.Eq,
+                        ArithVar("x"),
+                        ArithLit(1)
+                    ),
+                    [],
+                    [])
+            ])
+
+        
     # def test_evaluator(self):
     #     n = NumberLit(2)
     #     m = NumberLit(3)

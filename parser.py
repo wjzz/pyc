@@ -8,6 +8,13 @@ import ast as E
 #       | WHILE ( <BOOL> ) <BLOCK>
 #       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
 
+# BLOCK ::= 
+#        | ;
+
+
+# ARITH_CMP ::= == | != | > | >= | < | <=
+# BOOL ::= <EXPR> <ARITH_CMP> <EXPR>
+
 # EXPR_TOP ::= <EXPR> EOF
 # EXPR ::= <FACTOR> | <FACTOR> [+-] <EXPR>
 # FACTOR ::= <ATOM> | <ATOM> [*/%] <FACTOR>
@@ -44,10 +51,10 @@ class Parser:
         self.expect(Token.EOF)
         return s
     
-    def parse_stm_many(self):
+    def parse_stm_many(self, end=Token.EOF):
         s = self.parse_stm()
         token = self.peek
-        if token.tag != Token.EOF:
+        if token.tag != end:
             ss = self.parse_stm_many()
             return [s] + ss
         else:
@@ -67,11 +74,63 @@ class Parser:
             a = self.parse_expr()
             self.expect(Token.SEMI)
             return E.StmAssign(var, a)
+        elif token.tag == Token.WHILE:
+            self.expect(Token.LPAREN)
+            b = self.parse_bool()
+            self.expect(Token.RPAREN)
+            ss = self.parse_block()
+            return E.StmWhile(b, ss)
+        elif token.tag == Token.IF:
+            self.expect(Token.LPAREN)
+            b = self.parse_bool()
+            self.expect(Token.RPAREN)
+            ss1 = self.parse_block()
+            if self.peek.tag == Token.ELSE:
+                self.expect(Token.ELSE)
+                ss2 = self.parse_block()
+            else:
+                ss2 = []
+            return E.StmIf(b, ss1, ss2)
         else:
             raise Exception(f"unexpected tag = {token.tag}")
 
+    def parse_block(self):
+        token = self.peek
+        if token.tag == Token.LBRACE:
+            self.expect(Token.LBRACE)
+            ss = []
+            while self.peek.tag != Token.RBRACE:
+                ss.append(self.parse_stm())
+            self.expect(Token.RBRACE)
+            return ss
+        else:
+            return self.parse_stm()
+
     #-----------------------------------
     # Boolean Expressions
+
+    def parse_bool_top(self):
+        b = self.parse_bool()
+        self.expect(Token.EOF)
+        return b
+
+    def parse_bool(self):
+        operators = {
+            Token.DBL_EQ : E.ArithCmp.Eq,
+            Token.NOT_EQ : E.ArithCmp.Neq,
+            Token.GREATER_EQ : E.ArithCmp.Geq,
+            Token.GREATER : E.ArithCmp.Gt,
+            Token.LESS_EQ : E.ArithCmp.Leq,
+            Token.LESS : E.ArithCmp.Lt,
+        }
+        a1 = self.parse_expr()
+        operator = self.get_token.tag
+        assert (operator in operators.keys())
+        a2 = self.parse_expr()
+        return E.BoolArithCmp(
+            operators[operator],
+            a1,
+            a2)
 
     #-----------------------------------
     # Arith Expressions
@@ -133,6 +192,14 @@ def parse_expr(s):
     tokens = tokenize(s)
     #print(list(tokenize(s)))
     return Parser(tokens).parse_expr_top()
+
+def parse_bool(s):
+    """
+    Takes an input string and outputs a bool expr AST
+    """
+    tokens = tokenize(s)
+    #print(list(tokenize(s)))
+    return Parser(tokens).parse_bool_top()
 
 def parse_stm(s):
     """

@@ -11,10 +11,15 @@ class Token(AutoName):
     RPAREN = auto()
     LBRACE = auto()
     RBRACE = auto()
-    EQUAL = auto()
     SEMI = auto()
+    BANG = auto()
+    EQUAL = auto()
+    DBL_EQ = auto()
+    NOT_EQ = auto()
     GREATER = auto()
-    LOWER = auto()
+    GREATER_EQ = auto()
+    LESS = auto()
+    LESS_EQ = auto()
     PLUS = auto()
     MINUS = auto()
     TIMES = auto()
@@ -64,14 +69,11 @@ def tokenize(s):
         ")": Token.RPAREN,
         "{": Token.LBRACE,
         "}": Token.RBRACE,
-        "=": Token.EQUAL,
         "+": Token.PLUS,
         "-": Token.MINUS,
         "*": Token.TIMES,
         "/": Token.DIVIDE,
         "%": Token.MOD,
-        ">": Token.GREATER,
-        "<": Token.LOWER,
         ";": Token.SEMI,
     }
 
@@ -95,6 +97,34 @@ def tokenize(s):
                 yield token(simple_tokens[char])
             elif char == " " or char == "\n":
                 continue
+            elif char == "!":
+                char2 = getchar()
+                if char2 == "=":
+                    yield token(Token.NOT_EQ)
+                else:
+                    unchar(char2)
+                    yield token(Token.BANG)
+            elif char == "=":
+                char2 = getchar()
+                if char2 == "=":
+                    yield token(Token.DBL_EQ)
+                else:
+                    unchar(char2)
+                    yield token(Token.EQUAL)
+            elif char == ">":
+                char2 = getchar()
+                if char2 == "=":
+                    yield token(Token.GREATER_EQ)
+                else:
+                    unchar(char2)
+                    yield token(Token.GREATER)
+            elif char == "<":
+                char2 = getchar()
+                if char2 == "=":
+                    yield token(Token.LESS_EQ)
+                else:
+                    unchar(char2)
+                    yield token(Token.LESS)
             elif char.isalnum():
                 value = ""
                 while char.isalnum():
