@@ -1,7 +1,7 @@
 x = 0;
-
 while (x <= 20) {
     print(x);
+    // calculate factorial of x
     fact = 1;
     y = x;
     while (y > 0) {

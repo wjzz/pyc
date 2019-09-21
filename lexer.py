@@ -92,7 +92,14 @@ def tokenize(s):
                 assert(char is not None)
                 unchar(char)
                 yield TokenInfo(tag = Token.NUMBER, value = number)
-                
+            elif char == "/":
+                char2 = getchar()
+                if char2 == "/":
+                    while char != "\n":
+                        char = getchar()
+                    unchar(char)
+                else:
+                    yield token(simple_tokens["/"])
             elif char in simple_tokens:
                 yield token(simple_tokens[char])
             elif char == " " or char == "\n":
