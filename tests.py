@@ -105,6 +105,26 @@ class Tests(unittest.TestCase):
         
         self.assertEqual(expected, result)
 
+    def test_lexer_compound_assign(self):
+        inputs = [
+            ("x += 1", 
+            [('ID', 'x'), 'PLUS_EQ', ('NUMBER', 1), 'EOF']),
+            ("x -= 1", 
+            [('ID', 'x'), 'MINUS_EQ', ('NUMBER', 1), 'EOF']),
+            ("x *= 1", 
+            [('ID', 'x'), 'TIMES_EQ', ('NUMBER', 1), 'EOF']),
+            ("x /= 1", 
+            [('ID', 'x'), 'DIVIDE_EQ', ('NUMBER', 1), 'EOF']),
+            ("x %= 1", 
+            [('ID', 'x'), 'MOD_EQ', ('NUMBER', 1), 'EOF']),
+        ]
+
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
+
     def test_parser_expr(self):
         v1 = "x"
         self.assertEqual(parse_expr(v1), ArithVar("x"))
@@ -205,7 +225,6 @@ class Tests(unittest.TestCase):
                 ArithVar("x"),
                 ArithLit(1)))
 
-
     def test_parser_stm(self):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 
@@ -219,6 +238,51 @@ class Tests(unittest.TestCase):
         self.assertEqual(parse_stm(s3), 
             [StmAssign("x", ArithLit(1))])
 
+        s3a = "x += 1;"
+        self.assertEqual(parse_stm(s3a), 
+            [StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithVar("x"),
+                    ArithLit(1)
+                ))])
+
+        s3b = "x -= 1;"
+        self.assertEqual(parse_stm(s3b), 
+            [StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Sub,
+                    ArithVar("x"),
+                    ArithLit(1)
+                ))])
+
+        s3c = "x *= 1;"
+        self.assertEqual(parse_stm(s3c), 
+            [StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Mul,
+                    ArithVar("x"),
+                    ArithLit(1)
+                ))])
+
+        s3d = "x /= 1;"
+        self.assertEqual(parse_stm(s3d), 
+            [StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Div,
+                    ArithVar("x"),
+                    ArithLit(1)
+                ))])
+
+        s3d = "x %= 1;"
+        self.assertEqual(parse_stm(s3d), 
+            [StmAssign("x", 
+                ArithBinop(
+                    ArithOp.Mod,
+                    ArithVar("x"),
+                    ArithLit(1)
+                ))])
+
         s4 = "while (x == 1) {}"
         self.assertEqual(parse_stm(s4), 
             [
@@ -230,7 +294,6 @@ class Tests(unittest.TestCase):
                     ),
                     [])
             ])
-
 
         s5 = "while (x == 1) { x = x + 1; }"
         self.assertEqual(parse_stm(s5), 
@@ -250,7 +313,6 @@ class Tests(unittest.TestCase):
                             )
                     ])
             ])
-
 
         s6 = "if (x == 1) {}"
         self.assertEqual(parse_stm(s6), 
@@ -277,7 +339,6 @@ class Tests(unittest.TestCase):
                     [],
                     [])
             ])
-
         
     # def test_evaluator(self):
     #     n = NumberLit(2)

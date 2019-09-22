@@ -25,6 +25,11 @@ class Token(AutoName):
     TIMES = auto()
     DIVIDE = auto()
     MOD = auto()
+    PLUS_EQ = auto()
+    MINUS_EQ = auto()
+    TIMES_EQ = auto()
+    DIVIDE_EQ = auto()
+    MOD_EQ = auto()
     NUMBER = auto()
     PRINT = auto()
     WHILE = auto()
@@ -98,8 +103,23 @@ def tokenize(s):
                     while char != "\n":
                         char = getchar()
                     unchar(char)
+                elif char2 == "=":
+                    yield token(Token.DIVIDE_EQ)
                 else:
                     yield token(simple_tokens["/"])
+            elif char in "+-*%":
+                char2 = getchar()
+                if char2 == "=":
+                    mk_eq = {
+                        "+": Token.PLUS_EQ,
+                        "-": Token.MINUS_EQ,
+                        "*": Token.TIMES_EQ,
+                        "%": Token.MOD_EQ,
+                    }
+                    yield token(mk_eq[char])
+                else:
+                    unchar(char2)
+                    yield token(simple_tokens[char])
             elif char in simple_tokens:
                 yield token(simple_tokens[char])
             elif char == " " or char == "\n":

@@ -12,11 +12,13 @@ Todo
 
 Add:
   [+] Parser
+  [+] Compound assignment (as syntactic sugar)
   [ ] Functions
   [ ] Arrays
-  [ ] Compound assignment
   [ ] Floating-point operations
   [ ] Type checker
+  [ ] Composite boolean operations (e.g. x <= 1 && x > -5)
+  [ ] Cmd line arguments
 
 SIL Syntax
 ==========

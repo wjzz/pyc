@@ -5,6 +5,7 @@ import ast as E
 # STM_LIST ::= <STM> | <STM> <STM_LIST>
 # STM ::= PRINT ( <EXPR> ) SEMI
 #       | VAR = <EXPR> SEMI
+#       | VAR op= <EXPR> SEMI
 #       | WHILE ( <BOOL> ) <BLOCK>
 #       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
 
@@ -68,18 +69,52 @@ class Parser:
             self.expect(Token.RPAREN)
             self.expect(Token.SEMI)
             return E.StmPrint(a)
+
         elif token.tag == Token.ID:
             var = token.value
-            self.expect(Token.EQUAL)
+            compounds = [
+                Token.PLUS_EQ,
+                Token.MINUS_EQ,
+                Token.TIMES_EQ,
+                Token.DIVIDE_EQ,
+                Token.MOD_EQ,
+            ]
+            assign = self.peek.tag
+            self.expect(Token.EQUAL, *compounds)
             a = self.parse_expr()
             self.expect(Token.SEMI)
-            return E.StmAssign(var, a)
+
+            if assign == Token.EQUAL:
+                return E.StmAssign(var, a)
+            else:
+                if assign == Token.PLUS_EQ:
+                    op = E.ArithOp.Add
+                elif assign == Token.MINUS_EQ:
+                    op = E.ArithOp.Sub
+                elif assign == Token.TIMES_EQ:
+                    op = E.ArithOp.Mul
+                elif assign == Token.DIVIDE_EQ:
+                    op = E.ArithOp.Div
+                elif assign == Token.MOD_EQ:
+                    op = E.ArithOp.Mod
+                else:
+                    raise Exception(f"Wrong assignment {assign}")
+                
+                # change x += 1 into x = x + 1
+                return E.StmAssign(
+                    var, 
+                    E.ArithBinop(
+                        op,
+                        E.ArithVar(var),
+                        a))
+
         elif token.tag == Token.WHILE:
             self.expect(Token.LPAREN)
             b = self.parse_bool()
             self.expect(Token.RPAREN)
             ss = self.parse_block()
             return E.StmWhile(b, ss)
+
         elif token.tag == Token.IF:
             self.expect(Token.LPAREN)
             b = self.parse_bool()
@@ -91,6 +126,7 @@ class Parser:
             else:
                 ss2 = []
             return E.StmIf(b, ss1, ss2)
+
         else:
             raise Exception(f"unexpected tag = {token.tag}")
 

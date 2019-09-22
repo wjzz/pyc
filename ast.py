@@ -94,6 +94,16 @@ class StmAssign(namedtuple("StmAssign", "var a")):
     def accept(self, visitor):
         return visitor.visit_StmAssign(self.var, self.a)
 
+# TODO: at first we will include this as syntactic sugar only!
+# 
+# class StmAssignCompound(namedtuple("StmAssign", "var op a")):
+#     def __str__(self):
+#         return f"{self.var} {self.op}= {self.a};"
+    
+#     def accept(self, visitor):
+#         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
+
+
 class StmIf(namedtuple('StmIf', "b ss1 ss2")):
     def __str__(self):
         ss1 = "\n".join(map(str, self.ss1))
