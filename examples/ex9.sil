@@ -1,4 +1,4 @@
-limit = 1000000;
+limit = 100000;
 count = 0;
 current = 2;
 while (current <= limit) {
