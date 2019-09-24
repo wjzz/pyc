@@ -19,6 +19,7 @@ Add:
   [+] No variable is used before declaration
   [+] Block scoping
   [+] Correct handling of block scoping used symbol tables
+  [+] Allow blocks to be inserted at arbitrary places
   [ ] x++, x--, ++x, --x
   [ ] for loops
   [ ] Functions

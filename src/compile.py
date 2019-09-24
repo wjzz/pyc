@@ -213,6 +213,9 @@ _while_ret{label_id}:\n\
 """
         return cval
 
+    def visit_StmBlock(self, stms):
+        return self.visit_many(stms)
+
     def visit_many(self, stms):
         var_names = self._vars.copy()
         ss = "\n".join([ stm.accept(self) for stm in stms ])

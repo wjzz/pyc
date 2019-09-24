@@ -12,9 +12,10 @@ import sys
 #       | VAR op= <EXPR> SEMI
 #       | WHILE ( <BOOL> ) <BLOCK>
 #       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
-
+#       | <BLOCK>
+# 
 # BLOCK ::= 
-#        | ;
+#        | { <STM_LIST> }
 
 # ARITH_CMP ::= == | != | > | >= | < | <=
 # BOOL_OP ::= && | ||
@@ -30,6 +31,9 @@ class ParseError(Exception):
     def __init__(self, token, msg):
         self.token = token
         self.msg = msg
+
+    def __str__(self):
+        return f"{self.msg}"
 
 class Parser:
     def __init__(self, tokens):
@@ -80,6 +84,14 @@ class Parser:
 
     def parse_stm(self):
         token = self.get_token
+
+        if token.tag == Token.LBRACE:
+            ss = []
+            while self.peek.tag != Token.RBRACE:
+                ss.append(self.parse_stm())
+            self.expect(Token.RBRACE)
+            return E.StmBlock(ss)
+
         if token.tag == Token.PRINT:
             self.expect(Token.LPAREN)
             a = self.parse_arith()
@@ -162,8 +174,8 @@ class Parser:
             return E.StmIf(b, ss1, ss2)
 
         else:
-            raise ParseError(token=token, 
-                msg=f"Unexpected token = {token.tag}")
+            msg = f"Unexpected token = {token.tag}"
+            raise ParseError(token=token, msg=msg)
             
             #raise Exception(f"unexpected tag = {token.tag}")
 

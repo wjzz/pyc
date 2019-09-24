@@ -1,0 +1,10 @@
+long d = 1;
+print(d);
+
+{
+  long d = 2;
+  print(d);
+}
+
+print(d);
+

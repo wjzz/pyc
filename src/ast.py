@@ -145,6 +145,14 @@ class StmReturn(namedtuple("StmReturn", "a")):
     def accept(self, visitor):
         return visitor.visit_StmReturn(self.a)
 
+class StmBlock(namedtuple("StmBlock", "ss")):
+    def __str__(self):
+        ss = "\n".join(map(str, self.ss))
+        return f"{{\n\t{ss}\n}}"
+    
+    def accept(self, visitor):
+        return visitor.visit_StmBlock(self.ss)
+
 
 #-----------------------------------------
 # Tests

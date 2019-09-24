@@ -71,6 +71,9 @@ class SymbolTableBuilderVisitor:
             stm.accept(self)
         self._vars = symbols
 
+    def visit_StmBlock(self, stms):
+        self.visit_many(stms)
+
 def build(stms):
     """
     Builds a symbol table of all identifiers in the program.

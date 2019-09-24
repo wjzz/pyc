@@ -422,6 +422,14 @@ class ParserTests(unittest.TestCase):
                     [],
                     [])
             ])
+
+        s8 = "{ }"
+        self.assertEqual(parse_stm(s8),
+            [
+                StmBlock(
+                    []
+                )
+            ])
         
 class ParserErrorTests(unittest.TestCase):
     def test_non_balanced_expr(self):
