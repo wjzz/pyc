@@ -13,8 +13,11 @@ Todo
 Add:
   [+] Parser
   [+] Compound assignment (as syntactic sugar)
+  [ ] x++, x--, ++x, --x
   [ ] Functions
   [ ] Arrays
+  [ ] Structs
+  [ ] Pointers
   [ ] Floating-point operations
   [ ] Type checker
   [ ] Composite boolean operations (e.g. x <= 1 && x > -5)
