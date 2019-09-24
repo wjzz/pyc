@@ -4,6 +4,8 @@ target="ast_target/"
 # echo "filename = $filename"
 # echo "base = $base"
 
+mkdir -p $target
+
 echo -n "Compiling the program... "
 python3.7 -B compile.py $1 > $target$base.asm \
   && echo "OK!" \
