@@ -1,6 +1,6 @@
 import unittest
 from lexer import tokenize, simplify
-from parser import parse_stm, parse_bool, parse_expr
+from parser import parse_stm, parse_expr, parse_arith
 from ast import *
 
 class Tests(unittest.TestCase):
@@ -140,42 +140,42 @@ class Tests(unittest.TestCase):
 
     def test_parser_expr(self):
         v1 = "x"
-        self.assertEqual(parse_expr(v1), Var("x"))
+        self.assertEqual(parse_arith(v1), Var("x"))
 
         v2 = "(x)"
-        self.assertEqual(parse_expr(v2), Var("x"))
+        self.assertEqual(parse_arith(v2), Var("x"))
 
         v3 = "thisisalongvariable"
-        self.assertEqual(parse_expr(v3), Var(v3))
+        self.assertEqual(parse_arith(v3), Var(v3))
 
         e1 = "1"
-        self.assertEqual(parse_expr(e1), ArithLit(1))
+        self.assertEqual(parse_arith(e1), ArithLit(1))
 
         e2 = "(1)"
-        self.assertEqual(parse_expr(e2), ArithLit(1))
+        self.assertEqual(parse_arith(e2), ArithLit(1))
 
         e3 = "((1))"
-        self.assertEqual(parse_expr(e3), ArithLit(1))
+        self.assertEqual(parse_arith(e3), ArithLit(1))
 
         e4 = "(1 + 2)"
         r4 = ArithBinop(
                 ArithOp.Add,
                 ArithLit(1),
                 ArithLit(2))
-        self.assertEqual(parse_expr(e4), r4)
+        self.assertEqual(parse_arith(e4), r4)
 
         e5 = "1 + 2"
-        self.assertEqual(parse_expr(e5), r4)
+        self.assertEqual(parse_arith(e5), r4)
 
         e6 = "(1 * 2)"
         r6 = ArithBinop(
                 ArithOp.Mul,
                 ArithLit(1),
                 ArithLit(2))
-        self.assertEqual(parse_expr(e6), r6)
+        self.assertEqual(parse_arith(e6), r6)
 
         e7 = "1 * 2"
-        self.assertEqual(parse_expr(e7), r6)
+        self.assertEqual(parse_arith(e7), r6)
 
         e8 = "1 + 2 * 3"
         r8 = ArithBinop(
@@ -186,40 +186,40 @@ class Tests(unittest.TestCase):
                     ArithLit(2),
                     ArithLit(3)
                 ))
-        self.assertEqual(parse_expr(e8), r8)
+        self.assertEqual(parse_arith(e8), r8)
 
         e9 = "(1 - 2)"
         r9 = ArithBinop(
                 ArithOp.Sub,
                 ArithLit(1),
                 ArithLit(2))
-        self.assertEqual(parse_expr(e9), r9)
+        self.assertEqual(parse_arith(e9), r9)
 
         e10 = "(1 / 2)"
         r10 = ArithBinop(
                 ArithOp.Div,
                 ArithLit(1),
                 ArithLit(2))
-        self.assertEqual(parse_expr(e10), r10)
+        self.assertEqual(parse_arith(e10), r10)
 
         e11 = "(1 % 2)"
         r11 = ArithBinop(
                 ArithOp.Mod,
                 ArithLit(1),
                 ArithLit(2))
-        self.assertEqual(parse_expr(e11), r11)
+        self.assertEqual(parse_arith(e11), r11)
 
     @unittest.skip
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
-        self.assertEqual(parse_bool(b1a), 
+        self.assertEqual(parse_expr(b1a), 
             BoolArithCmp(
                 ArithCmp.Eq,
                 Var("x"),
                 ArithLit(1)))
 
         b4 = "(x > 1) && (y < 0)"
-        self.assertEqual(parse_bool(b4), 
+        self.assertEqual(parse_expr(b4), 
             BoolBinop(
                 BoolOp.And,
                 BoolArithCmp(
@@ -234,21 +234,21 @@ class Tests(unittest.TestCase):
 
     def test_parser_bool(self):
         b1 = "x == 1"
-        self.assertEqual(parse_bool(b1), 
+        self.assertEqual(parse_expr(b1), 
             BoolArithCmp(
                 ArithCmp.Eq,
                 Var("x"),
                 ArithLit(1)))
 
         b2 = "x != 1"
-        self.assertEqual(parse_bool(b2), 
+        self.assertEqual(parse_expr(b2), 
             BoolArithCmp(
                 ArithCmp.Neq,
                 Var("x"),
                 ArithLit(1)))
 
         b3 = "x > 1"
-        self.assertEqual(parse_bool(b3), 
+        self.assertEqual(parse_expr(b3), 
             BoolArithCmp(
                 ArithCmp.Gt,
                 Var("x"),

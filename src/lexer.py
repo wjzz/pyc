@@ -13,6 +13,8 @@ class Token(AutoName):
     RBRACE = auto()
     SEMI = auto()
     BANG = auto()
+    AND = auto()
+    OR = auto()
     EQUAL = auto()
     DBL_EQ = auto()
     NOT_EQ = auto()

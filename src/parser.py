@@ -14,10 +14,12 @@ import ast as E
 
 
 # ARITH_CMP ::= == | != | > | >= | < | <=
-# BOOL ::= <EXPR> <ARITH_CMP> <EXPR>
+# BOOL_OP ::= && | ||
 
 # EXPR_TOP ::= <EXPR> EOF
-# EXPR ::= <FACTOR> | <FACTOR> [+-] <EXPR>
+# EXPR   ::= <B_ATOM> | <B_ATOM> <BOOL_OP> <B_ATOM>
+# B_ATOM ::= <ARITH> | <ARITH> <ARITH_CMP> <ARITH>
+# ARITH  ::= <FACTOR> | <FACTOR> [+-] <ARITH>
 # FACTOR ::= <ATOM> | <ATOM> [*/%] <FACTOR>
 # ATOM = NUM | ID ( <EXPR> )
 
@@ -65,7 +67,7 @@ class Parser:
         token = self.get_token
         if token.tag == Token.PRINT:
             self.expect(Token.LPAREN)
-            a = self.parse_expr()
+            a = self.parse_arith()
             self.expect(Token.RPAREN)
             self.expect(Token.SEMI)
             return E.StmPrint(a)
@@ -81,7 +83,7 @@ class Parser:
             ]
             assign = self.peek.tag
             self.expect(Token.EQUAL, *compounds)
-            a = self.parse_expr()
+            a = self.parse_arith()
             self.expect(Token.SEMI)
 
             if assign == Token.EQUAL:
@@ -110,14 +112,14 @@ class Parser:
 
         elif token.tag == Token.WHILE:
             self.expect(Token.LPAREN)
-            b = self.parse_bool()
+            b = self.parse_expr()
             self.expect(Token.RPAREN)
             ss = self.parse_block()
             return E.StmWhile(b, ss)
 
         elif token.tag == Token.IF:
             self.expect(Token.LPAREN)
-            b = self.parse_bool()
+            b = self.parse_expr()
             self.expect(Token.RPAREN)
             ss1 = self.parse_block()
             if self.peek.tag == Token.ELSE:
@@ -145,12 +147,21 @@ class Parser:
     #-----------------------------------
     # Boolean Expressions
 
-    def parse_bool_top(self):
-        b = self.parse_bool()
+    def parse_expr_top(self):
+        b = self.parse_expr()
         self.expect(Token.EOF)
         return b
 
-    def parse_bool(self):
+    @property
+    def _bool_ops(self):
+        operators = {
+            Token.AND: E.BoolOp.And,
+            Token.OR: E.BoolOp.Or,
+        }
+        return operators
+
+    @property
+    def _arith_cmps(self):
         operators = {
             Token.DBL_EQ : E.ArithCmp.Eq,
             Token.NOT_EQ : E.ArithCmp.Neq,
@@ -159,24 +170,46 @@ class Parser:
             Token.LESS_EQ : E.ArithCmp.Leq,
             Token.LESS : E.ArithCmp.Lt,
         }
-        a1 = self.parse_expr()
+        return operators
+
+    def parse_expr(self):
+        operators = self._bool_ops
+
+        b1 = self.parse_bool_atom()
+        token = self.peek
+        if token.tag in operators.keys():
+            self.expect(*operators.keys())
+            b2 = self.parse_bool_atom()
+            return E.BoolBinop(
+                operators[token.tag],
+                b1, 
+                b2
+            )
+        else:
+            return b1
+
+    def parse_bool_atom(self):
+        operators = self._arith_cmps
+        a1 = self.parse_arith()
         operator = self.get_token.tag
-        assert (operator in operators.keys())
-        a2 = self.parse_expr()
-        return E.BoolArithCmp(
-            operators[operator],
-            a1,
-            a2)
+        if operator in operators.keys():
+            a2 = self.parse_arith()
+            return E.BoolArithCmp(
+                operators[operator],
+                a1,
+                a2)
+        else:
+            return a1
 
     #-----------------------------------
     # Arith Expressions
 
-    def parse_expr_top(self):
-        e = self.parse_expr()
+    def parse_arith_top(self):
+        e = self.parse_arith()
         self.expect(Token.EOF)
         return e
 
-    def parse_expr(self):
+    def parse_arith(self):
         factor = self.parse_factor()
         token = self.peek
         if token.tag not in [Token.PLUS, Token.MINUS]:
@@ -187,7 +220,7 @@ class Parser:
                 Token.MINUS : E.ArithOp.Sub,
             }
             self.expect(Token.PLUS, Token.MINUS)
-            expr = self.parse_expr()
+            expr = self.parse_arith()
             tag = tags[token.tag]
             return E.ArithBinop(tag, factor, expr)
 
@@ -211,7 +244,7 @@ class Parser:
     def parse_atom(self):
         token = self.get_token
         if token.tag == Token.LPAREN:
-            e = self.parse_expr()
+            e = self.parse_arith()
             self.expect(Token.RPAREN)
             return e
         elif token.tag == Token.NUMBER:
@@ -221,21 +254,21 @@ class Parser:
         else:
             raise Exception(f"unexpected tag: {token.tag}")
 
-def parse_expr(s):
+def parse_arith(s):
     """
     Takes an input string and outputs an expr AST
     """
     tokens = tokenize(s)
     #print(list(tokenize(s)))
-    return Parser(tokens).parse_expr_top()
+    return Parser(tokens).parse_arith_top()
 
-def parse_bool(s):
+def parse_expr(s):
     """
     Takes an input string and outputs a bool expr AST
     """
     tokens = tokenize(s)
     #print(list(tokenize(s)))
-    return Parser(tokens).parse_bool_top()
+    return Parser(tokens).parse_expr_top()
 
 def parse_stm(s):
     """
