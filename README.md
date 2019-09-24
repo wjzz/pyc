@@ -20,6 +20,7 @@ Add:
   [+] Block scoping
   [+] Correct handling of block scoping used symbol tables
   [+] Allow blocks to be inserted at arbitrary places
+  [ ] Use a parser generator so that we can extend the parser more easily
   [ ] x++, x--, ++x, --x
   [ ] for loops
   [ ] Functions
