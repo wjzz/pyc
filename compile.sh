@@ -5,7 +5,7 @@ target="target/"
 # echo "base = $base"
 
 echo -n "Compiling the program... "
-python3.7 compile.py $1 > $target$base.asm \
+python3.7 -B main.py $1 > $target$base.asm \
   && echo "OK!" \
   && echo -n "Running the assembler... " \
   && nasm -f elf64 -o $target$base.o $target$base.asm \
