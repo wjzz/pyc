@@ -1,6 +1,6 @@
 filename=`basename "$1"`
 base=`basename "$1" .sil`    # part without the extension
-target="ast_target/"
+target="target/ast/"
 # echo "filename = $filename"
 # echo "base = $base"
 
