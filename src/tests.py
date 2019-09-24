@@ -209,32 +209,12 @@ class Tests(unittest.TestCase):
                 ArithLit(2))
         self.assertEqual(parse_expr(e11), r11)
 
-    def test_parser_bool(self):
-        b1 = "x == 1"
-        self.assertEqual(parse_bool(b1), 
+    @unittest.skip
+    def test_parser_bool_expr(self):
+        b1a = "(x == 1)"
+        self.assertEqual(parse_bool(b1a), 
             BoolArithCmp(
                 ArithCmp.Eq,
-                ArithVar("x"),
-                ArithLit(1)))
-
-        # b1a = "(x == 1)"
-        # self.assertEqual(parse_bool(b1a), 
-        #     BoolArithCmp(
-        #         ArithCmp.Eq,
-        #         ArithVar("x"),
-        #         ArithLit(1)))
-
-        b2 = "x != 1"
-        self.assertEqual(parse_bool(b2), 
-            BoolArithCmp(
-                ArithCmp.Neq,
-                ArithVar("x"),
-                ArithLit(1)))
-
-        b3 = "x > 1"
-        self.assertEqual(parse_bool(b3), 
-            BoolArithCmp(
-                ArithCmp.Gt,
                 ArithVar("x"),
                 ArithLit(1)))
 
@@ -250,6 +230,29 @@ class Tests(unittest.TestCase):
                     ArithCmp.Lt,
                     ArithVar("y"),
                     ArithLit(0))))
+
+
+    def test_parser_bool(self):
+        b1 = "x == 1"
+        self.assertEqual(parse_bool(b1), 
+            BoolArithCmp(
+                ArithCmp.Eq,
+                ArithVar("x"),
+                ArithLit(1)))
+
+        b2 = "x != 1"
+        self.assertEqual(parse_bool(b2), 
+            BoolArithCmp(
+                ArithCmp.Neq,
+                ArithVar("x"),
+                ArithLit(1)))
+
+        b3 = "x > 1"
+        self.assertEqual(parse_bool(b3), 
+            BoolArithCmp(
+                ArithCmp.Gt,
+                ArithVar("x"),
+                ArithLit(1)))
 
     def test_parser_stm(self):
         s1 = "print(x);"
