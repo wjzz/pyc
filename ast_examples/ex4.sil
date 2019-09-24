@@ -1,0 +1,4 @@
+# x = 10
+[
+    StmAssign("x", ArithLit(10)),
+]

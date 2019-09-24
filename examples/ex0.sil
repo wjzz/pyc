@@ -1,5 +1,1 @@
-# print 15
-
-[
-    StmPrint(ArithLit(15))
-]
+print(1);

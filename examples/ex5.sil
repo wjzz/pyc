@@ -1,36 +1,5 @@
-# print (1+2)
-# print (10-1)
-# print (3 * 3)
-# print (100 / 3)
-# print (11 % 3)
-[
-    StmPrint(
-        ArithBinop(
-            ArithOp.Add,
-            ArithLit(1),
-            ArithLit(2))),
-
-    StmPrint(
-        ArithBinop(
-            ArithOp.Sub,
-            ArithLit(10),
-            ArithLit(1))),
-    
-    StmPrint(
-        ArithBinop(
-            ArithOp.Mul,
-            ArithLit(3),
-            ArithLit(3))),
-
-    StmPrint(
-        ArithBinop(
-            ArithOp.Div,
-            ArithLit(100),
-            ArithLit(3))),
-
-    StmPrint(
-        ArithBinop(
-            ArithOp.Mod,
-            ArithLit(11),
-            ArithLit(3))),
-]
+x = 10;
+while (x >= 0) {
+    print(x);
+    x = x - 1;
+}

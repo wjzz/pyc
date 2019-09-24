@@ -1,18 +1,1 @@
-# print ((1 + 2) + (3 + 4))
-[
-    StmPrint(
-        ArithBinop(
-            ArithOp.Add,
-            ArithBinop(
-                ArithOp.Add,
-                ArithLit(1),
-                ArithLit(2),
-            ),
-            ArithBinop(
-                ArithOp.Add,
-                ArithLit(3),
-                ArithLit(4),
-            ),
-        )
-    )
-]
+print(15 + 12);

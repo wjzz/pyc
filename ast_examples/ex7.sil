@@ -1,0 +1,19 @@
+# if 1 == 0:
+#     print 0
+# else:
+#     print 1
+# """
+[
+    StmIf(
+        BoolArithCmp(
+            ArithCmp.Eq,
+            ArithLit(1),
+            ArithLit(0)),
+        [
+            StmPrint(ArithLit(0))
+        ],
+        [
+            StmPrint(ArithLit(1))
+        ]
+    )
+]

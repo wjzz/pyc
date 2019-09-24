@@ -1,19 +1,13 @@
-# if 1 == 0:
-#     print 0
-# else:
-#     print 1
-# """
-[
-    StmIf(
-        BoolArithCmp(
-            ArithCmp.Eq,
-            ArithLit(1),
-            ArithLit(0)),
-        [
-            StmPrint(ArithLit(0))
-        ],
-        [
-            StmPrint(ArithLit(1))
-        ]
-    )
-]
+x = 0;
+while (x <= 20) {
+    print(x);
+    // calculate factorial of x
+    fact = 1;
+    y = x;
+    while (y > 0) {
+        fact *= y;
+        y -= 1;
+    }
+    print(fact);
+    x += 1;
+}

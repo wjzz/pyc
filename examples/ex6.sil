@@ -1,24 +1,13 @@
-# x = 10
-# if x % 2 == 0:
-#     print 0
-# else:
-#     print 1
-# """
-[
-    StmAssign("x", ArithLit(10)),
-    StmIf(
-        BoolArithCmp(
-            ArithCmp.Eq,
-            ArithBinop(
-                ArithOp.Mod,
-                ArithVar("x"),
-                ArithLit(2)),
-            ArithLit(0)),
-        [
-            StmPrint(ArithLit(0))
-        ],
-        [
-            StmPrint(ArithLit(1))
-        ]
-    )
-]
+x = 0;
+while (x <= 20) {
+    print(x);
+    // calculate factorial of x
+    fact = 1;
+    y = x;
+    while (y > 0) {
+        fact = fact * y;
+        y = y - 1;
+    }
+    print(fact);
+    x = x + 1;
+}
