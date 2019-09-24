@@ -461,5 +461,16 @@ class DeclTests(unittest.TestCase):
         with self.assertRaises(symbol_table.UnboundVariableError):
             compile.compile_top(c)
 
+    def test_decl_non_defined_block(self):
+        c = parse_stm("while (1) {} x = 1;")
+        with self.assertRaises(symbol_table.UnboundVariableError):
+            compile.compile_top(c)
+
+    def test_decl_block_scoping(self):
+        c = parse_stm("while (1) {long x;} x = 1;")
+        with self.assertRaises(symbol_table.UnboundVariableError):
+            compile.compile_top(c)
+
+
 if __name__ == "__main__":
     unittest.main()

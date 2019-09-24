@@ -10,10 +10,15 @@ class UnboundVariableError(Exception):
 class SymbolTableBuilderVisitor:
     def __init__(self):
         self._vars = defaultdict(int)
+        self._current_scope = set()
 
     @property
     def vars(self):
         return self._vars
+
+    @property
+    def current_scope(self):
+        return self._current_scope
 
     def visit_ArithLit(self, val):
         pass
@@ -39,6 +44,7 @@ class SymbolTableBuilderVisitor:
 
     def visit_StmDecl(self, tp, var, a):
         self._vars[var] += 1
+        self._current_scope.add(var)
         if a is not None:
             a.accept(self)
 
@@ -60,8 +66,10 @@ class SymbolTableBuilderVisitor:
         a.accept(self)
 
     def visit_many(self, stms):
+        symbols = self._vars.copy()
         for stm in stms:
             stm.accept(self)
+        self._vars = symbols
 
 def build(stms):
     """
@@ -69,4 +77,4 @@ def build(stms):
     """
     visitor = SymbolTableBuilderVisitor()
     visitor.visit_many(stms)
-    return [k for k, v in visitor.vars.items() if v > 0]
+    return visitor.current_scope

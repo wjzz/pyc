@@ -1,7 +1,9 @@
 from ast import *
 import symbol_table
-import sys
 from optimize import optimize
+
+from collections import defaultdict
+import sys
 
 class CompileVisitor:
     labelId = 0
@@ -12,13 +14,28 @@ class CompileVisitor:
         return CompileVisitor.labelId
 
     def __init__(self):
-        pass
+        self._vars = defaultdict(int)
+        self._vars_in_scope = set()
+    
+    def add_variable(self, var):
+        self._vars_in_scope.add(var)
+    
+    @property
+    def vars(self):
+        return self._vars_in_scope
+
+    def add_depth(self, var):
+        var_num = self._vars[var]
+        if var_num > 1:
+            var = var + str(var_num)
+        return var
 
     def visit_ArithLit(self, val):
         return f"""\
     push {val}\n"""
 
     def visit_Var(self, var):
+        var = self.add_depth(var)
         var = mangle(var)
         return f"""\
     mov rax, [{var}]
@@ -140,6 +157,9 @@ _or_ret{label_id}:
     def visit_StmDecl(self, tp, var, a):
         # if a == None then we don't have to do anything
 
+        self._vars[var] += 1
+        self.add_variable(self.add_depth(var))
+
         if a is not None:
             return self.visit_StmAssign(var, a)
         else:
@@ -147,6 +167,7 @@ _or_ret{label_id}:
 
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
+        var = self.add_depth(var)
         var = mangle(var)
         return c + f"""\
     pop rax
@@ -193,18 +214,23 @@ _while_ret{label_id}:\n\
         return cval
 
     def visit_many(self, stms):
-        return "\n".join([ stm.accept(self) for stm in stms ])
+        var_names = self._vars.copy()
+        ss = "\n".join([ stm.accept(self) for stm in stms ])
+        self._vars = var_names
+        return ss
 
 def compile_many(stms):
-    return CompileVisitor().visit_many(stms)
+    visitor = CompileVisitor()
+    code = visitor.visit_many(stms)
+    vars = visitor.vars
+    return code, vars
 
 def compile_top(stms):
-    symbols = symbol_table.build(stms)
+    _globals = symbol_table.build(stms)
     # print(symbols, file=sys.stderr)
 
+    program, symbols = compile_many(stms)
     vars_decl = define_vars(symbols)
-
-    program = compile_many(stms)
 
     template = f"""\
 %include "asm/std.asm"

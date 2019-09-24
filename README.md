@@ -15,7 +15,10 @@ Add:
   [+] Composite boolean operations (e.g. x <= 1 && x > -5)
   [+] Compound assignment (as syntactic sugar)
   [+] Add error handling to the parser	
-  [ ] Variable declarations
+  [+] Variable declarations
+  [+] No variable is used before declaration
+  [+] Block scoping
+  [+] Correct handling of block scoping used symbol tables
   [ ] x++, x--, ++x, --x
   [ ] for loops
   [ ] Functions
