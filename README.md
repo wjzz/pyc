@@ -12,15 +12,15 @@ Todo
 
 Add:
   [+] Parser
+  [+] Composite boolean operations (e.g. x <= 1 && x > -5)
   [+] Compound assignment (as syntactic sugar)
   [ ] x++, x--, ++x, --x
   [ ] Functions
   [ ] Arrays
-  [ ] Structs
   [ ] Pointers
+  [ ] Structs
   [ ] Floating-point operations
   [ ] Type checker
-  [ ] Composite boolean operations (e.g. x <= 1 && x > -5)
   [ ] Cmd line arguments
 
 SIL Syntax
