@@ -218,6 +218,44 @@ class Tests(unittest.TestCase):
                     Var("y"),
                     ArithLit(0))))
 
+        b4a = "x > 1 && y < 0"
+        self.assertEqual(parse_expr(b4a), 
+            BoolBinop(
+                BoolOp.And,
+                BoolArithCmp(
+                    ArithCmp.Gt,
+                    Var("x"),
+                    ArithLit(1)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    Var("y"),
+                    ArithLit(0))))
+
+        b5 = "(x > 1) || (y < 0)"
+        self.assertEqual(parse_expr(b5), 
+            BoolBinop(
+                BoolOp.Or,
+                BoolArithCmp(
+                    ArithCmp.Gt,
+                    Var("x"),
+                    ArithLit(1)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    Var("y"),
+                    ArithLit(0))))
+
+        b5a = "x > 1 || y < 0"
+        self.assertEqual(parse_expr(b5a), 
+            BoolBinop(
+                BoolOp.Or,
+                BoolArithCmp(
+                    ArithCmp.Gt,
+                    Var("x"),
+                    ArithLit(1)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    Var("y"),
+                    ArithLit(0))))
 
     def test_parser_bool(self):
         b1 = "x == 1"

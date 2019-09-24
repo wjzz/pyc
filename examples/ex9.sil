@@ -3,11 +3,11 @@ count = 0;
 current = 2;
 while (current <= limit) {
   is_prime = 1;
-  if ((current != 2) && (current % 2 == 0)) {
+  if (current != 2 && current % 2 == 0) {
     is_prime = 0;
   }
   candidate = 3;
-  while ((is_prime == 1) && (candidate * candidate <= current)) {
+  while (is_prime == 1 && candidate * candidate <= current) {
     if (current % candidate == 0) {
       is_prime = 0;
     }
