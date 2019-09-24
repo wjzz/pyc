@@ -197,7 +197,7 @@ def compile_top(stms):
     program = compile_many(stms)
 
     template = f"""\
-%include "std.asm"
+%include "asm/std.asm"
 
 section .data
 {vars_decl}

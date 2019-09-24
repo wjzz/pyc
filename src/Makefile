@@ -1,12 +1,7 @@
 .PHONY: std primes test
-.SILENT: test
-
-CODE_DIR = src
 
 test:
-	clear
-	echo "Running unit tests...\n"
-	$(MAKE) -s test -C $(CODE_DIR)
+	python3.7 -B -m unittest -v
 
 std:
 	# NOTE: this contains debugging flags
