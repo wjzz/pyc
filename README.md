@@ -14,7 +14,10 @@ Add:
   [+] Parser
   [+] Composite boolean operations (e.g. x <= 1 && x > -5)
   [+] Compound assignment (as syntactic sugar)
+  [+] Add error handling to the parser	
+  [ ] Variable declarations
   [ ] x++, x--, ++x, --x
+  [ ] for loops
   [ ] Functions
   [ ] Arrays
   [ ] Pointers

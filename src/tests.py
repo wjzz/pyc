@@ -3,7 +3,7 @@ from lexer import tokenize, simplify
 from parser import parse_stm, parse_expr, parse_arith
 from ast import *
 
-class Tests(unittest.TestCase):
+class LexerTests(unittest.TestCase):
     def test_lexer(self):
         e1 = "1"
         self.assertEqual(list(simplify(tokenize(e1))),
@@ -125,6 +125,8 @@ class Tests(unittest.TestCase):
                 self.assertEqual(
                     list(simplify(tokenize(input))),
                     expected)
+
+class ParserTests(unittest.TestCase):
 
     def test_parser_expr(self):
         v1 = "x"
@@ -399,5 +401,32 @@ class Tests(unittest.TestCase):
                     [])
             ])
         
+class ParserErrorTests(unittest.TestCase):
+    def test_non_balanced_expr(self):
+        inputs = [
+            ")",
+            "(1",
+            "(1 + ()",
+        ]
+        for input in inputs:
+            with self.subTest(i = input):
+                with self.assertRaises(Exception):
+                    parse_expr(input)
+    
+    def test_non_balanced_stm(self):
+        inputs = [
+            "while (1) {",
+            "while (1) {} else",
+            "while (1) {} else {",
+            "if (1 {}",
+            "if 1 {}",
+            "x = 23",
+            "x = ",
+        ]
+        for input in inputs:
+            with self.subTest(i = input):
+                with self.assertRaises(Exception):
+                    parse_stm(input)
+
 if __name__ == "__main__":
     unittest.main()

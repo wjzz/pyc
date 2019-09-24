@@ -1,6 +1,8 @@
 from lexer import tokenize, Token, TokenInfo
 import ast as E
 
+import sys
+
 # STM_TOP ::= <STM_LIST> EOF
 # STM_LIST ::= <STM> | <STM> <STM_LIST>
 # STM ::= PRINT ( <EXPR> ) SEMI
@@ -23,6 +25,11 @@ import ast as E
 # FACTOR ::= <ATOM> | <ATOM> [*/%] <FACTOR>
 # ATOM = NUM | ID ( <EXPR> )
 
+class ParseError(Exception):
+    def __init__(self, token, msg):
+        self.token = token
+        self.msg = msg
+
 class Parser:
     def __init__(self, tokens):
         self._tokens = tokens
@@ -30,6 +37,7 @@ class Parser:
     @property
     def get_token(self):
         return next(self._tokens)
+        #print(f"  {token.tag}, {token.line}", file=sys.stderr)
 
     @property
     def peek(self):
@@ -44,6 +52,10 @@ class Parser:
 
     def expect(self, *expected_tags):
         token = self.get_token
+        if token.tag not in expected_tags:
+            tags = [str(tok) for tok in expected_tags]
+            raise ParseError(token=token,
+                msg=f"Found {token.tag}, expected one of {tags}")
         assert(token.tag in expected_tags)
 
     #-----------------------------------
@@ -100,7 +112,9 @@ class Parser:
                 elif assign == Token.MOD_EQ:
                     op = E.ArithOp.Mod
                 else:
-                    raise Exception(f"Wrong assignment {assign}")
+                    raise ParseError(token=assign,
+                      msg = f"Wrong assignment {assign}")
+                    #raise Exception(f"Wrong assignment {assign}")
                 
                 # change x += 1 into x = x + 1
                 return E.StmAssign(
@@ -130,7 +144,10 @@ class Parser:
             return E.StmIf(b, ss1, ss2)
 
         else:
-            raise Exception(f"unexpected tag = {token.tag}")
+            raise ParseError(token=token, 
+                msg=f"Unexpected token = {token.tag}")
+            
+            #raise Exception(f"unexpected tag = {token.tag}")
 
     def parse_block(self):
         token = self.peek
@@ -253,7 +270,10 @@ class Parser:
         elif token.tag == Token.ID:
             return E.Var(token.value)
         else:
-            raise Exception(f"unexpected tag: {token.tag}")
+            msg = f"Unexpected token: {token.tag}\n" \
+                "Expected expression, namely one of LPAREN, " \
+                "NUMBER or ID"
+            raise ParseError(token, msg)
 
 def parse_arith(s):
     """

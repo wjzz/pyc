@@ -43,13 +43,23 @@ class Token(AutoName):
 # I always wanted to do this!!
 all_tokens = list(Token)
 
-TokenInfo = namedtuple('TokenInfo', ['tag', 'value'])
-
-def token(tag):
-    return TokenInfo(tag=tag, value=None)
+TokenInfo = namedtuple('TokenInfo', 
+    ['tag', 'value', 'line', 'offset'])
 
 def tokenize(s):
     """Tokenize the given string s into a generator of tokens."""
+
+    line_no = 1
+    offset = 0
+
+    def token_info(*, tag, value):
+        nonlocal line_no
+        nonlocal offset
+        return TokenInfo(tag=tag, value=value, 
+            line=line_no, offset=offset)
+
+    def token(tag):
+        return token_info(tag=tag, value=None)
 
     # TODO: move these helpers somewhere or hide inside a class?
     iterator = iter(s + " ")
@@ -57,11 +67,12 @@ def tokenize(s):
 
     def getchar():
         nonlocal unchar_v
-
+        nonlocal offset
         if unchar_v is not None:
             char = unchar_v
             unchar_v = None
         else:
+            offset += 1
             char = next(iterator)
         return char
             
@@ -98,7 +109,7 @@ def tokenize(s):
                     char = getchar()
                 assert(char is not None)
                 unchar(char)
-                yield TokenInfo(tag = Token.NUMBER, value = number)
+                yield token_info(tag = Token.NUMBER, value = number)
             elif char == "/":
                 char2 = getchar()
                 if char2 == "/":
@@ -131,6 +142,9 @@ def tokenize(s):
             elif char in simple_tokens:
                 yield token(simple_tokens[char])
             elif char == " " or char == "\n":
+                if char == "\n":
+                    line_no += 1
+                    offset = 0
                 continue
             elif char == "!":
                 char2 = getchar()
@@ -176,7 +190,7 @@ def tokenize(s):
                 elif value == "print":
                     yield token(Token.PRINT)
                 else:
-                    yield TokenInfo(tag = Token.ID, value = value)
+                    yield token_info(tag = Token.ID, value = value)
             else:
                 raise Exception(f"found unknown character while tokenizing: [{char}]")
         except StopIteration:
@@ -184,7 +198,7 @@ def tokenize(s):
     yield token(Token.EOF)
 
 def simplify(tokens):
-    for (tag, value) in tokens:
+    for (tag, value, _line, _offset) in tokens:
         name = tag.name
         if value is not None:
             yield name, value
