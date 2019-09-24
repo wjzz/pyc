@@ -46,20 +46,20 @@ Running the tests
 =================
 
 ```
-$ ./test_all.sh
+$ ./scripts/test_all.sh
 ```
 
 Running the code
 ================
 
 ```
-$ python3 compile.py examples/ex0.sil
+$ python3 src/compile.py examples/ex0.sil
 ```
 Prints the asm source code
 
 
 ```
-$ ./compile.sh examples/ex0.sil 
+$ ./scripts/compile.sh examples/ex0.sil 
 ```
 
 Yields:
