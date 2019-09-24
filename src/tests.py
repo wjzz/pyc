@@ -4,29 +4,6 @@ from parser import parse_stm, parse_expr, parse_arith
 from ast import *
 
 class Tests(unittest.TestCase):
-    pass
-    # def test_expr_str(self):
-    #     n = NumberLit(11)
-    #     m = NumberLit(22)
-    #     self.assertEqual(str(n), "11")
-    #     self.assertEqual(str(m), "22")
-    #     x = Variable("x")
-    #     self.assertEqual(str(x), "x")
-    #     e1 = BinaryOp(n, Op.Plus, m)
-    #     self.assertEqual(str(e1), "(11 + 22)")
-    #     e2 = BinaryOp(n, Op.Mult, m)
-    #     self.assertEqual(str(e2), "(11 * 22)")
-    #     e3 = BinaryOp(e1, Op.Mult, e1)
-    #     self.assertEqual(str(e3), "((11 + 22) * (11 + 22))")
-    #     y = Variable("y")
-    #     self.assertEqual(str(y), "y")
-    #     e4 = BinaryOp(x, Op.Plus, y)
-    #     self.assertEqual(str(e4), "(x + y)")
-    #     e5 = LetIn("x", n, x)
-    #     self.assertEqual(str(e5), "(let x := 11 in x)")
-    #     e6 = LetIn("x", n, BinaryOp(x, Op.Plus, x))
-    #     self.assertEqual(str(e6), "(let x := 11 in (x + x))")
-
     def test_lexer(self):
         e1 = "1"
         self.assertEqual(list(simplify(tokenize(e1))),
@@ -107,6 +84,17 @@ class Tests(unittest.TestCase):
                    'SEMI', 'RBRACE', 'EOF']
         
         self.assertEqual(expected, result)
+
+    def test_lexer_binops(self):
+        input_str = "x && y || z"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = [ ('ID', 'x'), 'AND', ('ID', 'y'),
+                     'OR', ('ID', 'z'), 'EOF']
+
+        self.assertEqual(expected, result)
+
 
     def test_lexer_print(self):
         input_str = "print(x);"
@@ -209,7 +197,6 @@ class Tests(unittest.TestCase):
                 ArithLit(2))
         self.assertEqual(parse_arith(e11), r11)
 
-    @unittest.skip
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
         self.assertEqual(parse_expr(b1a), 
@@ -374,35 +361,5 @@ class Tests(unittest.TestCase):
                     [])
             ])
         
-    # def test_evaluator(self):
-    #     n = NumberLit(2)
-    #     m = NumberLit(3)
-    #     self.assertEqual(evaluate(n), 2)
-    #     self.assertEqual(evaluate(m), 3)
-    #     e1 = BinaryOp(n, Op.Plus, m)
-    #     self.assertEqual(evaluate(e1), 5)
-    #     e2 = BinaryOp(n, Op.Mult, m)
-    #     self.assertEqual(evaluate(e2), 6)
-    #     e3 = BinaryOp(e1, Op.Mult, e1)
-    #     self.assertEqual(evaluate(e3), 25)
-
-    # def test_everything_together(self):
-    #     def test(a, b):
-    #         self.assertEqual(ev(a), b)
-
-    #     test("1", 1)
-    #     test("1 + 1", 2)
-    #     test("1+2+3+4", 10)
-    #     test("1 + 1 + 1 + 1", 4)
-    #     test("2 + 2 * 2", 6)
-    #     test("(2 + 2) * 2", 8)
-    #     test("2 * 2 + 2", 6)
-    #     test("(2 + 2) * (2 + 2)", 16)
-    #     test("2+2*2+2", 8)
-    #     test("let x := 1 in x + x end", 2)
-    #     test("let z := 2 in z * z end", 4)
-    #     test("1 + let x := 1 in x + x end", 3)
-    #     test("let x := 2 in (let y := 3 in x + y end) end", 5)
-
 if __name__ == "__main__":
     unittest.main()

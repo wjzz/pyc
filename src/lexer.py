@@ -109,6 +109,12 @@ def tokenize(s):
                     yield token(Token.DIVIDE_EQ)
                 else:
                     yield token(simple_tokens["/"])
+            elif char in "&|":
+                char2 = getchar()
+                if char == char2 == "&":
+                    yield token(Token.AND)
+                elif char == char2 == "|":
+                    yield token(Token.OR)
             elif char in "+-*%":
                 char2 = getchar()
                 if char2 == "=":

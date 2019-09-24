@@ -191,8 +191,9 @@ class Parser:
     def parse_bool_atom(self):
         operators = self._arith_cmps
         a1 = self.parse_arith()
-        operator = self.get_token.tag
+        operator = self.peek.tag
         if operator in operators.keys():
+            self.expect(*operators.keys())
             a2 = self.parse_arith()
             return E.BoolArithCmp(
                 operators[operator],
@@ -244,7 +245,7 @@ class Parser:
     def parse_atom(self):
         token = self.get_token
         if token.tag == Token.LPAREN:
-            e = self.parse_arith()
+            e = self.parse_expr()
             self.expect(Token.RPAREN)
             return e
         elif token.tag == Token.NUMBER:
@@ -260,7 +261,7 @@ def parse_arith(s):
     """
     tokens = tokenize(s)
     #print(list(tokenize(s)))
-    return Parser(tokens).parse_arith_top()
+    return Parser(tokens).parse_expr_top()
 
 def parse_expr(s):
     """
