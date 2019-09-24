@@ -1,11 +1,11 @@
 // Calculate the factorial for x in [0, 20]
 
-x = 0;
+long x = 0;
 while (x <= 20) {
     print(x);
     // calculate factorial of x
-    fact = 1;
-    y = x;
+    long fact = 1;
+    long y = x;
     while (y > 0) {
         fact = fact * y;
         y = y - 1;

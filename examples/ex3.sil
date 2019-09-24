@@ -1,3 +1,4 @@
+long x;
 x = 0;
 print(x);
 x = 1;
