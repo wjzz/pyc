@@ -140,13 +140,13 @@ class Tests(unittest.TestCase):
 
     def test_parser_expr(self):
         v1 = "x"
-        self.assertEqual(parse_expr(v1), ArithVar("x"))
+        self.assertEqual(parse_expr(v1), Var("x"))
 
         v2 = "(x)"
-        self.assertEqual(parse_expr(v2), ArithVar("x"))
+        self.assertEqual(parse_expr(v2), Var("x"))
 
         v3 = "thisisalongvariable"
-        self.assertEqual(parse_expr(v3), ArithVar(v3))
+        self.assertEqual(parse_expr(v3), Var(v3))
 
         e1 = "1"
         self.assertEqual(parse_expr(e1), ArithLit(1))
@@ -215,7 +215,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(parse_bool(b1a), 
             BoolArithCmp(
                 ArithCmp.Eq,
-                ArithVar("x"),
+                Var("x"),
                 ArithLit(1)))
 
         b4 = "(x > 1) && (y < 0)"
@@ -224,11 +224,11 @@ class Tests(unittest.TestCase):
                 BoolOp.And,
                 BoolArithCmp(
                     ArithCmp.Gt,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)),
                 BoolArithCmp(
                     ArithCmp.Lt,
-                    ArithVar("y"),
+                    Var("y"),
                     ArithLit(0))))
 
 
@@ -237,31 +237,31 @@ class Tests(unittest.TestCase):
         self.assertEqual(parse_bool(b1), 
             BoolArithCmp(
                 ArithCmp.Eq,
-                ArithVar("x"),
+                Var("x"),
                 ArithLit(1)))
 
         b2 = "x != 1"
         self.assertEqual(parse_bool(b2), 
             BoolArithCmp(
                 ArithCmp.Neq,
-                ArithVar("x"),
+                Var("x"),
                 ArithLit(1)))
 
         b3 = "x > 1"
         self.assertEqual(parse_bool(b3), 
             BoolArithCmp(
                 ArithCmp.Gt,
-                ArithVar("x"),
+                Var("x"),
                 ArithLit(1)))
 
     def test_parser_stm(self):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 
-            [StmPrint(ArithVar("x"))])
+            [StmPrint(Var("x"))])
 
         s1a = "print(x_);"
         self.assertEqual(parse_stm(s1a), 
-            [StmPrint(ArithVar("x_"))])
+            [StmPrint(Var("x_"))])
 
 
         s2 = "print(15);"
@@ -277,7 +277,7 @@ class Tests(unittest.TestCase):
             [StmAssign("x", 
                 ArithBinop(
                     ArithOp.Add,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)
                 ))])
 
@@ -286,7 +286,7 @@ class Tests(unittest.TestCase):
             [StmAssign("x", 
                 ArithBinop(
                     ArithOp.Sub,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)
                 ))])
 
@@ -295,7 +295,7 @@ class Tests(unittest.TestCase):
             [StmAssign("x", 
                 ArithBinop(
                     ArithOp.Mul,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)
                 ))])
 
@@ -304,7 +304,7 @@ class Tests(unittest.TestCase):
             [StmAssign("x", 
                 ArithBinop(
                     ArithOp.Div,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)
                 ))])
 
@@ -313,7 +313,7 @@ class Tests(unittest.TestCase):
             [StmAssign("x", 
                 ArithBinop(
                     ArithOp.Mod,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(1)
                 ))])
 
@@ -323,7 +323,7 @@ class Tests(unittest.TestCase):
                 StmWhile(
                     BoolArithCmp(
                         ArithCmp.Eq,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(1)
                     ),
                     [])
@@ -335,14 +335,14 @@ class Tests(unittest.TestCase):
                 StmWhile(
                     BoolArithCmp(
                         ArithCmp.Eq,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(1)
                     ),
                     [
                         StmAssign("x", 
                             ArithBinop(
                                 ArithOp.Add,
-                                ArithVar("x"),
+                                Var("x"),
                                 ArithLit(1))
                             )
                     ])
@@ -354,7 +354,7 @@ class Tests(unittest.TestCase):
                 StmIf(
                     BoolArithCmp(
                         ArithCmp.Eq,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(1)
                     ),
                     [],
@@ -367,7 +367,7 @@ class Tests(unittest.TestCase):
                 StmIf(
                     BoolArithCmp(
                         ArithCmp.Eq,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(1)
                     ),
                     [],

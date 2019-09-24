@@ -11,7 +11,7 @@ class VarsVisitor:
     def visit_ArithLit(self, val):
         pass
 
-    def visit_ArithVar(self, var):
+    def visit_Var(self, var):
         self._vars.add(var)
 
     def visit_ArithBinop(self, op, a1, a2):

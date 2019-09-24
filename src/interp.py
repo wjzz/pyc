@@ -12,7 +12,7 @@ class InterpretVisitor:
     def visit_ArithLit(self, val):
         return val
 
-    def visit_ArithVar(self, var):
+    def visit_Var(self, var):
         return self.state[var]
 
     def visit_ArithBinop(self, op, a1, a2):
@@ -124,7 +124,7 @@ def example1():
     """
     return [
         StmAssign("x", ArithLit(10)),
-        StmPrint(ArithVar("x")),
+        StmPrint(Var("x")),
     ]
 
 def example2():
@@ -142,7 +142,7 @@ def example2():
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(2)),
                 ArithLit(0)),
             [
@@ -173,27 +173,27 @@ def example3():
         StmWhile(
             BoolArithCmp(
                 ArithCmp.Gt,
-                ArithVar("n"),
+                Var("n"),
                 ArithLit(0)
             ),
             [
-                StmPrint(ArithVar("x")),
+                StmPrint(Var("x")),
                 StmAssign("y", 
                     ArithBinop(
                         ArithOp.Add,
-                        ArithVar("x"),
-                        ArithVar("y")
+                        Var("x"),
+                        Var("y")
                 )),
                 StmAssign("x", 
                     ArithBinop(
                         ArithOp.Sub,
-                        ArithVar("y"),
-                        ArithVar("x")
+                        Var("y"),
+                        Var("x")
                 )),
                 StmAssign("n", 
                     ArithBinop(
                         ArithOp.Sub,
-                        ArithVar("n"),
+                        Var("n"),
                         ArithLit(1)
                 )),
             ]
@@ -221,7 +221,7 @@ def example4():
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(2)),
                 ArithLit(0)),
             [
@@ -236,7 +236,7 @@ def example4():
                 ArithCmp.Eq,
                 ArithBinop(
                     ArithOp.Mod,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(3)),
                 ArithLit(0)),
             [
@@ -264,7 +264,7 @@ def example5():
                     ArithCmp.Eq,
                     ArithBinop(
                         ArithOp.Mod,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(2)),
                     ArithLit(0))),
             [
@@ -291,12 +291,12 @@ def example6():
                     ArithCmp.Eq,
                     ArithBinop(
                         ArithOp.Mod,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(2)),
                     ArithLit(0)),
                 BoolArithCmp(
                     ArithCmp.Lt,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(11)
                 )
             ),
@@ -323,12 +323,12 @@ def example7():
                     ArithCmp.Eq,
                     ArithBinop(
                         ArithOp.Mod,
-                        ArithVar("x"),
+                        Var("x"),
                         ArithLit(2)),
                     ArithLit(1)),
                 BoolArithCmp(
                     ArithCmp.Lt,
-                    ArithVar("x"),
+                    Var("x"),
                     ArithLit(11)
                 )
             ),
@@ -367,8 +367,8 @@ def example8_primes():
         StmWhile(
             BoolArithCmp(
                 ArithCmp.Leq,
-                ArithVar("current"),
-                ArithVar("limit")    
+                Var("current"),
+                Var("limit")    
             ),
             [
             StmAssign("is_prime", ArithLit(1)),
@@ -377,14 +377,14 @@ def example8_primes():
                     BoolOp.And,
                     BoolArithCmp(
                         ArithCmp.Neq,
-                        ArithVar("current"),
+                        Var("current"),
                         ArithLit(2)
                     ),
                     BoolArithCmp(
                         ArithCmp.Eq,
                         ArithBinop(
                             ArithOp.Mod,
-                            ArithVar("current"),
+                            Var("current"),
                             ArithLit(2)
                         ),
                         ArithLit(0)
@@ -401,17 +401,17 @@ def example8_primes():
                     BoolOp.And,
                     BoolArithCmp(
                         ArithCmp.Eq,
-                        ArithVar("is_prime"),
+                        Var("is_prime"),
                         ArithLit(1)
                     ),
                     BoolArithCmp(
                         ArithCmp.Leq,
                         ArithBinop(
                             ArithOp.Mul,
-                            ArithVar("candidate"),
-                            ArithVar("candidate")
+                            Var("candidate"),
+                            Var("candidate")
                         ),
-                        ArithVar("current")
+                        Var("current")
                     )   
                 ),
                 [
@@ -420,8 +420,8 @@ def example8_primes():
                         ArithCmp.Eq,
                         ArithBinop(
                             ArithOp.Mod,
-                            ArithVar("current"),
-                            ArithVar("candidate")
+                            Var("current"),
+                            Var("candidate")
                         ),
                         ArithLit(0)
                     ),
@@ -433,7 +433,7 @@ def example8_primes():
                 StmAssign("candidate", 
                     ArithBinop(
                         ArithOp.Add,
-                        ArithVar("candidate"),
+                        Var("candidate"),
                         ArithLit(1)
                     )
                 )    
@@ -443,13 +443,13 @@ def example8_primes():
             StmIf(
                 BoolArithCmp(
                     ArithCmp.Eq,
-                    ArithVar("is_prime"),
+                    Var("is_prime"),
                     ArithLit(1)
                 ),
                 [StmAssign("count", 
                     ArithBinop(
                         ArithOp.Add,
-                        ArithVar("count"),
+                        Var("count"),
                         ArithLit(1)
                     )
                 )],
@@ -459,14 +459,14 @@ def example8_primes():
             StmAssign("current", 
                 ArithBinop(
                     ArithOp.Add,
-                    ArithVar("current"),
+                    Var("current"),
                     ArithLit(1)
                 )
             ),
             ]
         ),
         StmPrint(
-            ArithVar("count")
+            Var("count")
         ),
     ]
 

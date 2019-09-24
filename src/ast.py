@@ -15,12 +15,12 @@ class ArithOp(Enum):
     def __str__(self):
         return self.value
 
-class ArithVar(namedtuple('ArithVar', 'var')):
+class Var(namedtuple('Var', 'var')):
     def __str__(self):
         return self.var
 
     def accept(self, visitor):
-        return visitor.visit_ArithVar(self.var)
+        return visitor.visit_Var(self.var)
 
 class ArithLit(namedtuple('ArithLit', 'num')):
     def __str__(self):
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     bops = list(ArithCmp)
     print(list(map(str, bops)))
 
-    var = ArithVar("x")
+    var = Var("x")
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
     bex = BoolArithCmp(ArithCmp.Leq, var, lit)

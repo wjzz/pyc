@@ -18,7 +18,7 @@ class CompileVisitor:
         return f"""\
     push {val}\n"""
 
-    def visit_ArithVar(self, var):
+    def visit_Var(self, var):
         var = mangle(var)
         return f"""\
     mov rax, [{var}]

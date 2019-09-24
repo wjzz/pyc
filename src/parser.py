@@ -105,7 +105,7 @@ class Parser:
                     var, 
                     E.ArithBinop(
                         op,
-                        E.ArithVar(var),
+                        E.Var(var),
                         a))
 
         elif token.tag == Token.WHILE:
@@ -217,7 +217,7 @@ class Parser:
         elif token.tag == Token.NUMBER:
             return E.ArithLit(token.value)
         elif token.tag == Token.ID:
-            return E.ArithVar(token.value)
+            return E.Var(token.value)
         else:
             raise Exception(f"unexpected tag: {token.tag}")
 
