@@ -238,6 +238,19 @@ class Tests(unittest.TestCase):
                 ArithVar("x"),
                 ArithLit(1)))
 
+        b4 = "(x > 1) && (y < 0)"
+        self.assertEqual(parse_bool(b4), 
+            BoolBinop(
+                BoolOp.And,
+                BoolArithCmp(
+                    ArithCmp.Gt,
+                    ArithVar("x"),
+                    ArithLit(1)),
+                BoolArithCmp(
+                    ArithCmp.Lt,
+                    ArithVar("y"),
+                    ArithLit(0))))
+
     def test_parser_stm(self):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 

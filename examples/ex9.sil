@@ -19,4 +19,3 @@ while (current <= limit) {
   current += 1;
 }
 print(count);
-
