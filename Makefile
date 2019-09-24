@@ -1,5 +1,5 @@
-.PHONY: std primes test
-.SILENT: test
+.PHONY: std primes test e2e
+.SILENT: test e2e
 
 CODE_DIR = src
 
@@ -7,6 +7,11 @@ test:
 	clear
 	echo "Running unit tests...\n"
 	$(MAKE) -s test -C $(CODE_DIR)
+
+e2e:
+	clear
+	echo "Running e2e tests..."
+	./scripts/test_all.sh
 
 std:
 	# NOTE: this contains debugging flags

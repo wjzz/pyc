@@ -45,8 +45,14 @@ ss := s*   # (possibly empty) statemenst list
 Running the tests
 =================
 
+Unit tests:
 ```
-$ ./scripts/test_all.sh
+$ make test
+```
+
+End to end tests:
+```
+$ make e2e
 ```
 
 Running the code
