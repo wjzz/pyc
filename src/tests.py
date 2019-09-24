@@ -1,10 +1,7 @@
 import unittest
-#from expr import NumberLit, Variable, Op, BinaryOp, LetIn
 from lexer import tokenize, simplify
 from parser import parse_stm, parse_bool, parse_expr
 from ast import *
-#from evaluator import evaluate
-#from top import ev
 
 class Tests(unittest.TestCase):
     pass
@@ -43,6 +40,22 @@ class Tests(unittest.TestCase):
             'TIMES', ('NUMBER', 22), 'RPAREN', 'EOF']
         
         self.assertEqual(expected, result)
+
+    def test_lexer_ident(self):
+        inputs = [
+            ("x", 
+            [('ID', 'x'), 'EOF']),
+            ("x123", 
+            [('ID', 'x123'), 'EOF']),
+            ("x_123", 
+            [('ID', 'x_123'), 'EOF']),
+
+        ]
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
 
     def test_lexer_ops(self):
         inputs = [
@@ -229,6 +242,11 @@ class Tests(unittest.TestCase):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 
             [StmPrint(ArithVar("x"))])
+
+        s1a = "print(x_);"
+        self.assertEqual(parse_stm(s1a), 
+            [StmPrint(ArithVar("x_"))])
+
 
         s2 = "print(15);"
         self.assertEqual(parse_stm(s2), 

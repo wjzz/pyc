@@ -152,9 +152,9 @@ def tokenize(s):
                 else:
                     unchar(char2)
                     yield token(Token.LESS)
-            elif char.isalnum():
+            elif char.isalnum() or char == "_":
                 value = ""
-                while char.isalnum():
+                while char.isalnum() or char == "_":
                     value += char
                     char = getchar()
                 assert(char is not None)
