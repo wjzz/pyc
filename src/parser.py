@@ -6,6 +6,8 @@ import sys
 # STM_TOP ::= <STM_LIST> EOF
 # STM_LIST ::= <STM> | <STM> <STM_LIST>
 # STM ::= PRINT ( <EXPR> ) SEMI
+#       | <TYPE> VAR SEMI
+#       | <TYPE> VAR = <EXPR> SEMI
 #       | VAR = <EXPR> SEMI
 #       | VAR op= <EXPR> SEMI
 #       | WHILE ( <BOOL> ) <BLOCK>
@@ -13,7 +15,6 @@ import sys
 
 # BLOCK ::= 
 #        | ;
-
 
 # ARITH_CMP ::= == | != | > | >= | < | <=
 # BOOL_OP ::= && | ||
@@ -68,12 +69,14 @@ class Parser:
     
     def parse_stm_many(self, end=Token.EOF):
         s = self.parse_stm()
+        if type(s) is not list:
+            s = [s]
         token = self.peek
         if token.tag != end:
             ss = self.parse_stm_many()
-            return [s] + ss
+            return s + ss
         else:
-            return [s]
+            return s
 
     def parse_stm(self):
         token = self.get_token
@@ -83,6 +86,21 @@ class Parser:
             self.expect(Token.RPAREN)
             self.expect(Token.SEMI)
             return E.StmPrint(a)
+
+        if token.tag == Token.TYPE:
+            tp = token.value
+            var = self.peek.value
+            self.expect(Token.ID)
+            if self.peek.tag == Token.SEMI:
+                self.expect(Token.SEMI)
+                # only declaration
+                return E.StmDecl(tp, var)
+            elif self.peek.tag == Token.EQUAL:
+                # declaration with initialization
+                self.expect(Token.EQUAL)
+                e = self.parse_expr()
+                self.expect(Token.SEMI)
+                return E.StmDecl(tp, var, e)
 
         elif token.tag == Token.ID:
             var = token.value

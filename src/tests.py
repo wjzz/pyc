@@ -1,7 +1,10 @@
 import unittest
+
+from ast import *
 from lexer import tokenize, simplify
 from parser import parse_stm, parse_expr, parse_arith
-from ast import *
+import compile
+import symbol_table
 
 class LexerTests(unittest.TestCase):
     def test_lexer(self):
@@ -33,6 +36,13 @@ class LexerTests(unittest.TestCase):
                 self.assertEqual(
                     list(simplify(tokenize(input))),
                     expected)
+
+    def test_lexer_decl(self):
+        input = "long x"
+        result = [('TYPE', 'long'), ('ID', 'x'), 'EOF']
+        self.assertEqual(
+            list(simplify(tokenize(input))),
+            result)
 
     def test_lexer_ops(self):
         inputs = [
@@ -281,6 +291,18 @@ class ParserTests(unittest.TestCase):
                 Var("x"),
                 ArithLit(1)))
 
+    def test_parser_decl(self):
+        decl = "long x;"
+        self.assertEqual(parse_stm(decl),
+            [StmDecl('long', 'x', None)]
+        )   
+
+    def test_parser_decl_initialized(self):
+        decl = "long x = 123;"
+        self.assertEqual(parse_stm(decl),
+            [StmDecl('long', 'x', ArithLit(num=123))]
+        )
+
     def test_parser_stm(self):
         s1 = "print(x);"
         self.assertEqual(parse_stm(s1), 
@@ -427,6 +449,17 @@ class ParserErrorTests(unittest.TestCase):
             with self.subTest(i = input):
                 with self.assertRaises(Exception):
                     parse_stm(input)
+
+class DeclTests(unittest.TestCase):
+    def test_decl(self):
+        # no exception
+        c = parse_stm("long x; x = 1;")
+        compile.compile_top(c)
+
+    def test_decl_non_defined(self):
+        c = parse_stm("x = 1;")
+        with self.assertRaises(symbol_table.UnboundVariableError):
+            compile.compile_top(c)
 
 if __name__ == "__main__":
     unittest.main()

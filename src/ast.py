@@ -87,6 +87,16 @@ class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
 # Statements
 #-----------------------------------------
 
+class StmDecl(namedtuple("StmDecl", "type var a", defaults=(None,))):
+    def __str__(self):
+        if self.a is not None:
+            return f"{self.type} {self.var} = {self.a};"
+        else: 
+            return f"{self.type} {self.var};"
+    
+    def accept(self, visitor):
+        return visitor.visit_StmDecl(self.type, self.var, self.a)
+
 class StmAssign(namedtuple("StmAssign", "var a")):
     def __str__(self):
         return f"{self.var} = {self.a};"

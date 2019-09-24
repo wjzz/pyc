@@ -38,6 +38,7 @@ class Token(AutoName):
     IF = auto()
     ELSE = auto()
     ID = auto()
+    TYPE = auto()
     EOF = auto()
 
 # I always wanted to do this!!
@@ -189,6 +190,8 @@ def tokenize(s):
                     yield token(Token.ELSE)
                 elif value == "print":
                     yield token(Token.PRINT)
+                elif value == "long":
+                    yield token_info(tag = Token.TYPE, value = "long")
                 else:
                     yield token_info(tag = Token.ID, value = value)
             else:

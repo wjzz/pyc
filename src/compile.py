@@ -1,5 +1,5 @@
 from ast import *
-from freevars import vars_many
+import symbol_table
 import sys
 from optimize import optimize
 
@@ -137,6 +137,14 @@ _or_right{label_id}:
 _or_ret{label_id}:
 """
 
+    def visit_StmDecl(self, tp, var, a):
+        # if a == None then we don't have to do anything
+
+        if a is not None:
+            return self.visit_StmAssign(var, a)
+        else:
+            return ""
+
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
         var = mangle(var)
@@ -191,8 +199,10 @@ def compile_many(stms):
     return CompileVisitor().visit_many(stms)
 
 def compile_top(stms):
-    free_vars = vars_many(stms)
-    vars_decl = define_vars(free_vars)
+    symbols = symbol_table.build(stms)
+    # print(symbols, file=sys.stderr)
+
+    vars_decl = define_vars(symbols)
 
     program = compile_many(stms)
 
