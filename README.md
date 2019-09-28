@@ -20,16 +20,17 @@ Add:
   [+] Block scoping
   [+] Correct handling of block scoping used symbol tables
   [+] Allow blocks to be inserted at arbitrary places
-  [ ] Use a parser generator so that we can extend the parser more easily
+  [+] Functions
+  [ ] Put local variables on the stack
   [ ] x++, x--, ++x, --x
   [ ] for loops
-  [ ] Functions
   [ ] Arrays
   [ ] Pointers
   [ ] Structs
   [ ] Floating-point operations
   [ ] Type checker
   [ ] Cmd line arguments
+  [ ] Use a parser generator so that we can extend the parser more easily
 
 SIL Syntax
 ==========
