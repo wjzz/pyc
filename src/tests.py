@@ -346,7 +346,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(
             parse_file(input_str),
-            [output]
+            ('PRAGMA', [output])
         )
 
     def test_parser_fundef_return(self):
@@ -361,7 +361,7 @@ class ParserTests(unittest.TestCase):
 
         self.assertEqual(
             parse_file(input_str),
-            [output]
+            ('PRAGMA', [output])
         )
 
     def test_parser_stm(self):

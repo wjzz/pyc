@@ -32,11 +32,15 @@ section .bss
 	mov rax, %1
 	call _int_to_string
 	println __digits
+%endmacro
+
+%macro exit 1
+        mov rdi, %1
+	jmp _exit
 %endmacro	
 	
-	
-%macro exit 0
-	jmp _exit
+%macro exit_ok 0
+        exit EXIT_SUCCESS
 %endmacro
 
 ;;; -------------------------------------------------------
@@ -134,5 +138,5 @@ _int_to_string_rev:
 	
 _exit:
 	mov rax, SYS_EXIT
-	mov rdi, EXIT_SUCCESS
+	;; mov rdi, EXIT_SUCCESS
 	syscall

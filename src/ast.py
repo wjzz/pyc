@@ -182,6 +182,9 @@ class FunDecl(namedtuple("FunDecl", "type name args body")):
         ss = "\n".join(map(str, self.body))
         return f"{self.type} {self.name} {args} {{\n\t{ss}\n}}"
 
+    def accept(self, visitor):
+        return visitor.visit_FunDecl(self.type, self.name, self.args, self.body)
+
 #-----------------------------------------
 # Tests
 #-----------------------------------------

@@ -81,9 +81,9 @@ class Parser:
         token = self.peek
         if token.tag == Token.PRAGMA:
             self.expect(Token.PRAGMA)
-            return self.parse_definitions()
+            return ('PRAGMA', self.parse_definitions())
         else:
-            return self.parse_stm_top()
+            return ('STMS', self.parse_stm_top())
 
     def parse_definitions(self):
         return self.parse_many(self.parse_definition, sep=None, end=Token.EOF)
