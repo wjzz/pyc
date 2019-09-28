@@ -1,6 +1,20 @@
 from enum import Enum
 from collections import namedtuple
 
+
+#-----------------------------------------
+# Types
+#-----------------------------------------
+
+class AtomType(Enum):
+    Int = "int"
+    Long = "long"
+    Void = "void"
+    Char = "char"
+
+    def __str__(self):
+        return self.value
+
 #-----------------------------------------
 # Arithmetic operations
 #-----------------------------------------

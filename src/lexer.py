@@ -40,6 +40,7 @@ class Token(AutoName):
     ID = auto()
     TYPE = auto()
     PRAGMA = auto()
+    COMMA = auto()
     EOF = auto()
 
 # I always wanted to do this!!
@@ -95,6 +96,7 @@ def tokenize(s):
         "/": Token.DIVIDE,
         "%": Token.MOD,
         ";": Token.SEMI,
+        ",": Token.COMMA,
     }
 
     # note: we add the sentinel at the end to make sure
@@ -198,6 +200,12 @@ def tokenize(s):
                     yield token(Token.PRINT)
                 elif value == "long":
                     yield token_info(tag = Token.TYPE, value = "long")
+                elif value == "int":
+                    yield token_info(tag = Token.TYPE, value = "int")
+                elif value == "char":
+                    yield token_info(tag = Token.TYPE, value = "char")
+                elif value == "void":
+                    yield token_info(tag = Token.TYPE, value = "void")
                 else:
                     yield token_info(tag = Token.ID, value = value)
             else:
