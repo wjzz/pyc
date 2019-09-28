@@ -131,21 +131,33 @@ class Parser:
     def parse_stms(self, end=Token.EOF):
         return self.parse_many(self.parse_stm, sep=None, end=end)
 
-    def parse_stm(self):
-        token = self.get_token
+    def parse_stm_print(self):
+        self.expect(Token.PRINT)
+        self.expect(Token.LPAREN)
+        a = self.parse_arith()
+        self.expect(Token.RPAREN)
+        self.expect(Token.SEMI)
+        return E.StmPrint(a)
 
-        if token.tag == Token.LBRACE:
+    def parse_stm(self):
+        token = self.peek
+        tag = token.tag
+
+        if tag == Token.LBRACE:
+            self.expect(Token.LBRACE)
             ss = self.parse_stms(end=Token.RBRACE)
             return E.StmBlock(ss)
 
-        if token.tag == Token.PRINT:
+        if tag == Token.PRINT:
+            self.expect(Token.PRINT)
             self.expect(Token.LPAREN)
             a = self.parse_arith()
             self.expect(Token.RPAREN)
             self.expect(Token.SEMI)
             return E.StmPrint(a)
 
-        if token.tag == Token.TYPE:
+        if tag == Token.TYPE:
+            self.expect(Token.TYPE)
             tp = token.value
             var = self.peek.value
             self.expect(Token.ID)
@@ -160,7 +172,8 @@ class Parser:
                 self.expect(Token.SEMI)
                 return E.StmDecl(tp, var, e)
 
-        elif token.tag == Token.ID:
+        elif tag == Token.ID:
+            self.expect(Token.ID)
             var = token.value
             compounds = [
                 Token.PLUS_EQ,
@@ -200,14 +213,16 @@ class Parser:
                         E.Var(var),
                         a))
 
-        elif token.tag == Token.WHILE:
+        elif tag == Token.WHILE:
+            self.expect(Token.WHILE)
             self.expect(Token.LPAREN)
             b = self.parse_expr()
             self.expect(Token.RPAREN)
             ss = self.parse_block()
             return E.StmWhile(b, ss)
 
-        elif token.tag == Token.IF:
+        elif tag == Token.IF:
+            self.expect(Token.IF)
             self.expect(Token.LPAREN)
             b = self.parse_expr()
             self.expect(Token.RPAREN)
@@ -220,10 +235,8 @@ class Parser:
             return E.StmIf(b, ss1, ss2)
 
         else:
-            msg = f"Unexpected token = {token.tag}"
+            msg = f"Unexpected tag = {tag}"
             raise ParseError(token=token, msg=msg)
-            
-            #raise Exception(f"unexpected tag = {token.tag}")
 
     def parse_block(self):
         token = self.peek
