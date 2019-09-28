@@ -263,6 +263,14 @@ class ParserTests(unittest.TestCase):
         r5 = BoolArithCmp(ArithCmp.Gt, r4, ArithLit(4))
         self.assertEqual(parse_expr(e5), r5)
 
+        e6 = "foo(x, y, bar())"
+        r6 = FunCall("foo", 
+                [Var("x"),
+                Var("y"),
+                FunCall("bar", [])])
+        self.assertEqual(parse_expr(e6), r6)
+
+
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
         self.assertEqual(parse_expr(b1a), 
