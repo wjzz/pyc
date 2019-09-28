@@ -523,22 +523,22 @@ class DeclTests(unittest.TestCase):
     def test_decl(self):
         # no exception
         c = parse_stm("long x; x = 1;")
-        compile.compile_top(c)
+        compile.compile_top(('STMS', c))
 
     def test_decl_non_defined(self):
         c = parse_stm("x = 1;")
         with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(c)
+            compile.compile_top(('STMS', c))
 
     def test_decl_non_defined_block(self):
         c = parse_stm("while (1) {} x = 1;")
         with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(c)
+            compile.compile_top(('STMS', c))
 
     def test_decl_block_scoping(self):
         c = parse_stm("while (1) {long x;} x = 1;")
         with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(c)
+            compile.compile_top(('STMS', c))
 
 
 if __name__ == "__main__":
