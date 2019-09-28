@@ -109,25 +109,25 @@ class Parser:
         assert(token.tag == Token.ID)
         return token.value
 
-    def parse_arg(self):
+    def parse_param(self):
         "E.g. long a"
         tp = self.parse_type()
         var = self.parse_id()
         return E.FunArg(tp, var)
 
-    def parse_args(self):
+    def parse_params(self):
         self.expect(Token.LPAREN)
-        args = self.parse_many(self.parse_arg, sep=Token.COMMA, end=Token.RPAREN)
-        return args
+        params = self.parse_many(self.parse_param, sep=Token.COMMA, end=Token.RPAREN)
+        return params
 
     def parse_definition(self):
         "E.g.: long foo(long arg1, long arg2) { ... }"
         tp = self.parse_type()
         name = self.parse_id()
-        args = self.parse_args()
+        params = self.parse_params()
         self.expect(Token.LBRACE)
         body = self.parse_stms(end=Token.RBRACE)
-        return E.FunDecl(tp, name, args, body)
+        return E.FunDecl(tp, name, params, body)
 
     #-----------------------------------
     # Statements

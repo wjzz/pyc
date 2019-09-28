@@ -229,7 +229,7 @@ _while_ret{label_id}:\n\
         self._vars = var_names
         return ss
 
-    def visit_FunDecl(self, _type, name, _args, body):
+    def visit_FunDecl(self, _type, name, _params, body):
         funname = mangle_fun(name)
         ss = self.visit_many(body)
         return f"""
@@ -320,7 +320,7 @@ _start:
 {global_defs}\
     """
 
-    print(template, flush=True, file=sys.stderr)
+    #print(template, flush=True, file=sys.stderr)
     return template
     #raise NotImplementedError
 

@@ -240,6 +240,13 @@ class ParserTests(unittest.TestCase):
                 ArithLit(2))
         self.assertEqual(parse_arith(e11), r11)
 
+    def test_parser_expr_funcall(self):
+        e1 = "foo()"
+
+        e2 = "foo(1)"
+
+        e3 = "foo(1,2)"
+
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
         self.assertEqual(parse_expr(b1a), 
@@ -539,7 +546,6 @@ class DeclTests(unittest.TestCase):
         c = parse_stm("while (1) {long x;} x = 1;")
         with self.assertRaises(symbol_table.UnboundVariableError):
             compile.compile_top(('STMS', c))
-
 
 if __name__ == "__main__":
     unittest.main()

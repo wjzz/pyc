@@ -176,14 +176,14 @@ class FunArg(namedtuple("FunArg", "type var")):
     def __str__(self):
         return f"{self.type} {self.var}"
 
-class FunDecl(namedtuple("FunDecl", "type name args body")):
+class FunDecl(namedtuple("FunDecl", "type name params body")):
     def __str__(self):
-        args = ", ".join(map(str, self.args))
+        params = ", ".join(map(str, self.params))
         ss = "\n".join(map(str, self.body))
-        return f"{self.type} {self.name} {args} {{\n\t{ss}\n}}"
+        return f"{self.type} {self.name} {params} {{\n\t{ss}\n}}"
 
     def accept(self, visitor):
-        return visitor.visit_FunDecl(self.type, self.name, self.args, self.body)
+        return visitor.visit_FunDecl(self.type, self.name, self.params, self.body)
 
 #-----------------------------------------
 # Tests
