@@ -4,9 +4,37 @@ long addone(long x) {
   return x + 1;
 }
 
+long add(long x, long y) {
+  return x + y;
+}
+
+long factorial(long x) {
+    if (x == 0) {
+        return 1;
+    } else {
+        return x * factorial(x-1);
+    }
+}
+
+long fib(long n) {
+    if (n <= 1) {
+        return n;
+    } else {
+        return fib(n-1) + fib(n-2);
+    }
+}
+
 int main() {
   print(addone(122));
-  print(addone(100));
-  print(addone(1) + addone(1));
+  print(add(10, 15));
+  print(factorial(5));
+  print(factorial(10));
+  print(factorial(20));   // bigger numbers don't fit in int64
+
+  long n = 0;
+  while (n < 20) {
+      print(fib(n));
+      n += 1;
+  }
   return 0;
 }

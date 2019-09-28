@@ -58,7 +58,7 @@ class CompileVisitor:
         cc = ""
         for arg in reversed(args):
             cc += arg.accept(self)   # we have implicit pushes over here
-            arg_popping += "pop r12"  # TODO: this can be replaced by a simple pointer arithm.
+            arg_popping += "    pop r12\n"  # TODO: this can be replaced by a simple pointer arithm.
         # next - call the function
         funname = mangle_fun(name)
         cc += f"""\
@@ -365,8 +365,8 @@ _start:\
 def compile_global_defs(defs):
     visitor = CompileVisitor()
     code = visitor.visit_many_defs(defs)
-    # vars = visitor.vars
-    return code #, vars
+    vars = visitor.vars
+    return code, vars
 
 def compile_file(defs):
     names = [defn.name for defn in defs]
@@ -381,9 +381,9 @@ def compile_file(defs):
     # print(symbols, file=sys.stderr)
 
     #program, symbols = compile_many(stms)
-    #vars_decl = define_vars(symbols)
-    vars_decl = ""
-    global_defs = compile_global_defs(defs)
+    #vars_decl = ""
+    global_defs, symbols = compile_global_defs(defs)
+    vars_decl = define_vars(symbols)
 
     template = f"""\
 %include "asm/std.asm"
