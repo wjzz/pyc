@@ -64,6 +64,24 @@ class Parser:
         assert(token.tag in expected_tags)
 
     #-----------------------------------
+    # Top-level definitions
+
+    def parse_file_top(self):
+        s = self.parse_file()
+        self.expect(Token.EOF)
+        return s
+
+    def parse_file(self):
+        token = self.peek
+        if token.tag == Token.PRAGMA:
+            return self.parse_definitions()
+        else:
+            return self.parse_stm_many()
+
+    def parse_definitions(self):
+        raise NotImplementedError
+
+    #-----------------------------------
     # Statements
 
     def parse_stm_top(self):
@@ -310,7 +328,6 @@ def parse_arith(s):
     Takes an input string and outputs an expr AST
     """
     tokens = tokenize(s)
-    #print(list(tokenize(s)))
     return Parser(tokens).parse_expr_top()
 
 def parse_expr(s):
@@ -318,7 +335,6 @@ def parse_expr(s):
     Takes an input string and outputs a bool expr AST
     """
     tokens = tokenize(s)
-    #print(list(tokenize(s)))
     return Parser(tokens).parse_expr_top()
 
 def parse_stm(s):
@@ -326,5 +342,11 @@ def parse_stm(s):
     Takes an input string and outputs a stm AST
     """
     tokens = tokenize(s)
-    #print(list(tokenize(s)))
     return Parser(tokens).parse_stm_top()
+
+def parse_file(s):
+    """
+    Takes an input string and outputs a definition list or stm AST
+    """
+    tokens = tokenize(s)
+    return Parser(tokens).parse_file_top()

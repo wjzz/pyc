@@ -1,0 +1,7 @@
+long foo(long x) {
+  return x + 1;
+}
+
+long x = 123;
+print(foo(x));
+

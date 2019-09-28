@@ -97,6 +97,7 @@ class StmDecl(namedtuple("StmDecl", "type var a", defaults=(None,))):
     def accept(self, visitor):
         return visitor.visit_StmDecl(self.type, self.var, self.a)
 
+
 class StmAssign(namedtuple("StmAssign", "var a")):
     def __str__(self):
         return f"{self.var} = {self.a};"

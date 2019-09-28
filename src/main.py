@@ -13,7 +13,7 @@ if __name__ == "__main__":
             with open(file_name, "r") as f:
                 lines = "".join(f.readlines())
                 # parse
-                c = parser.parse_stm(lines)
+                c = parser.parse_file(lines)
                 # compile
                 result = compile.compile_top(c)
                 # output 
