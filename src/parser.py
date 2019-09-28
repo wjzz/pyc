@@ -139,39 +139,37 @@ class Parser:
         self.expect(Token.SEMI)
         return E.StmPrint(a)
 
+    def parse_stm_block(self):
+        self.expect(Token.LBRACE)
+        ss = self.parse_stms(end=Token.RBRACE)
+        return E.StmBlock(ss)
+
+    def parse_stm_var_decl(self):
+        tp = self.parse_type()
+        var = self.parse_id()
+        if self.peek.tag == Token.SEMI:
+            self.expect(Token.SEMI)
+            # only declaration
+            return E.StmDecl(tp, var)
+        elif self.peek.tag == Token.EQUAL:
+            # declaration with initialization
+            self.expect(Token.EQUAL)
+            e = self.parse_expr()
+            self.expect(Token.SEMI)
+            return E.StmDecl(tp, var, e)
+
     def parse_stm(self):
         token = self.peek
         tag = token.tag
 
         if tag == Token.LBRACE:
-            self.expect(Token.LBRACE)
-            ss = self.parse_stms(end=Token.RBRACE)
-            return E.StmBlock(ss)
+            return self.parse_stm_block()
 
         if tag == Token.PRINT:
-            self.expect(Token.PRINT)
-            self.expect(Token.LPAREN)
-            a = self.parse_arith()
-            self.expect(Token.RPAREN)
-            self.expect(Token.SEMI)
-            return E.StmPrint(a)
+            return self.parse_stm_print()
 
         if tag == Token.TYPE:
-            self.expect(Token.TYPE)
-            tp = token.value
-            var = self.peek.value
-            self.expect(Token.ID)
-            if self.peek.tag == Token.SEMI:
-                self.expect(Token.SEMI)
-                # only declaration
-                return E.StmDecl(tp, var)
-            elif self.peek.tag == Token.EQUAL:
-                # declaration with initialization
-                self.expect(Token.EQUAL)
-                e = self.parse_expr()
-                self.expect(Token.SEMI)
-                return E.StmDecl(tp, var, e)
-
+            return self.parse_stm_var_decl()
         elif tag == Token.ID:
             self.expect(Token.ID)
             var = token.value
