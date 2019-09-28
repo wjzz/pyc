@@ -158,11 +158,73 @@ class Parser:
             self.expect(Token.SEMI)
             return E.StmDecl(tp, var, e)
 
+    def parse_stm_assignment(self):
+        var = self.parse_id()
+        compounds = [
+            Token.PLUS_EQ,
+            Token.MINUS_EQ,
+            Token.TIMES_EQ,
+            Token.DIVIDE_EQ,
+            Token.MOD_EQ,
+        ]
+        assign = self.peek.tag
+        self.expect(Token.EQUAL, *compounds)
+        a = self.parse_arith()
+        self.expect(Token.SEMI)
+
+        if assign == Token.EQUAL:
+            return E.StmAssign(var, a)
+        else:
+            if assign == Token.PLUS_EQ:
+                op = E.ArithOp.Add
+            elif assign == Token.MINUS_EQ:
+                op = E.ArithOp.Sub
+            elif assign == Token.TIMES_EQ:
+                op = E.ArithOp.Mul
+            elif assign == Token.DIVIDE_EQ:
+                op = E.ArithOp.Div
+            elif assign == Token.MOD_EQ:
+                op = E.ArithOp.Mod
+            else:
+                raise ParseError(token=assign,
+                    msg = f"Wrong assignment {assign}")
+                #raise Exception(f"Wrong assignment {assign}")
+            
+            # change x += 1 into x = x + 1
+            return E.StmAssign(
+                var, 
+                E.ArithBinop(
+                    op,
+                    E.Var(var),
+                    a))
+
+
+    def parse_stm_while(self):
+        self.expect(Token.WHILE)
+        self.expect(Token.LPAREN)
+        b = self.parse_expr()
+        self.expect(Token.RPAREN)
+        ss = self.parse_block()
+        return E.StmWhile(b, ss)
+
+    def parse_stm_if(self):
+        self.expect(Token.IF)
+        self.expect(Token.LPAREN)
+        b = self.parse_expr()
+        self.expect(Token.RPAREN)
+        ss1 = self.parse_block()
+        if self.peek.tag == Token.ELSE:
+            self.expect(Token.ELSE)
+            ss2 = self.parse_block()
+        else:
+            ss2 = []
+        return E.StmIf(b, ss1, ss2)
+
     def parse_stm(self):
         token = self.peek
         tag = token.tag
 
-        if tag == Token.LBRACE:
+        if tag == Token.LBRACE: 
             return self.parse_stm_block()
 
         if tag == Token.PRINT:
@@ -170,68 +232,16 @@ class Parser:
 
         if tag == Token.TYPE:
             return self.parse_stm_var_decl()
-        elif tag == Token.ID:
-            self.expect(Token.ID)
-            var = token.value
-            compounds = [
-                Token.PLUS_EQ,
-                Token.MINUS_EQ,
-                Token.TIMES_EQ,
-                Token.DIVIDE_EQ,
-                Token.MOD_EQ,
-            ]
-            assign = self.peek.tag
-            self.expect(Token.EQUAL, *compounds)
-            a = self.parse_arith()
-            self.expect(Token.SEMI)
 
-            if assign == Token.EQUAL:
-                return E.StmAssign(var, a)
-            else:
-                if assign == Token.PLUS_EQ:
-                    op = E.ArithOp.Add
-                elif assign == Token.MINUS_EQ:
-                    op = E.ArithOp.Sub
-                elif assign == Token.TIMES_EQ:
-                    op = E.ArithOp.Mul
-                elif assign == Token.DIVIDE_EQ:
-                    op = E.ArithOp.Div
-                elif assign == Token.MOD_EQ:
-                    op = E.ArithOp.Mod
-                else:
-                    raise ParseError(token=assign,
-                      msg = f"Wrong assignment {assign}")
-                    #raise Exception(f"Wrong assignment {assign}")
-                
-                # change x += 1 into x = x + 1
-                return E.StmAssign(
-                    var, 
-                    E.ArithBinop(
-                        op,
-                        E.Var(var),
-                        a))
+        elif tag == Token.ID:
+            return self.parse_stm_assignment()
 
         elif tag == Token.WHILE:
-            self.expect(Token.WHILE)
-            self.expect(Token.LPAREN)
-            b = self.parse_expr()
-            self.expect(Token.RPAREN)
-            ss = self.parse_block()
-            return E.StmWhile(b, ss)
-
+            return self.parse_stm_while()
+            
         elif tag == Token.IF:
-            self.expect(Token.IF)
-            self.expect(Token.LPAREN)
-            b = self.parse_expr()
-            self.expect(Token.RPAREN)
-            ss1 = self.parse_block()
-            if self.peek.tag == Token.ELSE:
-                self.expect(Token.ELSE)
-                ss2 = self.parse_block()
-            else:
-                ss2 = []
-            return E.StmIf(b, ss1, ss2)
-
+            return self.parse_stm_if()
+            
         else:
             msg = f"Unexpected tag = {tag}"
             raise ParseError(token=token, msg=msg)
