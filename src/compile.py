@@ -369,7 +369,6 @@ def compile_global_defs(defs):
     return code #, vars
 
 def compile_file(defs):
-    print(f"found {len(defs)} declarations", file=sys.stderr, flush=True)
     names = [defn.name for defn in defs]
     if "main" not in names:
         print("A program with function definition must have"
