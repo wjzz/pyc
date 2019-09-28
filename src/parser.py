@@ -3,6 +3,8 @@ import ast as E
 
 import sys
 
+# TODO: update the grammar
+
 # STM_TOP ::= <STM_LIST> EOF
 # STM_LIST ::= <STM> | <STM> <STM_LIST>
 # STM ::= PRINT ( <EXPR> ) SEMI
@@ -367,6 +369,12 @@ class Parser:
             tag = tags[token.tag]
             return E.ArithBinop(tag, atom, factor)
 
+    #-----------------------------------
+    # Function calls
+
+    def parse_args(self):
+        return self.parse_many(self.parse_expr, sep=Token.COMMA, end=Token.RPAREN)        
+
     def parse_atom(self):
         token = self.get_token
         if token.tag == Token.LPAREN:
@@ -376,7 +384,14 @@ class Parser:
         elif token.tag == Token.NUMBER:
             return E.ArithLit(token.value)
         elif token.tag == Token.ID:
-            return E.Var(token.value)
+            # variable or funcall
+            if self.peek.tag == Token.LPAREN:
+                name = token.value
+                self.expect(Token.LPAREN)
+                args = self.parse_args()
+                return E.FunCall(name, args)
+            else:
+                return E.Var(token.value)
         else:
             msg = f"Unexpected token: {token.tag}\n" \
                 "Expected expression, namely one of LPAREN, " \

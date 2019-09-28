@@ -242,10 +242,26 @@ class ParserTests(unittest.TestCase):
 
     def test_parser_expr_funcall(self):
         e1 = "foo()"
+        r1 = FunCall("foo", [])
+        self.assertEqual(parse_expr(e1), r1)
 
         e2 = "foo(1)"
+        r2 = FunCall("foo", [ArithLit(1)])
+        self.assertEqual(parse_expr(e2), r2)
 
         e3 = "foo(1,2)"
+        r3 = FunCall("foo", [ArithLit(1), ArithLit(2)])
+        self.assertEqual(parse_expr(e3), r3)
+
+        e4 = "2 + foo()"
+        r4 = ArithBinop(ArithOp.Add, 
+            ArithLit(2),
+            FunCall("foo", [])) 
+        self.assertEqual(parse_expr(e4), r4)
+
+        e5 = "2 + foo() > 4"
+        r5 = BoolArithCmp(ArithCmp.Gt, r4, ArithLit(4))
+        self.assertEqual(parse_expr(e5), r5)
 
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"

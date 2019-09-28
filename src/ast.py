@@ -96,6 +96,18 @@ class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
     def accept(self, visitor):
         return visitor.visit_BoolBinop(self.op, self.b1, self.b2)
 
+#-----------------------------------------
+# Other expressions
+#-----------------------------------------
+
+class FunCall(namedtuple("FunCall", "name args")):
+
+    def __str__(self):
+        args = ", ".join(map(str, self.args))
+        return f"{self.name}({args})"
+
+    def accept(self, visitor):
+        return visitor.visit_FunCall(self.name, self.args)
 
 #-----------------------------------------
 # Statements
@@ -180,7 +192,7 @@ class FunDecl(namedtuple("FunDecl", "type name params body")):
     def __str__(self):
         params = ", ".join(map(str, self.params))
         ss = "\n".join(map(str, self.body))
-        return f"{self.type} {self.name} {params} {{\n\t{ss}\n}}"
+        return f"{self.type} {self.name}({params}) {{\n\t{ss}\n}}"
 
     def accept(self, visitor):
         return visitor.visit_FunDecl(self.type, self.name, self.params, self.body)
