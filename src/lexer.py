@@ -34,6 +34,7 @@ class Token(AutoName):
     MOD_EQ = auto()
     NUMBER = auto()
     PRINT = auto()
+    RETURN = auto()
     WHILE = auto()
     IF = auto()
     ELSE = auto()
@@ -198,6 +199,8 @@ def tokenize(s):
                     yield token(Token.ELSE)
                 elif value == "print":
                     yield token(Token.PRINT)
+                elif value == "return":
+                    yield token(Token.RETURN)
                 elif value == "long":
                     yield token_info(tag = Token.TYPE, value = "long")
                 elif value == "int":

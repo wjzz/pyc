@@ -148,7 +148,7 @@ class StmWhile(namedtuple('StmWhile', "b ss")):
 
 class StmPrint(namedtuple("StmPrint", "a")):
     def __str__(self):
-        return f"print {self.a};"
+        return f"print({self.a});"
     
     def accept(self, visitor):
         return visitor.visit_StmPrint(self.a)
@@ -168,6 +168,19 @@ class StmBlock(namedtuple("StmBlock", "ss")):
     def accept(self, visitor):
         return visitor.visit_StmBlock(self.ss)
 
+#-----------------------------------------
+# Top level declarations
+#-----------------------------------------
+
+class FunArg(namedtuple("FunArg", "type var")):
+    def __str__(self):
+        return f"{self.type} {self.var}"
+
+class FunDecl(namedtuple("FunDecl", "type name args body")):
+    def __str__(self):
+        args = ", ".join(map(str, self.args))
+        ss = "\n".join(map(str, self.body))
+        return f"{self.type} {self.name} {args} {{\n\t{ss}\n}}"
 
 #-----------------------------------------
 # Tests

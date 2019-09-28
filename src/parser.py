@@ -80,6 +80,7 @@ class Parser:
     def parse_file_top(self):
         token = self.peek
         if token.tag == Token.PRAGMA:
+            self.expect(Token.PRAGMA)
             return self.parse_definitions()
         else:
             return self.parse_stm_top()
@@ -88,8 +89,8 @@ class Parser:
         return self.parse_many(self.parse_definition, sep=None, end=Token.EOF)
 
     def parse_type(self):
-        token = self.get_token
-        assert(token.tag == Token.TYPE)
+        token = self.peek
+        self.expect(Token.TYPE)
         tp = token.value
         if tp == "int":
             return E.AtomType.Int
@@ -100,7 +101,8 @@ class Parser:
         elif tp == "void":
             return E.AtomType.Void
         else:
-            raise ParseError(token, "unknown type expected int, long, char or void, got {tp}")
+            raise ParseError(token, "unknown type expected "
+                "int, long, char or void, got {tp}")
         
     def parse_id(self):
         token = self.get_token
@@ -108,19 +110,24 @@ class Parser:
         return token.value
 
     def parse_arg(self):
-        raise NotImplementedError
+        "E.g. long a"
+        tp = self.parse_type()
+        var = self.parse_id()
+        return E.FunArg(tp, var)
 
     def parse_args(self):
         self.expect(Token.LPAREN)
         args = self.parse_many(self.parse_arg, sep=Token.COMMA, end=Token.RPAREN)
-        self.expect(Token.RPAREN)
         return args
 
     def parse_definition(self):
         "E.g.: long foo(long arg1, long arg2) { ... }"
-        return_tp = self.parse_type()
-        id = self.parse_id()
+        tp = self.parse_type()
+        name = self.parse_id()
         args = self.parse_args()
+        self.expect(Token.LBRACE)
+        body = self.parse_stms(end=Token.RBRACE)
+        return E.FunDecl(tp, name, args, body)
 
     #-----------------------------------
     # Statements
@@ -198,13 +205,12 @@ class Parser:
                     E.Var(var),
                     a))
 
-
     def parse_stm_while(self):
         self.expect(Token.WHILE)
         self.expect(Token.LPAREN)
         b = self.parse_expr()
         self.expect(Token.RPAREN)
-        ss = self.parse_block()
+        ss = self.parse_block_or_stm()
         return E.StmWhile(b, ss)
 
     def parse_stm_if(self):
@@ -212,13 +218,19 @@ class Parser:
         self.expect(Token.LPAREN)
         b = self.parse_expr()
         self.expect(Token.RPAREN)
-        ss1 = self.parse_block()
+        ss1 = self.parse_block_or_stm()
         if self.peek.tag == Token.ELSE:
             self.expect(Token.ELSE)
-            ss2 = self.parse_block()
+            ss2 = self.parse_block_or_stm()
         else:
             ss2 = []
         return E.StmIf(b, ss1, ss2)
+
+    def parse_return(self):
+        self.expect(Token.RETURN)
+        e = self.parse_expr()
+        self.expect(Token.SEMI)
+        return E.StmReturn(e)
 
     def parse_stm(self):
         token = self.peek
@@ -227,10 +239,13 @@ class Parser:
         if tag == Token.LBRACE: 
             return self.parse_stm_block()
 
-        if tag == Token.PRINT:
+        elif tag == Token.PRINT:
             return self.parse_stm_print()
 
-        if tag == Token.TYPE:
+        elif tag == Token.RETURN:
+            return self.parse_return()
+
+        elif tag == Token.TYPE:
             return self.parse_stm_var_decl()
 
         elif tag == Token.ID:
@@ -246,7 +261,7 @@ class Parser:
             msg = f"Unexpected tag = {tag}"
             raise ParseError(token=token, msg=msg)
 
-    def parse_block(self):
+    def parse_block_or_stm(self):
         token = self.peek
         if token.tag == Token.LBRACE:
             self.expect(Token.LBRACE)

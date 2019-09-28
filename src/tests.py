@@ -2,7 +2,7 @@ import unittest
 
 from ast import *
 from lexer import tokenize, simplify
-from parser import parse_stm, parse_expr, parse_arith
+from parser import parse_file, parse_stm, parse_expr, parse_arith
 import compile
 import symbol_table
 
@@ -105,6 +105,37 @@ class LexerTests(unittest.TestCase):
 
         self.assertEqual(expected, result)
 
+    def test_lexer_fun_decl(self):
+        input_str = "void foo(long a, int b) { }"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = [ ('TYPE', 'void'), ('ID', 'foo'), 
+            'LPAREN', ('TYPE', 'long'), 
+            ('ID', 'a'), 'COMMA', ('TYPE', 'int'), ('ID', 'b'),
+            'RPAREN', 'LBRACE', 'RBRACE', 'EOF'
+        ]
+
+        self.assertEqual(expected, result)
+
+    def test_lexer_pragma(self):
+        input_str = "#ignored-until-eof"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = [ 'PRAGMA', 'EOF' ]
+
+        self.assertEqual(expected, result)
+
+
+    def test_lexer_return(self):
+        input_str = "return x;"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = ['RETURN', ('ID', 'x'), 'SEMI', 'EOF']
+        
+        self.assertEqual(expected, result)
 
     def test_lexer_print(self):
         input_str = "print(x);"
@@ -301,6 +332,36 @@ class ParserTests(unittest.TestCase):
         decl = "long x = 123;"
         self.assertEqual(parse_stm(decl),
             [StmDecl(AtomType.Long, 'x', ArithLit(num=123))]
+        )
+
+    def test_parser_fundef(self):
+        input_str = "#\n    void foo(long a, int b) { }"
+        output = FunDecl(AtomType.Void,
+                    "foo",
+                    [
+                        FunArg(AtomType.Long, "a"),
+                        FunArg(AtomType.Int, "b")
+                    ],
+                    [])
+
+        self.assertEqual(
+            parse_file(input_str),
+            [output]
+        )
+
+    def test_parser_fundef_return(self):
+        input_str = "#\n    void foo(long a, int b) { return a; }"
+        output = FunDecl(AtomType.Void,
+                    "foo",
+                    [
+                        FunArg(AtomType.Long, "a"),
+                        FunArg(AtomType.Int, "b")
+                    ],
+                    [StmReturn(Var("a"))])
+
+        self.assertEqual(
+            parse_file(input_str),
+            [output]
         )
 
     def test_parser_stm(self):
