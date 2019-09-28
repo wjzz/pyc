@@ -1,0 +1,13 @@
+#define EXAMPLE
+
+long add_one(long x) {
+  return x + 1;
+  // make sure this is not printed
+  print(10);
+  return x + 2;
+}
+
+int main() {
+  print(add_one(122));
+  return 0;
+}

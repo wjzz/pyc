@@ -1,10 +1,12 @@
 #define EXAMPLE
 
-long add_one(long x) {
+long addone(long x) {
   return x + 1;
 }
 
 int main() {
-  print(add_one(122));
+  print(addone(122));
+  print(addone(100));
+  print(addone(1) + addone(1));
   return 0;
 }

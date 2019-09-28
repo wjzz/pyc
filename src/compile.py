@@ -16,6 +16,8 @@ class CompileVisitor:
     def __init__(self):
         self._vars = defaultdict(int)
         self._vars_in_scope = set()
+        # symbol table
+        self._var_addr = defaultdict(list)
     
     def add_variable(self, var):
         self._vars_in_scope.add(var)
@@ -35,12 +37,36 @@ class CompileVisitor:
     push {val}\n"""
 
     def visit_Var(self, var):
-        var = self.add_depth(var)
-        var = mangle(var)
+        if self._var_addr[var] != []:
+            var = self._var_addr[var][-1]
+        else:
+            var = self.add_depth(var)
+            var = mangle(var)
         return f"""\
     mov rax, [{var}]
     push rax\n\
 """
+
+    # VERSION 1: we put all args on the stack
+    # NOTE: we also have to pop them off
+    # RETURN VALUE:
+    #   all expressions leave the result on the top of the stack
+    def visit_FunCall(self, name, args):
+        # first prepare the arguments on the stack
+        # we evaluate them right-to-left (seems natural here)
+        arg_popping = ""
+        cc = ""
+        for arg in reversed(args):
+            cc += arg.accept(self)   # we have implicit pushes over here
+            arg_popping += "pop r12"  # TODO: this can be replaced by a simple pointer arithm.
+        # next - call the function
+        funname = mangle_fun(name)
+        cc += f"""\
+    call {funname}
+{arg_popping}
+    push rax
+"""
+        return cc
 
     def visit_ArithBinop(self, op, a1, a2):
         c1 = a1.accept(self)
@@ -213,6 +239,8 @@ _while_ret{label_id}:\n\
 """
         return cval
 
+    # TODO: make sure return leaves the function early
+    # NOTE: it should jump to the epilogue
     def visit_StmReturn(self, a):
         cval = a.accept(self)
         cval += """\
@@ -229,17 +257,70 @@ _while_ret{label_id}:\n\
         self._vars = var_names
         return ss
 
-    def visit_FunDecl(self, _type, name, _params, body):
+    def visit_FunDecl(self, _type, name, params, body):
         funname = mangle_fun(name)
-        ss = self.visit_many(body)
+        # prepare the prologue
+        # 
+        # at this moment [rsp] contains the return address
+        # [rsp] +  8 contains arg #1
+        # [rsp] + 16 contains arg #2
+        # etc
+        # 
+        # We store rsp in rbp at the very start of the prologue
+        # so we can reference the vars using offsets of rbp.
+        #
+        # THIS ALSO MEANS THAT WE MUST ADD ANOTHER OFFSET OF 8!
+        # The stack looks like this:
+        # [rbp]      == value of rsp
+        # [rbp +  8] == stored value of rbp
+        # [rbp + 16] == arg #1
+        # [rbp + 24] == arg #2
+        # etc!
+        # 
+        # Note that the value of rsp changes as we change the stack.
+        # rbp is a callee-save register, so we don't have to worry
+        # about it being changed when calling other functions.
+
+        # Bind the parameters
+        word_len = 8
+        for i, param in enumerate(params):
+            var = param.var
+            index = 2 + i
+            # offset = word_len * index
+            addr = f"rbp + {word_len} * {index}"
+            self._var_addr[var].append(addr) 
+            #print(f"variable {var} has offset {offset}", file=sys.stderr)
+
+        prologue = """
+    push rbp
+    mov rbp, rsp
+"""
+        # The main body of the function
+        # the rules of the function call is the content of the rax register
+        body_code = self.visit_many(body)
+
+        # prepare the epilogue
+        # NOTE: the parameters on the stack will be removed by the caller
+        epilogue = """
+    pop rbp
+"""
+        epilogue_lbl = f"{funname}_epilogue"
+
+        # remove the bindings for the params
+        for param in params:
+            self._var_addr[param.var].pop()
+
         return f"""
-{funname}:
-{ss}\
+{funname}:\
+{prologue}\
+{body_code}\
+{epilogue_lbl}:\
+{epilogue}\
     ret\
-        """
+"""
 
     def visit_many_defs(self, defs):
-        ss = "\n".join ([ defn.accept(self) for defn in defs])
+        ss = "\n".join([ defn.accept(self) for defn in defs])
         return ss
 
 def compile_many(stms):

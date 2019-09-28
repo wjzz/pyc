@@ -270,7 +270,6 @@ class ParserTests(unittest.TestCase):
                 FunCall("bar", [])])
         self.assertEqual(parse_expr(e6), r6)
 
-
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
         self.assertEqual(parse_expr(b1a), 
