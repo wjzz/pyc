@@ -22,7 +22,10 @@ Add:
 - [x] Allow blocks to be inserted at arbitrary places
 - [x] Functions
 - [x] Make sure return returns early from the function
+- [ ] Implement break and continue
+- [ ] Include expressions in statements (now we can't write `foo(n)`)
 - [ ] Put local variables on the stack
+- [ ] Add true and false
 - [ ] x++, x--, ++x, --x
 - [ ] for loops
 - [ ] Arrays
