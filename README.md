@@ -11,16 +11,16 @@ Todo
 ====
 
 Add:
-- [*] Parser
-- [*] Composite boolean operations (e.g. x <= 1 && x > -5)
-- [*] Compound assignment (as syntactic sugar)
-- [*] Add error handling to the parser	
-- [*] Variable declarations
-- [*] No variable is used before declaration
-- [*] Block scoping
-- [*] Correct handling of block scoping used symbol tables
-- [*] Allow blocks to be inserted at arbitrary places
-- [*] Functions
+- [x] Parser
+- [x] Composite boolean operations (e.g. x <= 1 && x > -5)
+- [x] Compound assignment (as syntactic sugar)
+- [x] Add error handling to the parser	
+- [x] Variable declarations
+- [x] No variable is used before declaration
+- [x] Block scoping
+- [x] Correct handling of block scoping used symbol tables
+- [x] Allow blocks to be inserted at arbitrary places
+- [x] Functions
 - [ ] Make sure return returns early from the function
 - [ ] Put local variables on the stack
 - [ ] x++, x--, ++x, --x
