@@ -24,7 +24,7 @@ Add:
 - [x] Make sure return returns early from the function
 - [x] Implement break and continue
 - [x] Support tabs
-- [+] Put local variables on the stack
+- [x] Put local variables on the stack
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Support global variables again
 - [ ] Add true and false
