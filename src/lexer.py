@@ -36,6 +36,7 @@ class Token(AutoName):
     PRINT = auto()
     RETURN = auto()
     BREAK = auto()
+    CONTINUE = auto()
     WHILE = auto()
     IF = auto()
     ELSE = auto()
@@ -204,6 +205,8 @@ def tokenize(s):
                     yield token(Token.RETURN)
                 elif value == "break":
                     yield token(Token.BREAK)
+                elif value == "continue":
+                    yield token(Token.CONTINUE)
                 elif value == "long":
                     yield token_info(tag = Token.TYPE, value = "long")
                 elif value == "int":

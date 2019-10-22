@@ -21,7 +21,7 @@ class CompileVisitor:
         # a stack of function epilogue labels
         self._epilogues = []
         # a stack of loop end labels
-        self._while_ends = []
+        self._loop_labels = []
 
     # Function epilogue stack
 
@@ -38,16 +38,20 @@ class CompileVisitor:
 
     # Loop end stack
 
-    def push_loop_end_label(self, label):
-        self._while_ends.append(label)
+    def push_loop_labels(self, labels):
+        self._loop_labels.append(labels)
     
     @property
-    def top_loop_end_label(self):
-        return self._while_ends[-1]
+    def top_loop_start_label(self):
+        return self._loop_labels[-1][0]
 
-    def pop_loop_end_label(self, label):
-        assert(self.top_loop_end_label == label)
-        self._while_ends.pop()
+    @property
+    def top_loop_end_label(self):
+        return self._loop_labels[-1][1]
+
+    def pop_loop_labels(self, labels):
+        assert(self._loop_labels[-1] == labels)
+        self._loop_labels.pop()
 
     # Variables in scope
 
@@ -252,20 +256,21 @@ _if_ret{label_id}:
     
     def visit_StmWhile(self, b, ss):
         label_id = CompileVisitor.fresh_id()
+        while_start_lbl = f"_loop_while{label_id}"
         while_end_lbl = f"_while_ret{label_id}"
-        
+        labels = (while_start_lbl, while_end_lbl)
         bc = b.accept(self)
         
-        self.push_loop_end_label(while_end_lbl)
+        self.push_loop_labels(labels)
         cc = self.visit_many(ss)
-        self.pop_loop_end_label(while_end_lbl)
+        self.pop_loop_labels(labels)
 
-        return f"_loop_while{label_id}:\n" + bc + f"""
+        return f"{while_start_lbl}:\n" + bc + f"""
     pop rax
     cmp rax, 0
     je {while_end_lbl}
 {cc}\
-    jmp _loop_while{label_id}
+    jmp {while_start_lbl}
 {while_end_lbl}:\n\
 """
 
@@ -289,6 +294,10 @@ _if_ret{label_id}:
     def visit_StmBreak(self):
         loop_end_lbl = self.top_loop_end_label
         return f"jmp {loop_end_lbl}\n"
+
+    def visit_StmContinue(self):
+        loop_start_lbl = self.top_loop_start_label
+        return f"jmp {loop_start_lbl}\n"
 
     def visit_StmBlock(self, stms):
         return self.visit_many(stms)

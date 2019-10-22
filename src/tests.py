@@ -136,6 +136,14 @@ class LexerTests(unittest.TestCase):
         
         self.assertEqual(expected, result)
 
+    def test_lexer_continue(self):
+        input_str = "continue;"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = ['CONTINUE', 'SEMI', 'EOF']
+        
+        self.assertEqual(expected, result)
 
     def test_lexer_return(self):
         input_str = "return x;"
@@ -535,6 +543,12 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(parse_stm(s9),
             [
                 StmBreak()
+            ])
+
+        s10 = "continue;"
+        self.assertEqual(parse_stm(s10),
+            [
+                StmContinue()
             ])
         
 class ParserErrorTests(unittest.TestCase):

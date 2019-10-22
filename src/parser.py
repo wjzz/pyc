@@ -239,6 +239,11 @@ class Parser:
         self.expect(Token.SEMI)
         return E.StmBreak()
 
+    def parse_continue(self):
+        self.expect(Token.CONTINUE)
+        self.expect(Token.SEMI)
+        return E.StmContinue()
+
     def parse_stm(self):
         token = self.peek
         tag = token.tag
@@ -254,6 +259,9 @@ class Parser:
 
         elif tag == Token.BREAK:
             return self.parse_break()
+
+        elif tag == Token.CONTINUE:
+            return self.parse_continue()
 
         elif tag == Token.TYPE:
             return self.parse_stm_var_decl()

@@ -179,6 +179,13 @@ class StmBreak(namedtuple("StmBreak", "")):
     def accept(self, visitor):
         return visitor.visit_StmBreak()
 
+class StmContinue(namedtuple("StmContinue", "")):
+    def __str__(self):
+        return f"continue;"
+
+    def accept(self, visitor):
+        return visitor.visit_StmContinue()
+
 class StmBlock(namedtuple("StmBlock", "ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))
