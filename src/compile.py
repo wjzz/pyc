@@ -20,7 +20,7 @@ class CompileVisitor:
         self._var_occur_index = defaultdict(int)
 
         # ???
-        self._vars_in_scope = set()
+        self._static_vars = set()
         
         # symbol table for parameters
         # we keep a separate stack for every variable
@@ -58,17 +58,17 @@ class CompileVisitor:
         return self._loop_labels[-1][1]
 
     def pop_loop_labels(self, labels):
-        assert(self._loop_labels[-1] == labels)
+        assert self._loop_labels[-1] == labels
         self._loop_labels.pop()
 
     # Variables in scope
 
-    def add_variable_to_scope(self, var):
-        self._vars_in_scope.add(var)
+    def add_static_var(self, var):
+        self._static_vars.add(var)
     
     @property
-    def vars_in_scope(self):
-        return self._vars_in_scope
+    def static_vars(self):
+        return self._static_vars
 
     # Local variables and function parameters
 
@@ -267,7 +267,7 @@ _or_ret{label_id}:
         # without initializing it
 
         self.extend_environment(var)
-        self.add_variable_to_scope(self.add_occur_suffix(var))
+        self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
             return self.visit_StmAssign(var, a)
@@ -440,8 +440,8 @@ def define_vars(vars):
 def compile_global_defs(defs):
     visitor = CompileVisitor()
     code = visitor.visit_many_defs(defs)
-    vars = visitor.vars_in_scope
-    return code, vars
+    static_vars = visitor.static_vars
+    return code, static_vars
 
 def compile_file(defs):
     names = [defn.name for defn in defs]
@@ -452,14 +452,14 @@ def compile_file(defs):
 
     # TODO: check that all functions have different names
 
-    global_defs, vars = compile_global_defs(defs)
-    vars_decl = define_vars(vars)
+    global_defs, static_vars = compile_global_defs(defs)
+    static_vars_decl = define_vars(static_vars)
 
     template = f"""\
 %include "asm/std.asm"
 
 section .data
-{vars_decl}
+{static_vars_decl}
 
 section .text
     global _start
