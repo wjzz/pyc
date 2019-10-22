@@ -11,27 +11,27 @@ Todo
 ====
 
 Add:
-* [+] Parser
-* [+] Composite boolean operations (e.g. x <= 1 && x > -5)
-* [+] Compound assignment (as syntactic sugar)
-* [+] Add error handling to the parser	
-* [+] Variable declarations
-* [+] No variable is used before declaration
-* [+] Block scoping
-* [+] Correct handling of block scoping used symbol tables
-* [+] Allow blocks to be inserted at arbitrary places
-* [+] Functions
-* [ ] Make sure return returns early from the function
-* [ ] Put local variables on the stack
-* [ ] x++, x--, ++x, --x
-* [ ] for loops
-* [ ] Arrays
-* [ ] Pointers
-* [ ] Structs
-* [ ] Floating-point operations
-* [ ] Type checker
-* [ ] Cmd line arguments
-* [ ] Use a parser generator so that we can extend the parser more easily
+- [*] Parser
+- [*] Composite boolean operations (e.g. x <= 1 && x > -5)
+- [*] Compound assignment (as syntactic sugar)
+- [*] Add error handling to the parser	
+- [*] Variable declarations
+- [*] No variable is used before declaration
+- [*] Block scoping
+- [*] Correct handling of block scoping used symbol tables
+- [*] Allow blocks to be inserted at arbitrary places
+- [*] Functions
+- [ ] Make sure return returns early from the function
+- [ ] Put local variables on the stack
+- [ ] x++, x--, ++x, --x
+- [ ] for loops
+- [ ] Arrays
+- [ ] Pointers
+- [ ] Structs
+- [ ] Floating-point operations
+- [ ] Type checker
+- [ ] Cmd line arguments
+- [ ] Use a parser generator so that we can extend the parser more easily
 
 SIL Syntax
 ==========
