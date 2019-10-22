@@ -21,7 +21,7 @@ Add:
 - [x] Correct handling of block scoping used symbol tables
 - [x] Allow blocks to be inserted at arbitrary places
 - [x] Functions
-- [ ] Make sure return returns early from the function
+- [x] Make sure return returns early from the function
 - [ ] Put local variables on the stack
 - [ ] x++, x--, ++x, --x
 - [ ] for loops

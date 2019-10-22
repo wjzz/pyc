@@ -18,7 +18,24 @@ class CompileVisitor:
         self._vars_in_scope = set()
         # symbol table
         self._var_addr = defaultdict(list)
+        # a stack of function epilogue labels
+        self._epilogues = []
+
+    # Function epilogue stack
+
+    def push_epilogue(self, label):
+        self._epilogues.append(label)
     
+    @property
+    def top_epilogue(self):
+        return self._epilogues[-1]
+
+    def pop_epilogue(self, label):
+        assert(self.top_epilogue == label)
+        self._epilogues.pop()
+
+    # Variables in scope
+
     def add_variable(self, var):
         self._vars_in_scope.add(var)
     
@@ -239,12 +256,12 @@ _while_ret{label_id}:\n\
 """
         return cval
 
-    # TODO: make sure return leaves the function early
-    # NOTE: it should jump to the epilogue
     def visit_StmReturn(self, a):
+        epilogue_lbl = self.top_epilogue
         cval = a.accept(self)
-        cval += """\
+        cval += f"""\
     pop rax
+    jmp {epilogue_lbl}
 """
         return cval
 
@@ -295,17 +312,24 @@ _while_ret{label_id}:\n\
     push rbp
     mov rbp, rsp
 """
+        # the epilogue label must be known here, because we need to jump here
+        # if we find any return
+        epilogue_lbl = f"{funname}_epilogue"
+
+        self.push_epilogue(epilogue_lbl)
+
         # The main body of the function
-        # the rules of the function call is the content of the rax register
+        # the result of the function call is the content of the rax register
         body_code = self.visit_many(body)
+
+        # we pass the label as a correctness check
+        self.pop_epilogue(epilogue_lbl)
 
         # prepare the epilogue
         # NOTE: the parameters on the stack will be removed by the caller
         epilogue = """
     pop rbp
 """
-        epilogue_lbl = f"{funname}_epilogue"
-
         # remove the bindings for the params
         for param in params:
             self._var_addr[param.var].pop()
