@@ -19,3 +19,9 @@ a stack of loop [start, end] label pairs.
 * removed many unused files, including a while-interpreter (I was not maintaining it anyways)
 
 * BUG: my implementation of local variables was *very* naive and it's incorrect. Locals have to be put on the stack along with parameters - otherwise recursive functions won't work properly!
+
+* implemented putting local variables on the stack.
+I made the same mistake again - to allocate more memory we have to *substract* from rsp, not add - the stack grows downwards here!
+Also it's important to always remember that we use a stack so if we allocate stuff, then we have to deallocate in the reverse order.
+
+* implemented variable renaming - this way we get block scoping for free, without having to manage another stack for that
