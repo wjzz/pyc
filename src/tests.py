@@ -4,6 +4,8 @@ from ast import *
 from lexer import tokenize, simplify
 from parser import parse_file, parse_stm, parse_expr, parse_arith
 import compile
+from local_vars import get_local_vars
+from rename import rename_vars
 
 class LexerTests(unittest.TestCase):
     def test_lexer(self):
@@ -561,6 +563,66 @@ class ParserErrorTests(unittest.TestCase):
             with self.subTest(i = input):
                 with self.assertRaises(Exception):
                     parse_stm(input)
+
+class RenameVarsTests(unittest.TestCase):
+    def test_renamer(self):
+        body1 = """
+    long x;
+    while (x == 0) {
+        int x;
+        if (x == 0) {
+            long x;
+        }
+    }
+    """
+
+        body2 = """
+    long x;
+    while (x == 0) {
+        int x2;
+        if (x2 == 0) {
+            long x3;
+        }
+    }
+    """
+        stms1 = parse_stm(body1)
+        stms2 = parse_stm(body2)
+        self.assertEqual(rename_vars(stms1), stms2)
+
+class LocalVarsTests(unittest.TestCase):
+    def test_function(self):
+        body = """
+    long x;
+    long y = 1;
+    int m = 0;
+    if (x == 0) {
+        long z;
+    } else {
+        long t;
+    }
+    while (x == x) {
+        long a = 1;
+    }
+    """
+        stms = parse_stm(body)
+        local_vars = get_local_vars(stms)
+        self.assertEqual(
+            local_vars,
+            ['x', 'y', 'm', 'z', 't', 'a'])
+
+    def test_nested_block(self):
+        body = """
+    long x;
+    if (0 == 0) {
+        long x = 1;
+    }
+    """
+        stms = parse_stm(body)
+        local_vars = get_local_vars(stms)
+        self.assertEqual(
+            local_vars,
+            ['x', 'x'])
+
 
 if __name__ == "__main__":
     unittest.main()

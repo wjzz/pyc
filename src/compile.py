@@ -1,5 +1,7 @@
 from ast import *
 from optimize import optimize
+from local_vars import get_local_vars
+from rename import rename_vars
 
 from collections import defaultdict
 import sys
@@ -266,8 +268,8 @@ _or_ret{label_id}:
         # a == None means that we only declare the var,
         # without initializing it
 
-        self.extend_environment(var)
-        self.add_static_var(self.add_occur_suffix(var))
+        #self.extend_environment(var)
+        #self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
             return self.visit_StmAssign(var, a)
@@ -276,7 +278,7 @@ _or_ret{label_id}:
 
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
-        var_addr = self.global_var_addr(var)
+        var_addr = self.get_var_addr(var)
         return c + f"""\
     pop rax
     mov [{var_addr}], rax\n"""
@@ -381,15 +383,29 @@ _if_ret{label_id}:
         word_len = 8
         for i, param in enumerate(params):
             var = param.var
-            index = 2 + i
+            index = i + 2
             # offset = word_len * index
             addr = f"rbp + {word_len} * {index}"
             self.add_parameter(var, addr)
+        
+        # Allocate local variables
+        local_vars = get_local_vars(body)
+        for i, var in enumerate(local_vars):
+            index = i + 1
+            addr = f"rbp - {word_len} * {index}"
+            self.add_parameter(var, addr)
+        
+        # update the rsp to make space for local variables
+        locals_size = word_len * len(local_vars)
+        local_vars_add_space = f"sub rsp, {locals_size}"
+        local_vars_dec_space = f"add rsp, {locals_size}"
 
-        prologue = """
+        prologue = f"""
     push rbp
     mov rbp, rsp
+    {local_vars_add_space}
 """
+
         # the epilogue label must be known here, because we need to jump here
         # if we find any return
         epilogue_lbl = f"{funname}_epilogue"
@@ -405,9 +421,15 @@ _if_ret{label_id}:
 
         # prepare the epilogue
         # NOTE: the parameters on the stack will be removed by the caller
-        epilogue = """
+        epilogue = f"""
+    {local_vars_dec_space}
     pop rbp
 """
+
+        # remove the bindings for the local vars:
+        for var in local_vars:
+            self.remove_parameter(var)
+
         # remove the bindings for the params
         for param in params:
             self.remove_parameter(param.var)
@@ -473,4 +495,6 @@ _start:
     return template
 
 def compile_top(decls):
-    return compile_file(decls)
+    renamed_decls = rename_vars(decls)
+    assert renamed_decls == rename_vars(renamed_decls)
+    return compile_file(renamed_decls)
