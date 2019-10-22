@@ -13,10 +13,19 @@ class CompileVisitor:
         return CompileVisitor.labelId
 
     def __init__(self):
-        self._vars = defaultdict(int)
+        # currenly we keep all local variables in memory
+        # this means that there can be name clashes
+        # this dictionary tells us which occurence we are
+        # currently using 
+        self._var_occur_index = defaultdict(int)
+
+        # ???
         self._vars_in_scope = set()
-        # symbol table
+        
+        # symbol table for parameters
+        # we keep a separate stack for every variable
         self._var_addr = defaultdict(list)
+        
         # a stack of function epilogue labels
         self._epilogues = []
         # a stack of loop end labels
@@ -54,31 +63,61 @@ class CompileVisitor:
 
     # Variables in scope
 
-    def add_variable(self, var):
+    def add_variable_to_scope(self, var):
         self._vars_in_scope.add(var)
     
     @property
-    def vars(self):
+    def vars_in_scope(self):
         return self._vars_in_scope
 
-    def add_depth(self, var):
-        var_num = self._vars[var]
+    def add_occur_suffix(self, var):
+        var_num = self._var_occur_index[var]
         if var_num > 1:
-            var = var + str(var_num)
+            # attach a suffix if more than one occurence
+            return var + str(var_num)
         return var
+
+    def global_var_addr(self, var):
+        return mangle(self.add_occur_suffix(var))
+
+    def is_parameter(self, var):
+        """
+        Checks if the given variable comes from
+        binding the current functions formal parameters
+        """
+        return self._var_addr[var] != []
+
+    def get_parameter_addr(self, var):
+        return self._var_addr[var][-1]
+
+    def get_var_addr(self, var):
+        if self.is_parameter(var):
+            return self.get_parameter_addr(var)
+        else:
+            return self.global_var_addr(var)
+
+    def extend_environment(self, var):
+        """
+        Declares the given variable in the current environment.
+        """
+        self._var_occur_index[var] += 1
+
+    def save_environment(self):
+        return self._var_occur_index.copy()
+
+    def restore_environment(self, env):
+        self._var_occur_index = env
+    
+    # Code generation, case by case
 
     def visit_ArithLit(self, val):
         return f"""\
     push {val}\n"""
 
     def visit_Var(self, var):
-        if self._var_addr[var] != []:
-            var = self._var_addr[var][-1]
-        else:
-            var = self.add_depth(var)
-            var = mangle(var)
+        var_addr = self.get_var_addr(var)
         return f"""\
-    mov rax, [{var}]
+    mov rax, [{var_addr}]
     push rax\n\
 """
 
@@ -216,10 +255,11 @@ _or_ret{label_id}:
 """
 
     def visit_StmDecl(self, tp, var, a):
-        # if a == None then we don't have to do anything
+        # a == None means that we only declare the var,
+        # without initializing it
 
-        self._vars[var] += 1
-        self.add_variable(self.add_depth(var))
+        self.extend_environment(var)
+        self.add_variable_to_scope(self.add_occur_suffix(var))
 
         if a is not None:
             return self.visit_StmAssign(var, a)
@@ -228,7 +268,7 @@ _or_ret{label_id}:
 
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
-        var = self.add_depth(var)
+        var = self.add_occur_suffix(var)
         var = mangle(var)
         return c + f"""\
     pop rax
@@ -302,9 +342,9 @@ _if_ret{label_id}:
         return self.visit_many(stms)
 
     def visit_many(self, stms):
-        var_names = self._vars.copy()
+        env = self.save_environment()
         ss = "\n".join([ stm.accept(self) for stm in stms ])
-        self._vars = var_names
+        self.restore_environment(env)
         return ss
 
     def visit_FunDecl(self, _type, name, params, body):
@@ -380,11 +420,7 @@ _if_ret{label_id}:
         ss = "\n".join([ defn.accept(self) for defn in defs])
         return ss
 
-def compile_many(stms):
-    visitor = CompileVisitor()
-    code = visitor.visit_many(stms)
-    vars = visitor.vars
-    return code, vars
+# End of code generator cases
 
 def mangle(var):
     return f"var_{var}"
@@ -399,7 +435,7 @@ def define_vars(vars):
 def compile_global_defs(defs):
     visitor = CompileVisitor()
     code = visitor.visit_many_defs(defs)
-    vars = visitor.vars
+    vars = visitor.vars_in_scope
     return code, vars
 
 def compile_file(defs):
@@ -411,8 +447,8 @@ def compile_file(defs):
 
     # TODO: check that all functions have different names
 
-    global_defs, symbols = compile_global_defs(defs)
-    vars_decl = define_vars(symbols)
+    global_defs, vars = compile_global_defs(defs)
+    vars_decl = define_vars(vars)
 
     template = f"""\
 %include "asm/std.asm"
