@@ -15,13 +15,7 @@ class CompileVisitor:
         return CompileVisitor.labelId
 
     def __init__(self):
-        # currenly we keep all local variables in memory
-        # this means that there can be name clashes
-        # this dictionary tells us which occurence we are
-        # currently using 
-        self._var_occur_index = defaultdict(int)
-
-        # ???
+        # static and global vars
         self._static_vars = set()
         
         # symbol table for parameters
@@ -74,15 +68,8 @@ class CompileVisitor:
 
     # Local variables and function parameters
 
-    def add_occur_suffix(self, var):
-        var_num = self._var_occur_index[var]
-        if var_num > 1:
-            # attach a suffix if more than one occurence
-            return var + str(var_num)
-        return var
-
     def global_var_addr(self, var):
-        return mangle(self.add_occur_suffix(var))
+        return mangle(var)
 
     def is_parameter(self, var):
         """
@@ -106,18 +93,6 @@ class CompileVisitor:
     def remove_parameter(self, var):
         self._var_addr[var].pop()
 
-    def extend_environment(self, var):
-        """
-        Declares the given variable in the current environment.
-        """
-        self._var_occur_index[var] += 1
-
-    def save_environment(self):
-        return self._var_occur_index.copy()
-
-    def restore_environment(self, env):
-        self._var_occur_index = env
-    
     # Code generation, case by case
 
     def visit_ArithLit(self, val):
@@ -350,9 +325,7 @@ _if_ret{label_id}:
         return self.visit_many(stms)
 
     def visit_many(self, stms):
-        env = self.save_environment()
         ss = "\n".join([ stm.accept(self) for stm in stms ])
-        self.restore_environment(env)
         return ss
 
     def visit_FunDecl(self, _type, name, params, body):
@@ -378,6 +351,11 @@ _if_ret{label_id}:
         # Note that the value of rsp changes as we change the stack.
         # rbp is a callee-save register, so we don't have to worry
         # about it being changed when calling other functions.
+        # 
+        # Local variables are stored on the other side of rbp, ie:
+        # [rbp -  8] == first local variable
+        # [rbp - 16] == second local variable
+        # etc!
 
         # Bind the parameters
         word_len = 8
