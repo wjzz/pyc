@@ -1,4 +1,4 @@
-#define EXAMPLE
+// print
 
 int main() {
   print(1);

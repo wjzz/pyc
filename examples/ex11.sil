@@ -1,4 +1,4 @@
-#define EXAMPLE
+// inner block, lexical scoping
 
 int main() {
 

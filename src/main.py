@@ -1,7 +1,6 @@
 import ast
 import parser
 import compile
-import symbol_table
 
 import sys
 
@@ -31,11 +30,6 @@ if __name__ == "__main__":
                 print(f"\tError on line {line}:{pos}", 
                     file=dest)
                 print(f"\t{err.msg}", file=dest)
-                sys.exit(1)
-        except symbol_table.UnboundVariableError as err:
-            with sys.stderr as dest:
-                print("\n/Error/ Unbound variable:", file=dest)
-                print(f"\t{err.var}", file=dest)
                 sys.exit(1)
         except NotImplementedError:
             print("Work in progress, NonImplmentedError", file=sys.stderr)

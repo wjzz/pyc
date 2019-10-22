@@ -1,4 +1,4 @@
-#define EXAMPLE
+// lexical scoping
 
 int main() {
 	long x = 123;

@@ -1,4 +1,4 @@
-#define EXAMPLE
+// while
 
 int main() {
 	long x = 10;

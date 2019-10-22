@@ -1,4 +1,4 @@
-#define EXAMPLE
+// prime numbers
 
 int main() {
 	long limit = 100000;

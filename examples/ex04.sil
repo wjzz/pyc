@@ -1,4 +1,4 @@
-#define EXAMPLE
+// if 
 
 int main() {
     long x = 10;

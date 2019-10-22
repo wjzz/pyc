@@ -80,12 +80,7 @@ class Parser:
     # Top-level definitions
 
     def parse_file_top(self):
-        token = self.peek
-        if token.tag == Token.PRAGMA:
-            self.expect(Token.PRAGMA)
-            return ('PRAGMA', self.parse_definitions())
-        else:
-            return ('STMS', self.parse_stm_top())
+        return self.parse_definitions()
 
     def parse_definitions(self):
         return self.parse_many(self.parse_definition, sep=None, end=Token.EOF)

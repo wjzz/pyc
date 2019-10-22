@@ -42,7 +42,6 @@ class Token(AutoName):
     ELSE = auto()
     ID = auto()
     TYPE = auto()
-    PRAGMA = auto()
     COMMA = auto()
     EOF = auto()
 
@@ -117,11 +116,6 @@ def tokenize(s):
                 assert(char is not None)
                 unchar(char)
                 yield token_info(tag = Token.NUMBER, value = number)
-            elif char == "#":
-                yield token(Token.PRAGMA)
-                while char != "\n":
-                    char = getchar()
-                unchar(char)
             elif char == "/":
                 char2 = getchar()
                 if char2 == "/":

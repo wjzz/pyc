@@ -1,7 +1,5 @@
 // Calculate the factorial for x in [0, 20]
 
-#define EXAMPLE
-
 int main() {
 	long x = 0;
 	while (x <= 20) {

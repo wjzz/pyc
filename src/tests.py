@@ -4,7 +4,6 @@ from ast import *
 from lexer import tokenize, simplify
 from parser import parse_file, parse_stm, parse_expr, parse_arith
 import compile
-import symbol_table
 
 class LexerTests(unittest.TestCase):
     def test_lexer(self):
@@ -115,15 +114,6 @@ class LexerTests(unittest.TestCase):
             ('ID', 'a'), 'COMMA', ('TYPE', 'int'), ('ID', 'b'),
             'RPAREN', 'LBRACE', 'RBRACE', 'EOF'
         ]
-
-        self.assertEqual(expected, result)
-
-    def test_lexer_pragma(self):
-        input_str = "#ignored-until-eof"
-
-        result = list(simplify(tokenize(input_str)))
-
-        expected = [ 'PRAGMA', 'EOF' ]
 
         self.assertEqual(expected, result)
 
@@ -382,7 +372,7 @@ class ParserTests(unittest.TestCase):
         )
 
     def test_parser_fundef(self):
-        input_str = "#\n    void foo(long a, int b) { }"
+        input_str = "void foo(long a, int b) { }"
         output = FunDecl(AtomType.Void,
                     "foo",
                     [
@@ -391,13 +381,10 @@ class ParserTests(unittest.TestCase):
                     ],
                     [])
 
-        self.assertEqual(
-            parse_file(input_str),
-            ('PRAGMA', [output])
-        )
+        self.assertEqual(parse_file(input_str), [output])
 
     def test_parser_fundef_return(self):
-        input_str = "#\n    void foo(long a, int b) { return a; }"
+        input_str = "void foo(long a, int b) { return a; }"
         output = FunDecl(AtomType.Void,
                     "foo",
                     [
@@ -406,10 +393,7 @@ class ParserTests(unittest.TestCase):
                     ],
                     [StmReturn(Var("a"))])
 
-        self.assertEqual(
-            parse_file(input_str),
-            ('PRAGMA', [output])
-        )
+        self.assertEqual(parse_file(input_str), [output])
 
     def test_parser_stm(self):
         s1 = "print(x);"
@@ -577,27 +561,6 @@ class ParserErrorTests(unittest.TestCase):
             with self.subTest(i = input):
                 with self.assertRaises(Exception):
                     parse_stm(input)
-
-class DeclTests(unittest.TestCase):
-    def test_decl(self):
-        # no exception
-        c = parse_stm("long x; x = 1;")
-        compile.compile_top(('STMS', c))
-
-    def test_decl_non_defined(self):
-        c = parse_stm("x = 1;")
-        with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(('STMS', c))
-
-    def test_decl_non_defined_block(self):
-        c = parse_stm("while (1) {} x = 1;")
-        with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(('STMS', c))
-
-    def test_decl_block_scoping(self):
-        c = parse_stm("while (1) {long x;} x = 1;")
-        with self.assertRaises(symbol_table.UnboundVariableError):
-            compile.compile_top(('STMS', c))
 
 if __name__ == "__main__":
     unittest.main()

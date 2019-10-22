@@ -1,5 +1,4 @@
 from ast import *
-import symbol_table
 from optimize import optimize
 
 from collections import defaultdict
@@ -397,29 +396,6 @@ def define_vars(vars):
     return "\n".join([ f"  {mangle(var)} dq 0" 
         for var in vars])
 
-def compile_stms(stms):
-    _globals = symbol_table.build(stms)
-    # print(symbols, file=sys.stderr)
-
-    program, symbols = compile_many(stms)
-    vars_decl = define_vars(symbols)
-
-    template = f"""\
-%include "asm/std.asm"
-
-section .data
-{vars_decl}
-
-section .text
-    global _start
-
-_start:\
-{program}\
-    exit_ok\
-    """
-
-    return template
-
 def compile_global_defs(defs):
     visitor = CompileVisitor()
     code = visitor.visit_many_defs(defs)
@@ -455,10 +431,5 @@ _start:
 
     return template
 
-def compile_top(input):
-    if input[0] == "STMS":
-        stms = input[1]
-        return compile_stms(stms)
-    elif input[0] == "PRAGMA":
-        decls = input[1]
-        return compile_file(decls)
+def compile_top(decls):
+    return compile_file(decls)

@@ -1,4 +1,4 @@
-#define EXAMPLE
+// return early exit
 
 long early() {
   long n = 0;

@@ -1,7 +1,5 @@
 // iterative fibonacci
 
-#define EXAMPLE
-
 int main() {
 	long x = 0;
 	long y = 1;

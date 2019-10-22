@@ -1,4 +1,4 @@
-#define EXAMPLE
+// main function
 
 int main() {
     print(123);

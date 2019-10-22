@@ -1,5 +1,3 @@
-#define EXAMPLE
-
 // Calculate the factorial for x in [0, 20]
 // This version uses compound assignment operators
 

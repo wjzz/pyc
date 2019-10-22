@@ -23,7 +23,7 @@ Add:
 - [x] Functions
 - [x] Make sure return returns early from the function
 - [x] Implement break and continue
-- [ ] Support tabs
+- [x] Support tabs
 - [ ] Include expressions in statements (now we can't write `foo(n)`)
 - [ ] Put local variables on the stack
 - [ ] Add true and false

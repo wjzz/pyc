@@ -11,3 +11,7 @@ Since `break` jumps to the loop_end label and `continue` jumps to the loop_start
 a stack of loop [start, end] label pairs.
 
 * tabs in source code are allowed
+
+* removed the old syntax (python-like top-level statements instead of c-style main function)
+
+* removed the old AST-based tests (there were used when there was no parser)

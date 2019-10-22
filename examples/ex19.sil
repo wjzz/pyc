@@ -1,5 +1,4 @@
 // continue
-#define EXAMPLE
 
 long early() {
   long n = 0;
