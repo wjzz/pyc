@@ -1,0 +1,16 @@
+// an example to prove that our current local variable implementation is incorrect
+
+long recursive(long n) {
+  if (n > 0) {
+    long m = n;
+    print(m);
+    long a = recursive(n-1);
+    print(m);
+  }
+  return 0;
+}
+
+int main() {
+  print(recursive(5));
+  return 0;
+}

@@ -17,3 +17,5 @@ a stack of loop [start, end] label pairs.
 * removed the old AST-based tests (there were used when there was no parser)
 
 * removed many unused files, including a while-interpreter (I was not maintaining it anyways)
+
+* BUG: my implementation of local variables was *very* naive and it's incorrect. Locals have to be put on the stack along with parameters - otherwise recursive functions won't work properly!
