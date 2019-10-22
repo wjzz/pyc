@@ -15,3 +15,5 @@ a stack of loop [start, end] label pairs.
 * removed the old syntax (python-like top-level statements instead of c-style main function)
 
 * removed the old AST-based tests (there were used when there was no parser)
+
+* removed many unused files, including a while-interpreter (I was not maintaining it anyways)

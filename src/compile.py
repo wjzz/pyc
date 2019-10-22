@@ -98,6 +98,12 @@ class CompileVisitor:
         else:
             return self.global_var_addr(var)
 
+    def add_parameter(self, var, addr):
+        self._var_addr[var].append(addr)
+
+    def remove_parameter(self, var):
+        self._var_addr[var].pop()
+
     def extend_environment(self, var):
         """
         Declares the given variable in the current environment.
@@ -378,8 +384,7 @@ _if_ret{label_id}:
             index = 2 + i
             # offset = word_len * index
             addr = f"rbp + {word_len} * {index}"
-            self._var_addr[var].append(addr) 
-            #print(f"variable {var} has offset {offset}", file=sys.stderr)
+            self.add_parameter(var, addr)
 
         prologue = """
     push rbp
@@ -405,7 +410,7 @@ _if_ret{label_id}:
 """
         # remove the bindings for the params
         for param in params:
-            self._var_addr[param.var].pop()
+            self.remove_parameter(param.var)
 
         return f"""
 {funname}:\
