@@ -435,11 +435,6 @@ def compile_file(defs):
 
     # TODO: check that all functions have different names
 
-    #_globals = symbol_table.build(stms)
-    # print(symbols, file=sys.stderr)
-
-    #program, symbols = compile_many(stms)
-    #vars_decl = ""
     global_defs, symbols = compile_global_defs(defs)
     vars_decl = define_vars(symbols)
 
@@ -458,9 +453,7 @@ _start:
 {global_defs}\
     """
 
-    #print(template, flush=True, file=sys.stderr)
     return template
-    #raise NotImplementedError
 
 def compile_top(input):
     if input[0] == "STMS":

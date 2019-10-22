@@ -36,6 +36,11 @@ Add:
 - [ ] Cmd line arguments
 - [ ] Use a parser generator so that we can extend the parser more easily
 
+Add more backends:
+- [ ] WebAssembly
+- [ ] ARM (Raspberry PI)
+- [ ] Mac (PowerPC?)
+
 SIL Syntax
 ==========
 
