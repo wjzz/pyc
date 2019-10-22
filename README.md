@@ -11,45 +11,32 @@ Todo
 ====
 
 Add:
-  [+] Parser
-  [+] Composite boolean operations (e.g. x <= 1 && x > -5)
-  [+] Compound assignment (as syntactic sugar)
-  [+] Add error handling to the parser	
-  [+] Variable declarations
-  [+] No variable is used before declaration
-  [+] Block scoping
-  [+] Correct handling of block scoping used symbol tables
-  [+] Allow blocks to be inserted at arbitrary places
-  [+] Functions
-  [ ] Put local variables on the stack
-  [ ] x++, x--, ++x, --x
-  [ ] for loops
-  [ ] Arrays
-  [ ] Pointers
-  [ ] Structs
-  [ ] Floating-point operations
-  [ ] Type checker
-  [ ] Cmd line arguments
-  [ ] Use a parser generator so that we can extend the parser more easily
+* [+] Parser
+* [+] Composite boolean operations (e.g. x <= 1 && x > -5)
+* [+] Compound assignment (as syntactic sugar)
+* [+] Add error handling to the parser	
+* [+] Variable declarations
+* [+] No variable is used before declaration
+* [+] Block scoping
+* [+] Correct handling of block scoping used symbol tables
+* [+] Allow blocks to be inserted at arbitrary places
+* [+] Functions
+* [ ] Make sure return returns early from the function
+* [ ] Put local variables on the stack
+* [ ] x++, x--, ++x, --x
+* [ ] for loops
+* [ ] Arrays
+* [ ] Pointers
+* [ ] Structs
+* [ ] Floating-point operations
+* [ ] Type checker
+* [ ] Cmd line arguments
+* [ ] Use a parser generator so that we can extend the parser more easily
 
 SIL Syntax
 ==========
 
-a in ArithExpr ::= var | lit | a1 aop a2
-aop ::= + | - | * | / | %
-
-b in BoolExpr ::= a1 bop a2 | not b | b1 and b2 | b1 or b2
-bop ::= == | != | <= | < | > | >=
-
-s in Stm ::= 
-  | var = a           # assignment
-  | var aop= a        # compound assignment
-  | if b { ss1 } else { ss2 }
-  | while b { ss }
-  | print aexpr 
-  | return b
- 
-ss := s*   # (possibly empty) statemenst list
+Check the examples in the `examples` directory to see what is availabe.
 
 Running the tests
 =================
@@ -64,8 +51,17 @@ End to end tests:
 $ make e2e
 ```
 
+Updating the tests
+==================
+
+```
+./scripts/generate_outputs.sh           # compiles all examples, runs them and writes their output
+```
+
 Running the code
 ================
+
+## Print the generated assembly
 
 ```
 $ python3 src/compile.py examples/ex0.sil
@@ -73,11 +69,14 @@ $ python3 src/compile.py examples/ex0.sil
 Prints the asm source code
 
 
+## Compile and run the code
+
 ```
 $ ./scripts/compile.sh examples/ex0.sil 
 ```
+Compiles and runs the program
 
-Yields:
+Example output:
 
 ```
 filename = ex0.sil
