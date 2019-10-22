@@ -1,10 +1,15 @@
-long d = 1;
-print(d);
+#define EXAMPLE
 
-{
-  long d = 2;
-  print(d);
+int main() {
+
+	long d = 1;
+	print(d);
+
+	{
+	  long d = 2;
+	  print(d);
+	}
+
+	print(d);
+	return 0;
 }
-
-print(d);
-

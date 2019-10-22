@@ -1,16 +1,22 @@
+#define EXAMPLE
+
 // Calculate the factorial for x in [0, 20]
 // This version uses compound assignment operators
 
-long x = 0;
-while (x <= 20) {
-    print(x);
-    // calculate factorial of x
-    long fact = 1;
-    long y = x;
-    while (y > 0) {
-        fact *= y;
-        y -= 1;
-    }
-    print(fact);
-    x += 1;
+int main() {
+	long x = 0;
+	while (x <= 20) {
+	    print(x);
+	    // calculate factorial of x
+	    long fact = 1;
+	    long y = x;
+	    while (y > 0) {
+		fact *= y;
+		y -= 1;
+	    }
+	    print(fact);
+	    x += 1;
+	}
+	return 0;
 }
+

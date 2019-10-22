@@ -153,7 +153,7 @@ def tokenize(s):
                     yield token(simple_tokens[char])
             elif char in simple_tokens:
                 yield token(simple_tokens[char])
-            elif char == " " or char == "\n":
+            elif char == " " or char == "\n" or char == "\t":
                 if char == "\n":
                     line_no += 1
                     offset = 0

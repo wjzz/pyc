@@ -1,21 +1,26 @@
-long limit = 100000;
-long count = 0;
-long current = 2;
-while (current <= limit) {
-  long is_prime = 1;
-  if (current != 2 && current % 2 == 0) {
-    is_prime = 0;
-  }
-  long candidate = 3;
-  while (is_prime == 1 && candidate * candidate <= current) {
-    if (current % candidate == 0) {
-      is_prime = 0;
-    }
-    candidate += 1;
-  }
-  if (is_prime == 1) {
-    count += 1;
-  }
-  current += 1;
+#define EXAMPLE
+
+int main() {
+	long limit = 100000;
+	long count = 0;
+	long current = 2;
+	while (current <= limit) {
+	  long is_prime = 1;
+	  if (current != 2 && current % 2 == 0) {
+	    is_prime = 0;
+	  }
+	  long candidate = 3;
+	  while (is_prime == 1 && candidate * candidate <= current) {
+	    if (current % candidate == 0) {
+	      is_prime = 0;
+	    }
+	    candidate += 1;
+	  }
+	  if (is_prime == 1) {
+	    count += 1;
+	  }
+	  current += 1;
+	}
+	print(count);
+	return 0;
 }
-print(count);

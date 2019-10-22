@@ -1,1 +1,6 @@
-print(1);
+#define EXAMPLE
+
+int main() {
+  print(1);
+  return 0;
+}

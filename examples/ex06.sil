@@ -1,15 +1,24 @@
 // Calculate the factorial for x in [0, 20]
 
-long x = 0;
-while (x <= 20) {
-    print(x);
-    // calculate factorial of x
-    long fact = 1;
-    long y = x;
-    while (y > 0) {
-        fact = fact * y;
-        y = y - 1;
-    }
-    print(fact);
-    x = x + 1;
+#define EXAMPLE
+
+int main() {
+	long x = 0;
+	while (x <= 20) {
+	    print(x);
+	    // calculate factorial of x
+	    long fact = 1;
+	    long y = x;
+	    while (y > 0) {
+		fact = fact * y;
+		y = y - 1;
+	    }
+	    print(fact);
+	    x = x + 1;
+	}
+	return 0;
 }
+
+
+
+
