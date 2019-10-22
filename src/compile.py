@@ -411,23 +411,3 @@ def compile_top(input):
     elif input[0] == "PRAGMA":
         decls = input[1]
         return compile_file(decls)
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        #print("got file name =", sys.argv[1])
-        with open(sys.argv[1], "r") as f:
-            lines = "\n".join(f.readlines())
-            try:
-                c = eval(lines)
-                # print(c)
-                result = compile_top(c)
-                print(result)
-                # print("--------------------------")
-                # result2 = optimize(result)
-                # print(result2)
-            except Exception as e:
-                print("Got lines", lines)
-                print("Failed to parse the file", f=sys.stderr)
-    else:
-        result = compile_top([])
-        print(result)

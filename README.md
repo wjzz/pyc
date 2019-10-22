@@ -64,7 +64,7 @@ Running the code
 ## Print the generated assembly
 
 ```
-$ python3 src/compile.py examples/ex0.sil
+$ python3 src/main.py examples/ex0.sil
 ```
 Prints the asm source code
 
