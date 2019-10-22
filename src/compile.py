@@ -20,6 +20,8 @@ class CompileVisitor:
         self._var_addr = defaultdict(list)
         # a stack of function epilogue labels
         self._epilogues = []
+        # a stack of loop end labels
+        self._while_ends = []
 
     # Function epilogue stack
 
@@ -33,6 +35,19 @@ class CompileVisitor:
     def pop_epilogue(self, label):
         assert(self.top_epilogue == label)
         self._epilogues.pop()
+
+    # Loop end stack
+
+    def push_loop_end_label(self, label):
+        self._while_ends.append(label)
+    
+    @property
+    def top_loop_end_label(self):
+        return self._while_ends[-1]
+
+    def pop_loop_end_label(self, label):
+        assert(self.top_loop_end_label == label)
+        self._while_ends.pop()
 
     # Variables in scope
 
@@ -236,16 +251,22 @@ _if_ret{label_id}:
 """
     
     def visit_StmWhile(self, b, ss):
-        bc = b.accept(self)
-        cc = self.visit_many(ss)
         label_id = CompileVisitor.fresh_id()
+        while_end_lbl = f"_while_ret{label_id}"
+        
+        bc = b.accept(self)
+        
+        self.push_loop_end_label(while_end_lbl)
+        cc = self.visit_many(ss)
+        self.pop_loop_end_label(while_end_lbl)
+
         return f"_loop_while{label_id}:\n" + bc + f"""
     pop rax
     cmp rax, 0
-    je _while_ret{label_id}
+    je {while_end_lbl}
 {cc}\
     jmp _loop_while{label_id}
-_while_ret{label_id}:\n\
+{while_end_lbl}:\n\
 """
 
     def visit_StmPrint(self, a):
@@ -264,6 +285,10 @@ _while_ret{label_id}:\n\
     jmp {epilogue_lbl}
 """
         return cval
+
+    def visit_StmBreak(self):
+        loop_end_lbl = self.top_loop_end_label
+        return f"jmp {loop_end_lbl}\n"
 
     def visit_StmBlock(self, stms):
         return self.visit_many(stms)
