@@ -172,6 +172,13 @@ class StmReturn(namedtuple("StmReturn", "a")):
     def accept(self, visitor):
         return visitor.visit_StmReturn(self.a)
 
+class StmBreak(namedtuple("StmBreak", "")):
+    def __str__(self):
+        return f"break;"
+
+    def accept(self, visitor):
+        return visitor.visit_StmBreak()
+
 class StmBlock(namedtuple("StmBlock", "ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))

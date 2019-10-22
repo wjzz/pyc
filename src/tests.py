@@ -127,6 +127,15 @@ class LexerTests(unittest.TestCase):
 
         self.assertEqual(expected, result)
 
+    def test_lexer_break(self):
+        input_str = "break;"
+
+        result = list(simplify(tokenize(input_str)))
+
+        expected = ['BREAK', 'SEMI', 'EOF']
+        
+        self.assertEqual(expected, result)
+
 
     def test_lexer_return(self):
         input_str = "return x;"
@@ -520,6 +529,12 @@ class ParserTests(unittest.TestCase):
                 StmBlock(
                     []
                 )
+            ])
+        
+        s9 = "break;"
+        self.assertEqual(parse_stm(s9),
+            [
+                StmBreak()
             ])
         
 class ParserErrorTests(unittest.TestCase):
