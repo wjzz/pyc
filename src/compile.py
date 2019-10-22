@@ -70,6 +70,8 @@ class CompileVisitor:
     def vars_in_scope(self):
         return self._vars_in_scope
 
+    # Local variables and function parameters
+
     def add_occur_suffix(self, var):
         var_num = self._var_occur_index[var]
         if var_num > 1:
@@ -268,12 +270,10 @@ _or_ret{label_id}:
 
     def visit_StmAssign(self, var, a):
         c = a.accept(self)
-        var = self.add_occur_suffix(var)
-        var = mangle(var)
+        var_addr = self.global_var_addr(var)
         return c + f"""\
     pop rax
-    mov [{var}], rax\n"""
-        # self.state[var] = val
+    mov [{var_addr}], rax\n"""
 
     def visit_StmIf(self, b, ss1, ss2):
         bc = b.accept(self)
