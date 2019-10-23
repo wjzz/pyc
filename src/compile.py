@@ -446,16 +446,18 @@ def compile_global_defs(defs):
     return code, static_vars
 
 def compile_file(defs):
-    names = [defn.name for defn in defs]
-    if "main" not in names:
+    fun_names = [defn.name for defn in defs if type(defn) == FunDecl]
+    if "main" not in fun_names:
         print("A program with function definition must have"
           " a 'main' function! Aborting...", file=sys.stderr)
         raise Exception("No main function")
 
+    global_vars = [decl.var for decl in defs if type(decl) == StmDecl]
+
     # TODO: check that all functions have different names
 
     global_defs, static_vars = compile_global_defs(defs)
-    static_vars_decl = define_vars(static_vars)
+    static_vars_decl = define_vars(global_vars)
 
     template = f"""\
 %include "asm/std.asm"

@@ -120,16 +120,20 @@ class Parser:
     def parse_definition(self):
         """
         Parses a top-level definition, which can be:
-        - a global variable, e.g. long n; OR long n = 123;
+        - a global variable, e.g. 
+            long n; OR long n = 123;
         - a function definition, e.g.
-          long foo(long arg1, long arg2) { ... }
+            long foo(long arg1, long arg2) { ... }
         """
         tp = self.parse_type()
         name = self.parse_id()
-        params = self.parse_params()
-        self.expect(Token.LBRACE)
-        body = self.parse_stms(end=Token.RBRACE)
-        return E.FunDecl(tp, name, params, body)
+        if self.peek.tag == Token.LPAREN:
+            params = self.parse_params()
+            self.expect(Token.LBRACE)
+            body = self.parse_stms(end=Token.RBRACE)
+            return E.FunDecl(tp, name, params, body)
+        else:
+            return self.parse_var_decl(tp, name, E.VarKind.Global)
 
     #-----------------------------------
     # Statements
@@ -153,20 +157,23 @@ class Parser:
         ss = self.parse_stms(end=Token.RBRACE)
         return E.StmBlock(ss)
 
-    def parse_stm_var_decl(self):
-        tp = self.parse_type()
-        var = self.parse_id()
+    def parse_var_decl(self, tp, var, kind):
         if self.peek.tag == Token.SEMI:
             self.expect(Token.SEMI)
             # only declaration
-            return E.StmDecl(tp, var)
+            return E.StmDecl(tp, var, a=None, kind=kind)
         elif self.peek.tag == Token.EQUAL:
             # declaration with initialization
             self.expect(Token.EQUAL)
             e = self.parse_expr()
             self.expect(Token.SEMI)
-            return E.StmDecl(tp, var, e)
+            return E.StmDecl(tp, var, e, kind)
 
+    def parse_stm_var_decl(self, kind=E.VarKind.Local):
+        tp = self.parse_type()
+        var = self.parse_id()
+        return self.parse_var_decl(tp, var, kind)
+        
     def parse_stm_assignment(self):
         var = self.parse_id()
         compounds = [
