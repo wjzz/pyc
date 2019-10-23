@@ -15,7 +15,7 @@ class CompileVisitor:
         return CompileVisitor.labelId
 
     def __init__(self):
-        # static and global vars
+        # static vars
         self._static_vars = set()
         
         # symbol table for parameters
@@ -455,8 +455,9 @@ def compile_file(defs):
     global_vars = [decl.var for decl in defs if type(decl) == StmDecl]
 
     # TODO: check that all functions have different names
+    # TODO: implement static vars
 
-    global_defs, static_vars = compile_global_defs(defs)
+    global_defs, _static_vars = compile_global_defs(defs)
     static_vars_decl = define_vars(global_vars)
 
     template = f"""\

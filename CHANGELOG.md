@@ -28,3 +28,6 @@ Also it's important to always remember that we use a stack so if we allocate stu
 
 2019/10/23
 
+* extended StmDecl with a flag to denote if the variable is local, global or static
+
+* implemented global variables again. Static variables are not handled yet.

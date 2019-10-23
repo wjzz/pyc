@@ -25,8 +25,8 @@ Add:
 - [x] Implement break and continue
 - [x] Support tabs
 - [x] Put local variables on the stack
+- [x] Support global variables again
 - [ ] Start using registers in the code instead of pushing everything on the stack
-- [ ] Support global variables again
 - [ ] Add true and false
 - [ ] Include expressions in statements (now we can't write `foo(n)`)
 - [ ] x++, x--, ++x, --x
