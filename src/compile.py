@@ -113,19 +113,22 @@ class CompileVisitor:
     def visit_FunCall(self, name, args):
         # first prepare the arguments on the stack
         # we evaluate them right-to-left (seems natural here)
-        arg_popping = ""
         cc = ""
         for arg in reversed(args):
             cc += arg.accept(self)   # we have implicit pushes over here
-            arg_popping += "    pop r12\n"  # TODO: this can be replaced by a simple pointer arithm.
+        
+        # adjust the stack to remove the arguments
+        count = len(args)
+        word_len = 8
+        arg_popping = f"add rsp, {word_len * count}"
+        
         # next - call the function
         funname = mangle_fun(name)
-        cc += f"""\
+        return cc + f"""\
     call {funname}
 {arg_popping}
     push rax
 """
-        return cc
 
     def parse_addr(self, addr):
         # TODO: this has to be changed into a data type

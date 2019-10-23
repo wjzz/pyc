@@ -48,3 +48,5 @@ We should therefore make a new data structure:
 Then we will be able to write the calculations easily
 
 * Pointers can now change values, `*n = 5;` works
+
+* Pointers as function parameters work out of the box! :) 
