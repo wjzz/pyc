@@ -28,9 +28,9 @@ Add:
 - [x] Support global variables again
 - [x] Pointers (declaration, dereferencing and taking addresses)
 - [x] Assignment using pointers
+- [x] Include expressions in statements (so we can write `foo(n);`)
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Add true and false
-- [ ] Include expressions in statements (now we can't write `foo(n)`)
 - [ ] x++, x--, ++x, --x
 - [ ] for loops
 - [ ] Arrays

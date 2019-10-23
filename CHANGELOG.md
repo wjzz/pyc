@@ -51,3 +51,8 @@ First I made a hack - I stored variable addresses as `rbp - 8 * 3`, but it was n
 * Pointers as function parameters work out of the box! :) 
 
 * We can now use pointers to change function parameters values.
+
+* Move assignment from Stm to Expr. This complicates the parser a little bit.
+
+* Include all expressions in statements. The code generator for `a;`
+calculates `a` and then pops the stack (we don't use the value).

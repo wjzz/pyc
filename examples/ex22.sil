@@ -11,7 +11,7 @@ long foo() {
 
 int main() {
   n = 10;
-  long ignore = foo();
+  foo();
   return 0;
 }
 

@@ -13,7 +13,7 @@ int main() {
   print(a);
   print(b);
 
-  long unused = swap(&a, &b);
+  swap(&a, &b);
  
   print(a);
   print(b);

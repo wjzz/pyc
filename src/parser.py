@@ -275,10 +275,6 @@ class Parser:
             self.expect(Token.SEMI)
             return E.StmExpr(a)
             
-        # else:
-        #     msg = f"Unexpected tag = {tag}"
-        #     raise ParseError(token=token, msg=msg)
-
     def parse_block_or_stm(self):
         token = self.peek
         if token.tag == Token.LBRACE:

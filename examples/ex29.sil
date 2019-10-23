@@ -8,7 +8,7 @@ long foo(long a) {
 }
 
 int main() {
-  long unused = foo(5);
+  foo(5);
 
   return 0;
 }
