@@ -40,6 +40,7 @@ Add:
 - [ ] Function pointers
 - [ ] Type checker
 - [ ] Cmd line arguments
+- [ ] Cstrings
 - [ ] Use a parser generator so that we can extend the parser more easily
 
 Make the compiler more modular:
