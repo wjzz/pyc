@@ -15,6 +15,14 @@ class AtomType(Enum):
     def __str__(self):
         return self.value
 
+class VarKind(Enum):
+    Local = "local"
+    Global = "global"
+    Static = "static"
+
+    def __str__(self):
+        return self.value
+
 #-----------------------------------------
 # Arithmetic operations
 #-----------------------------------------
@@ -113,7 +121,8 @@ class FunCall(namedtuple("FunCall", "name args")):
 # Statements
 #-----------------------------------------
 
-class StmDecl(namedtuple("StmDecl", "type var a", defaults=(None,))):
+class StmDecl(namedtuple("StmDecl", "type var a kind", 
+  defaults=(None, VarKind.Local))):
     def __str__(self):
         if self.a is not None:
             return f"{self.type} {self.var} = {self.a};"
@@ -121,7 +130,8 @@ class StmDecl(namedtuple("StmDecl", "type var a", defaults=(None,))):
             return f"{self.type} {self.var};"
     
     def accept(self, visitor):
-        return visitor.visit_StmDecl(self.type, self.var, self.a)
+        return visitor.visit_StmDecl(
+            self.type, self.var, self.a, self.kind)
 
 
 class StmAssign(namedtuple("StmAssign", "var a")):

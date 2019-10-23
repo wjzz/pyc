@@ -25,3 +25,6 @@ I made the same mistake again - to allocate more memory we have to *substract* f
 Also it's important to always remember that we use a stack so if we allocate stuff, then we have to deallocate in the reverse order.
 
 * implemented variable renaming - this way we get block scoping for free, without having to manage another stack for that
+
+2019/10/23
+

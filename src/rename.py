@@ -89,11 +89,11 @@ class RenameVarsVisitor:
         args1 = self.visit_many(args)
         return FunCall(name, args1)
 
-    def visit_StmDecl(self, tp, var, a):
+    def visit_StmDecl(self, tp, var, a, kind):
         self.push_variable(var)
         var1 = self.mangle_var(var)
         a1 = a.accept(self) if a is not None else None
-        return StmDecl(tp, var1, a1)
+        return StmDecl(tp, var1, a1, kind)
 
     def visit_many(self, stms):
         self.push_block()

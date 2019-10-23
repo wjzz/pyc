@@ -118,7 +118,12 @@ class Parser:
         return params
 
     def parse_definition(self):
-        "E.g.: long foo(long arg1, long arg2) { ... }"
+        """
+        Parses a top-level definition, which can be:
+        - a global variable, e.g. long n; OR long n = 123;
+        - a function definition, e.g.
+          long foo(long arg1, long arg2) { ... }
+        """
         tp = self.parse_type()
         name = self.parse_id()
         params = self.parse_params()

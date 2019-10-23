@@ -49,7 +49,7 @@ class LocalVarsVisitor:
     def visit_FunCall(self, name, args):
         return []            
 
-    def visit_StmDecl(self, tp, var, a):
+    def visit_StmDecl(self, tp, var, a, kind):
         # a == None means that we only declare the var,
         # without initializing it
         return [var]

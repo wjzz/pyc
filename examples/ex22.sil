@@ -1,0 +1,16 @@
+long n; // guaranteed to be initialized to 0
+
+long foo() {
+  while (n > 0) {
+    print(n);
+    n -= 2;
+  }
+}
+
+int main() {
+  n = 10;
+  long ignore = foo();
+  return 0;
+}
+
+

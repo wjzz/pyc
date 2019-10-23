@@ -239,7 +239,9 @@ _or_right{label_id}:
 _or_ret{label_id}:
 """
 
-    def visit_StmDecl(self, tp, var, a):
+    def visit_StmDecl(self, tp, var, a, kind):
+        # TODO: do something depending on the kind
+
         # a == None means that we only declare the var,
         # without initializing it
 
