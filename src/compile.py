@@ -309,6 +309,15 @@ _or_ret{label_id}:
             return c + f"""\
     pop rax
     mov [{var_addr}], rax\n"""
+        elif lvalue.kind == LValueKind.Pointer:
+            var = lvalue.loc
+            # *n = a
+            c = a.accept(self)
+            var_addr = self.get_var_addr(var)
+            return c + f"""\
+    pop rbx
+    mov rax, [{var_addr}]
+    mov [rax], rbx\n"""
         else:
             raise NotImplementedError
 

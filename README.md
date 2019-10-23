@@ -26,7 +26,8 @@ Add:
 - [x] Support tabs
 - [x] Put local variables on the stack
 - [x] Support global variables again
-- [ ] Pointers
+- [x] Pointers (declaration, dereferencing and taking addresses)
+- [x] Assignment using pointers
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Add true and false
 - [ ] Include expressions in statements (now we can't write `foo(n)`)

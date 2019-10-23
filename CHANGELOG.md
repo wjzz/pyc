@@ -37,3 +37,14 @@ Also it's important to always remember that we use a stack so if we allocate stu
 * added arith unary ops (* and &) and ArithUnaryop constructor
 
 * StmAssign now takes a lvalue instead of var
+
+* implemented simple pointer operations: & and *
+I had to make a hack - we should not store variable addresses as `rbp - 8 * 3` because it's not possible to write
+`mov rax, rbp - 8 * 3` => we have to do the calculations
+
+We should therefore make a new data structure:
+  Address = BaseAddress, Offset?
+  Offset = Sign, WordSize, Count
+Then we will be able to write the calculations easily
+
+* Pointers can now change values, `*n = 5;` works

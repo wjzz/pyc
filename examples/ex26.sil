@@ -1,0 +1,18 @@
+// basic pointer operations - assignment
+
+int main() {
+  long n = 5;
+  int* d = &n;
+  print(*d);
+  print(n);
+
+  *d += 1;
+  print(*d);
+  print(n);
+
+  *d *= 2;
+  print(*d);
+  print(n);
+
+  return 0;
+}
