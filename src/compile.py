@@ -127,6 +127,54 @@ class CompileVisitor:
 """
         return cc
 
+    def parse_addr(self, addr):
+        # TODO: this has to be changed into a data type
+        # HACK: 
+        (l, sep, r) = addr.partition("-")
+        if sep == "-":
+            base = l.strip()
+            (size, sep2, count) = r.partition("*")
+            if sep2 == "*":
+                size = int(size)
+                count = int(count)
+                return (base, size, count)
+        return None
+
+    def visit_ArithUnaryop(self, op, a):
+        if op == ArithUnaryOp.Addr:
+            assert type(a) is Var
+            var = a.var
+            var_addr = self.get_var_addr(var)
+            try:
+                (base, size, count) = self.parse_addr(var_addr)
+                load_addr = f"""\
+mov rax, {size}
+    mov rbx, {count}
+    mul rbx
+    neg rax
+    add rax, {base}
+            """
+            # rax = base - size * count
+            except:
+                load_addr = f"mov rax, {var_addr}"
+            finally:
+                # the same as in var, but without deferencing
+                return f"""\
+    {load_addr}
+    push rax\n\
+"""
+        elif op == ArithUnaryOp.Deref:
+            assert type(a) is Var
+            var = a.var
+            var_addr = self.get_var_addr(var)
+            return f"""\
+    mov rax, [{var_addr}]
+    mov rax, [rax]
+    push rax
+"""
+        else:
+            raise TypeError
+
     def visit_ArithBinop(self, op, a1, a2):
         c1 = a1.accept(self)
         c2 = a2.accept(self)
@@ -249,16 +297,20 @@ _or_ret{label_id}:
         #self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
-            return self.visit_StmAssign(var, a)
+            return self.visit_StmAssign(lvalue_var(var), a)
         else:
             return ""
 
-    def visit_StmAssign(self, var, a):
-        c = a.accept(self)
-        var_addr = self.get_var_addr(var)
-        return c + f"""\
+    def visit_StmAssign(self, lvalue, a):
+        if lvalue.kind == LValueKind.Var:
+            var = lvalue.loc
+            c = a.accept(self)
+            var_addr = self.get_var_addr(var)
+            return c + f"""\
     pop rax
     mov [{var_addr}], rax\n"""
+        else:
+            raise NotImplementedError
 
     def visit_StmIf(self, b, ss1, ss2):
         bc = b.accept(self)

@@ -10,6 +10,9 @@ class LocalVarsVisitor:
     def visit_ArithVar(self, var):
         return []
 
+    def visit_ArithUnaryop(self, op, a):
+        return []
+
     def visit_ArithBinop(self, op, a1, a2):
         return []
 

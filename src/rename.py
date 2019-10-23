@@ -29,6 +29,10 @@ class RenameVarsVisitor:
         var1 = self.mangle_var(var)
         return Var(var1)
 
+    def visit_ArithUnaryop(self, op, a):
+        a1 = a.accept(self)
+        return ArithUnaryop(op, a1)
+
     def visit_ArithBinop(self, op, a1, a2):
         a11 = a1.accept(self)
         a21 = a2.accept(self)
@@ -48,10 +52,12 @@ class RenameVarsVisitor:
         b21 = b2.accept(self)
         return BoolBinop(op, b11, b21)
 
-    def visit_StmAssign(self, var, a):
+    def visit_StmAssign(self, lvalue, a):
+        var = lvalue.loc
         var1 = self.mangle_var(var)
+        lvalue1 = lvalue.rename(var1)
         a1 = a.accept(self)
-        return StmAssign(var1, a1)
+        return StmAssign(lvalue1, a1)
     
     def visit_StmIf(self, b, ss1, ss2):
         b1 = b.accept(self)

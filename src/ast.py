@@ -77,6 +77,12 @@ class LValue(namedtuple("LValue", "kind loc")):
             return f"*{s}"
         else:
             return s
+
+    def rename(self, var):
+        if self.kind == LValueKind.Pointer:
+            return lvalue_pointer(var)
+        else:
+            return lvalue_var(var)
     
     @property
     def expr(self):
@@ -196,12 +202,12 @@ class StmDecl(namedtuple("StmDecl", "type var a kind",
         return visitor.visit_StmDecl(
             self.type, self.var, self.a, self.kind)
 
-class StmAssign(namedtuple("StmAssign", "loc a")):
+class StmAssign(namedtuple("StmAssign", "lvalue a")):
     def __str__(self):
-        return f"{self.loc} = {self.a};"
+        return f"{self.lvalue} = {self.a};"
     
     def accept(self, visitor):
-        return visitor.visit_StmAssign(self.loc, self.a)
+        return visitor.visit_StmAssign(self.lvalue, self.a)
 
 # TODO: at first we will include this as syntactic sugar only!
 # 
