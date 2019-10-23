@@ -84,7 +84,7 @@ class LValue(namedtuple("LValue", "kind loc")):
             return Var(self.loc)
         else:
             return ArithUnaryop(
-                ArithUnaryOp.Deref, self.loc)
+                ArithUnaryOp.Deref, Var(self.loc))
 
 def lvalue_var(var):
     return LValue(LValueKind.Var, var)
@@ -196,12 +196,12 @@ class StmDecl(namedtuple("StmDecl", "type var a kind",
         return visitor.visit_StmDecl(
             self.type, self.var, self.a, self.kind)
 
-class StmAssign(namedtuple("StmAssign", "var a")):
+class StmAssign(namedtuple("StmAssign", "loc a")):
     def __str__(self):
-        return f"{self.var} = {self.a};"
+        return f"{self.loc} = {self.a};"
     
     def accept(self, visitor):
-        return visitor.visit_StmAssign(self.var, self.a)
+        return visitor.visit_StmAssign(self.loc, self.a)
 
 # TODO: at first we will include this as syntactic sugar only!
 # 

@@ -133,6 +133,7 @@ def tokenize(s):
                     if char2 == "&":
                         yield token(Token.AND)
                     else:
+                        unchar(char2)
                         yield token(Token.AMPERSAND)
                 elif char == char2 == "|":
                     yield token(Token.OR)

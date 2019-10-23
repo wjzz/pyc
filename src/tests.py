@@ -63,7 +63,7 @@ class LexerTests(unittest.TestCase):
     def test_lexer_address(self):
         inputs = [
             ("d = &n",
-                [('ID', 'd'), 'EQUAL', 'AMPERSAND', 'EOF']),
+                [('ID', 'd'), 'EQUAL', 'AMPERSAND', ('ID', 'n'), 'EOF']),
         ]
         for (input, expected) in inputs:
             with self.subTest(input=input):
@@ -400,6 +400,15 @@ class ParserTests(unittest.TestCase):
                     parse_expr(input),
                     expected)
 
+    def test_parser_expr_deref(self):
+        input = "&n"
+
+        self.assertEqual(parse_expr(input),
+            ArithUnaryop(
+                ArithUnaryOp.Addr,
+                Var("n")
+            ))
+
     def test_parser_bool(self):
         b1 = "x == 1"
         self.assertEqual(parse_expr(b1), 
@@ -453,7 +462,17 @@ class ParserTests(unittest.TestCase):
     def test_parser_decl_pointer_initialized_address(self):
         decl = "long* x = &n;"
         self.assertEqual(parse_stm(decl),
-            []
+            [
+                StmDecl(
+                    tp_pointer(AtomType.Long),
+                    "x",
+                    ArithUnaryop(
+                        ArithUnaryOp.Addr,
+                        Var("n")
+                    ),
+                    VarKind.Local
+                )
+            ]
         )
 
     def test_parser_decl_initialized(self):
@@ -630,15 +649,36 @@ class ParserTests(unittest.TestCase):
     def test_parse_stm_pointer_assign(self):
         s3e = "*n = 1;"
         self.assertEqual(parse_stm(s3e), 
-            [])
+            [StmAssign(
+                lvalue_pointer("n"),
+                ArithLit(1) 
+            )])
 
         s3f = "*n += 1;"
         self.assertEqual(parse_stm(s3f), 
-            [])
+            [StmAssign(
+                lvalue_pointer("n"),
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithUnaryop(
+                        ArithUnaryOp.Deref, 
+                        Var("n")),
+                    ArithLit(1)
+                )
+            )])
 
-        s3g = "n = &n;"
+    def test_parse_stm_deref(self):
+        s3g = "n = &m;"
         self.assertEqual(parse_stm(s3g), 
-            [])
+            [
+                StmAssign(
+                    lvalue_var("n"),
+                    ArithUnaryop(
+                        ArithUnaryOp.Addr,
+                        Var("m")
+                    )
+                )
+            ])
         
 class ParserErrorTests(unittest.TestCase):
     def test_non_balanced_expr(self):
