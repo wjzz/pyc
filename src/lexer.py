@@ -42,6 +42,7 @@ class Token(AutoName):
     ELSE = auto()
     ID = auto()
     TYPE = auto()
+    AMPERSAND = auto()
     COMMA = auto()
     EOF = auto()
 
@@ -128,8 +129,11 @@ def tokenize(s):
                     yield token(simple_tokens["/"])
             elif char in "&|":
                 char2 = getchar()
-                if char == char2 == "&":
-                    yield token(Token.AND)
+                if char == "&":
+                    if char2 == "&":
+                        yield token(Token.AND)
+                    else:
+                        yield token(Token.AMPERSAND)
                 elif char == char2 == "|":
                     yield token(Token.OR)
             elif char in "+-*%":

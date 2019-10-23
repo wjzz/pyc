@@ -1,0 +1,9 @@
+// basic pointer operations
+
+int main() {
+  long n = 5;
+  int* d = &n;
+  print(d);
+  print(*d);
+  return 0;
+}

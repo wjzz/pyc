@@ -45,6 +45,32 @@ class LexerTests(unittest.TestCase):
             list(simplify(tokenize(input))),
             result)
 
+    def test_lexer_decl_pointers(self):
+        inputs = [
+            ("int* d",
+                [('TYPE', 'int'), 'TIMES', ('ID', 'd'), 'EOF']),
+            ("int *d",
+                [('TYPE', 'int'), 'TIMES', ('ID', 'd'), 'EOF']),
+            ("long* d",
+                [('TYPE', 'long'), 'TIMES', ('ID', 'd'), 'EOF']),
+        ]
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
+
+    def test_lexer_address(self):
+        inputs = [
+            ("d = &n",
+                [('ID', 'd'), 'EQUAL', 'AMPERSAND', 'EOF']),
+        ]
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
+
     def test_lexer_ops(self):
         inputs = [
             ("x == 0", 
@@ -62,7 +88,6 @@ class LexerTests(unittest.TestCase):
             ("! (x == 0)", 
                 ['BANG', 'LPAREN', ('ID', 'x'), 'DBL_EQ', 
                     ('NUMBER', 0), 'RPAREN', 'EOF']),
-            
         ]
         for (input, expected) in inputs:
             with self.subTest(input=input):

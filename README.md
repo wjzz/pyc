@@ -26,19 +26,22 @@ Add:
 - [x] Support tabs
 - [x] Put local variables on the stack
 - [x] Support global variables again
+- [ ] Pointers
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Add true and false
 - [ ] Include expressions in statements (now we can't write `foo(n)`)
 - [ ] x++, x--, ++x, --x
 - [ ] for loops
 - [ ] Arrays
-- [ ] Pointers
 - [ ] Structs
 - [ ] Static variables
 - [ ] Floating-point operations
 - [ ] Type checker
 - [ ] Cmd line arguments
 - [ ] Use a parser generator so that we can extend the parser more easily
+
+Make the compiler more modular:
+- [ ] Use an IL (intermediate language)
 
 Add more backends:
 - [ ] WebAssembly
@@ -80,11 +83,12 @@ $ python3 src/main.py examples/ex0.sil
 ```
 Prints the asm source code
 
-
 ## Compile and run the code
 
 ```
-$ ./scripts/compile.sh examples/ex0.sil 
+$ ./scripts/compile.sh examples/ex0.sil
+# OR
+# c examples/ex0.sil           # I have an alias on my machine :-) 
 ```
 Compiles and runs the program
 
