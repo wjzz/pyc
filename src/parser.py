@@ -183,9 +183,20 @@ class Parser:
         tp = self.parse_type()
         var = self.parse_id()
         return self.parse_var_decl(tp, var, kind)
+
+    def parse_lvalue(self):
+        token = self.peek
+        self.expect(Token.ID, Token.TIMES)
+        if token.tag == Token.ID:
+            return E.LValue(E.LValueKind.Var, token.value)
+        else:
+            # *n
+            id_token = self.peek
+            self.expect(Token.ID)
+            return E.LValue(E.LValueKind.Pointer, id_token.value)
         
     def parse_stm_assignment(self):
-        var = self.parse_id()
+        lvalue = self.parse_lvalue()
         compounds = [
             Token.PLUS_EQ,
             Token.MINUS_EQ,
@@ -198,8 +209,10 @@ class Parser:
         a = self.parse_arith()
         self.expect(Token.SEMI)
 
+        # TODO: refactor the elifs into compound get
+
         if assign == Token.EQUAL:
-            return E.StmAssign(var, a)
+            return E.StmAssign(lvalue, a)
         else:
             if assign == Token.PLUS_EQ:
                 op = E.ArithOp.Add
@@ -218,10 +231,10 @@ class Parser:
             
             # change x += 1 into x = x + 1
             return E.StmAssign(
-                var, 
+                lvalue, 
                 E.ArithBinop(
                     op,
-                    E.Var(var),
+                    lvalue.expr,
                     a))
 
     def parse_stm_while(self):
@@ -283,7 +296,7 @@ class Parser:
         elif tag == Token.TYPE:
             return self.parse_stm_var_decl()
 
-        elif tag == Token.ID:
+        elif tag in [Token.ID, Token.TIMES]:
             return self.parse_stm_assignment()
 
         elif tag == Token.WHILE:
@@ -386,7 +399,7 @@ class Parser:
             return E.ArithBinop(tag, factor, expr)
 
     def parse_factor(self):
-        atom = self.parse_atom()
+        atom = self.parse_unary()
         token = self.peek
         tags = {
             Token.TIMES : E.ArithOp.Mul,
@@ -399,9 +412,27 @@ class Parser:
         else:
             self.expect(*tags.keys())
             factor = self.parse_factor()
-            tag = tags[token.tag]
-            return E.ArithBinop(tag, atom, factor)
+            binop = tags[token.tag]
+            return E.ArithBinop(binop, atom, factor)
 
+    #-----------------------------------
+    # Unary operators
+
+    def parse_unary(self):
+        tags = {
+            Token.TIMES : E.ArithUnaryOp.Deref,
+            Token.AMPERSAND : E.ArithUnaryOp.Addr,
+        }
+
+        token = self.peek
+        if token.tag not in tags.keys():
+            return self.parse_atom()
+        else:
+            self.expect(*tags.keys())
+            atom = self.parse_atom()
+            unary = tags[token.tag]
+            return E.ArithUnaryop(unary, atom)
+    
     #-----------------------------------
     # Function calls
 

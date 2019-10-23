@@ -367,17 +367,37 @@ class ParserTests(unittest.TestCase):
     def test_parse_expr_pointers(self):
         inputs = [
             ("*n + 1",
-                []),
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithUnaryop(
+                        ArithUnaryOp.Deref, 
+                        Var("n")),
+                    ArithLit(1)
+                )),
             ("1 + *n",
-                []),
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithLit(1),
+                    ArithUnaryop(
+                        ArithUnaryOp.Deref, 
+                        Var("n"))
+                )),
             ("*n + *m",
-                [])
+                ArithBinop(
+                    ArithOp.Add,
+                    ArithUnaryop(
+                        ArithUnaryOp.Deref, 
+                        Var("n")),
+                    ArithUnaryop(
+                        ArithUnaryOp.Deref, 
+                        Var("m"))
+                ))
         ]
 
         for (input, expected) in inputs:
             with self.subTest(input=input):
                 self.assertEqual(
-                    list(simplify(tokenize(input))),
+                    parse_expr(input),
                     expected)
 
     def test_parser_bool(self):
@@ -411,13 +431,23 @@ class ParserTests(unittest.TestCase):
     def test_parser_decl_pointer(self):
         decl = "long* x;"
         self.assertEqual(parse_stm(decl),
-            []
+            [StmDecl(
+                tp_pointer(AtomType.Long), 
+                "x", 
+                None,
+                VarKind.Local
+            )]
         )
 
     def test_parser_decl_pointer_initialized(self):
         decl = "long* x = 0;"
         self.assertEqual(parse_stm(decl),
-            []
+            [StmDecl(
+                tp_pointer(AtomType.Long), 
+                "x", 
+                ArithLit(0), 
+                VarKind.Local
+            )]
         )
 
     def test_parser_decl_pointer_initialized_address(self):
@@ -473,11 +503,11 @@ class ParserTests(unittest.TestCase):
 
         s3 = "x = 1;"
         self.assertEqual(parse_stm(s3), 
-            [StmAssign("x", ArithLit(1))])
+            [StmAssign(lvalue_var("x"), ArithLit(1))])
 
         s3a = "x += 1;"
         self.assertEqual(parse_stm(s3a), 
-            [StmAssign("x", 
+            [StmAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Add,
                     Var("x"),
@@ -486,7 +516,7 @@ class ParserTests(unittest.TestCase):
 
         s3b = "x -= 1;"
         self.assertEqual(parse_stm(s3b), 
-            [StmAssign("x", 
+            [StmAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Sub,
                     Var("x"),
@@ -495,7 +525,7 @@ class ParserTests(unittest.TestCase):
 
         s3c = "x *= 1;"
         self.assertEqual(parse_stm(s3c), 
-            [StmAssign("x", 
+            [StmAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Mul,
                     Var("x"),
@@ -504,7 +534,7 @@ class ParserTests(unittest.TestCase):
 
         s3d = "x /= 1;"
         self.assertEqual(parse_stm(s3d), 
-            [StmAssign("x", 
+            [StmAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Div,
                     Var("x"),
@@ -513,7 +543,7 @@ class ParserTests(unittest.TestCase):
 
         s3d = "x %= 1;"
         self.assertEqual(parse_stm(s3d), 
-            [StmAssign("x", 
+            [StmAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Mod,
                     Var("x"),
@@ -542,7 +572,7 @@ class ParserTests(unittest.TestCase):
                         ArithLit(1)
                     ),
                     [
-                        StmAssign("x", 
+                        StmAssign(lvalue_var("x"), 
                             ArithBinop(
                                 ArithOp.Add,
                                 Var("x"),

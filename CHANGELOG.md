@@ -31,3 +31,9 @@ Also it's important to always remember that we use a stack so if we allocate stu
 * extended StmDecl with a flag to denote if the variable is local, global or static
 
 * implemented global variables again. Static variables are not handled yet.
+
+* generalized atomic types to CType (normal==atomic or pointer type)
+
+* added arith unary ops (* and &) and ArithUnaryop constructor
+
+* StmAssign now takes a lvalue instead of var

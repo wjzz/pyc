@@ -48,6 +48,10 @@ class VarKind(Enum):
 # Arithmetic operations
 #-----------------------------------------
 
+class ArithUnaryOp(Enum):
+    Deref = "*"
+    Addr  = "&"
+
 class ArithOp(Enum):
     Add = "+"
     Sub = "-"
@@ -57,6 +61,36 @@ class ArithOp(Enum):
 
     def __str__(self):
         return self.value
+
+class LValueKind(Enum):
+    Var = "var"
+    Pointer = "pointer"
+
+    def __str__(self):
+        return self.value
+
+
+class LValue(namedtuple("LValue", "kind loc")):
+    def __str__(self):
+        s = str(self.loc)
+        if self.kind == LValueKind.Pointer:
+            return f"*{s}"
+        else:
+            return s
+    
+    @property
+    def expr(self):
+        if self.kind == LValueKind.Var:
+            return Var(self.loc)
+        else:
+            return ArithUnaryop(
+                ArithUnaryOp.Deref, self.loc)
+
+def lvalue_var(var):
+    return LValue(LValueKind.Var, var)
+
+def lvalue_pointer(var):
+    return LValue(LValueKind.Pointer, var)
 
 class Var(namedtuple('Var', 'var')):
     def __str__(self):
@@ -71,6 +105,14 @@ class ArithLit(namedtuple('ArithLit', 'num')):
     
     def accept(self, visitor):
         return visitor.visit_ArithLit(self.num)
+
+class ArithUnaryop(namedtuple('ArithUnaryop', 'op a')):
+    def __str__(self):
+        [op, a] = [self.op, self.a]
+        return f"({op} {a})"
+
+    def accept(self, visitor):
+        return visitor.visit_ArithUnaryop(self.op, self.a)
 
 class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
     def __str__(self):
