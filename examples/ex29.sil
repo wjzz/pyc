@@ -1,0 +1,14 @@
+// modification of function parameters
+
+long foo(long a) {
+  long *p = &a;
+  print(*p);
+  a += 1;
+  print(*p);
+}
+
+int main() {
+  long unused = foo(5);
+
+  return 0;
+}

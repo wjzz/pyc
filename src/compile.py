@@ -3,8 +3,34 @@ from optimize import optimize
 from local_vars import get_local_vars
 from rename import rename_vars
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from enum import Enum
 import sys
+
+class Sign(Enum):
+    Plus = "+"
+    Minus = "-"
+
+    def __str__(self):
+        return self.value
+
+class MemOffset(namedtuple("MemOffset", "sign word_len count")):
+    @property
+    def text(self):
+        sign = str(self.sign)
+        size = self.word_len
+        count = self.count
+        return f"{sign} {size} * {count}"
+
+class VarAddr(namedtuple("VarAddr", "base offset", 
+  defaults=(None,))):
+    @property
+    def text(self):
+        offset = self.offset
+        if offset is None:
+            return self.base
+        else:
+            return f"{self.base} {offset.text}"
 
 class CompileVisitor:
     labelId = 0
@@ -69,28 +95,35 @@ class CompileVisitor:
     # Local variables and function parameters
 
     def global_var_addr(self, var):
-        return mangle(var)
+        base = mangle(var)
+        return VarAddr(base)
 
-    def is_parameter(self, var):
+    def is_parameter_or_local(self, var):
         """
         Checks if the given variable comes from
         binding the current functions formal parameters
         """
         return self._var_addr[var] != []
 
-    def get_parameter_addr(self, var):
+    def get_parameter_or_local_addr(self, var):
         return self._var_addr[var][-1]
 
+    def get_var_addr_text(self, var):
+        if self.is_parameter_or_local(var):
+            return self.get_parameter_or_local_addr(var).text
+        else:
+            return self.global_var_addr(var).text
+
     def get_var_addr(self, var):
-        if self.is_parameter(var):
-            return self.get_parameter_addr(var)
+        if self.is_parameter_or_local(var):
+            return self.get_parameter_or_local_addr(var)
         else:
             return self.global_var_addr(var)
 
-    def add_parameter(self, var, addr):
+    def add_parameter_of_local(self, var, addr):
         self._var_addr[var].append(addr)
 
-    def remove_parameter(self, var):
+    def remove_parameter_or_local(self, var):
         self._var_addr[var].pop()
 
     # Code generation, case by case
@@ -100,7 +133,7 @@ class CompileVisitor:
     push {val}\n"""
 
     def visit_Var(self, var):
-        var_addr = self.get_var_addr(var)
+        var_addr = self.get_var_addr_text(var)
         return f"""\
     mov rax, [{var_addr}]
     push rax\n\
@@ -124,6 +157,7 @@ class CompileVisitor:
         
         # next - call the function
         funname = mangle_fun(name)
+
         return cc + f"""\
     call {funname}
 {arg_popping}
@@ -148,28 +182,36 @@ class CompileVisitor:
             assert type(a) is Var
             var = a.var
             var_addr = self.get_var_addr(var)
-            try:
-                (base, size, count) = self.parse_addr(var_addr)
+            base = var_addr.base
+            if var_addr.offset is not None:
+                
+                (sign, size, count) = var_addr.offset
+                if sign == Sign.Plus:
+                    neg = ""
+                else:
+                    neg = "neg rax"
+            #try:
+            #    (base, size, count) = self.parse_addr(var_addr)
                 load_addr = f"""\
 mov rax, {size}
     mov rbx, {count}
     mul rbx
-    neg rax
+    {neg}
     add rax, {base}
             """
             # rax = base - size * count
-            except:
-                load_addr = f"mov rax, {var_addr}"
-            finally:
+            else:
+                load_addr = f"mov rax, {base}"
+            #finally:
                 # the same as in var, but without deferencing
-                return f"""\
+            return f"""\
     {load_addr}
     push rax\n\
 """
         elif op == ArithUnaryOp.Deref:
             assert type(a) is Var
             var = a.var
-            var_addr = self.get_var_addr(var)
+            var_addr = self.get_var_addr_text(var)
             return f"""\
     mov rax, [{var_addr}]
     mov rax, [rax]
@@ -308,7 +350,7 @@ _or_ret{label_id}:
         if lvalue.kind == LValueKind.Var:
             var = lvalue.loc
             c = a.accept(self)
-            var_addr = self.get_var_addr(var)
+            var_addr = self.get_var_addr_text(var)
             return c + f"""\
     pop rax
     mov [{var_addr}], rax\n"""
@@ -316,7 +358,7 @@ _or_ret{label_id}:
             var = lvalue.loc
             # *n = a
             c = a.accept(self)
-            var_addr = self.get_var_addr(var)
+            var_addr = self.get_var_addr_text(var)
             return c + f"""\
     pop rbx
     mov rax, [{var_addr}]
@@ -429,15 +471,17 @@ _if_ret{label_id}:
             var = param.var
             index = i + 2
             # offset = word_len * index
-            addr = f"rbp + {word_len} * {index}"
-            self.add_parameter(var, addr)
+            addr = VarAddr("rbp", 
+                MemOffset(Sign.Plus, word_len, index))
+            self.add_parameter_of_local(var, addr)
         
         # Allocate local variables
         local_vars = get_local_vars(body)
         for i, var in enumerate(local_vars):
             index = i + 1
-            addr = f"rbp - {word_len} * {index}"
-            self.add_parameter(var, addr)
+            addr = VarAddr("rbp", 
+                MemOffset(Sign.Minus, word_len, index))
+            self.add_parameter_of_local(var, addr)
         
         # update the rsp to make space for local variables
         locals_size = word_len * len(local_vars)
@@ -472,11 +516,11 @@ _if_ret{label_id}:
 
         # remove the bindings for the local vars:
         for var in local_vars:
-            self.remove_parameter(var)
+            self.remove_parameter_or_local(var)
 
         # remove the bindings for the params
         for param in params:
-            self.remove_parameter(param.var)
+            self.remove_parameter_or_local(param.var)
 
         return f"""
 {funname}:\
