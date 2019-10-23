@@ -16,15 +16,18 @@ class LocalVarsVisitor:
     def visit_ArithBinop(self, op, a1, a2):
         return []
 
+    def visit_ArithAssign(self, var, a):
+        return []
+
     def visit_BoolNeg(self, b):
         return []
 
     def visit_BoolArithCmp(self, op, a1, a2):
         return []
 
-    def visit_StmAssign(self, var, a):
+    def visit_StmExpr(self, a):
         return []
-    
+
     def visit_StmIf(self, b, ss1, ss2):
         return self.visit_many(ss1) + self.visit_many(ss2)
         

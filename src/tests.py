@@ -522,52 +522,52 @@ class ParserTests(unittest.TestCase):
 
         s3 = "x = 1;"
         self.assertEqual(parse_stm(s3), 
-            [StmAssign(lvalue_var("x"), ArithLit(1))])
+            [StmExpr(ArithAssign(lvalue_var("x"), ArithLit(1)))])
 
         s3a = "x += 1;"
         self.assertEqual(parse_stm(s3a), 
-            [StmAssign(lvalue_var("x"), 
+            [StmExpr(ArithAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Add,
                     Var("x"),
                     ArithLit(1)
-                ))])
+                )))])
 
         s3b = "x -= 1;"
         self.assertEqual(parse_stm(s3b), 
-            [StmAssign(lvalue_var("x"), 
+            [StmExpr(ArithAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Sub,
                     Var("x"),
                     ArithLit(1)
-                ))])
+                )))])
 
         s3c = "x *= 1;"
         self.assertEqual(parse_stm(s3c), 
-            [StmAssign(lvalue_var("x"), 
+            [StmExpr(ArithAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Mul,
                     Var("x"),
                     ArithLit(1)
-                ))])
+                )))])
 
         s3d = "x /= 1;"
         self.assertEqual(parse_stm(s3d), 
-            [StmAssign(lvalue_var("x"), 
+            [StmExpr(ArithAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Div,
                     Var("x"),
                     ArithLit(1)
-                ))])
+                )))])
 
         s3d = "x %= 1;"
         self.assertEqual(parse_stm(s3d), 
-            [StmAssign(lvalue_var("x"), 
+            [StmExpr(ArithAssign(lvalue_var("x"), 
                 ArithBinop(
                     ArithOp.Mod,
                     Var("x"),
                     ArithLit(1)
-                ))])
+                )))])
 
         s4 = "while (x == 1) {}"
         self.assertEqual(parse_stm(s4), 
@@ -591,12 +591,12 @@ class ParserTests(unittest.TestCase):
                         ArithLit(1)
                     ),
                     [
-                        StmAssign(lvalue_var("x"), 
+                        StmExpr(ArithAssign(lvalue_var("x"), 
                             ArithBinop(
                                 ArithOp.Add,
                                 Var("x"),
                                 ArithLit(1))
-                            )
+                            ))
                     ])
             ])
 
@@ -649,14 +649,14 @@ class ParserTests(unittest.TestCase):
     def test_parse_stm_pointer_assign(self):
         s3e = "*n = 1;"
         self.assertEqual(parse_stm(s3e), 
-            [StmAssign(
+            [StmExpr(ArithAssign(
                 lvalue_pointer("n"),
                 ArithLit(1) 
-            )])
+            ))])
 
         s3f = "*n += 1;"
         self.assertEqual(parse_stm(s3f), 
-            [StmAssign(
+            [StmExpr(ArithAssign(
                 lvalue_pointer("n"),
                 ArithBinop(
                     ArithOp.Add,
@@ -665,19 +665,19 @@ class ParserTests(unittest.TestCase):
                         Var("n")),
                     ArithLit(1)
                 )
-            )])
+            ))])
 
     def test_parse_stm_deref(self):
         s3g = "n = &m;"
         self.assertEqual(parse_stm(s3g), 
             [
-                StmAssign(
+                StmExpr(ArithAssign(
                     lvalue_var("n"),
                     ArithUnaryop(
                         ArithUnaryOp.Addr,
                         Var("m")
                     )
-                )
+                ))
             ])
         
 class ParserErrorTests(unittest.TestCase):

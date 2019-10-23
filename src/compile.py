@@ -58,7 +58,7 @@ class CompileVisitor:
         
         # a stack of function epilogue labels
         self._epilogues = []
-        
+
         # a stack of loop end labels
         self._loop_labels = []
 
@@ -318,6 +318,37 @@ _or_right{label_id}:
 _or_ret{label_id}:
 """
 
+    def visit_ArithAssign(self, lvalue, a):
+        if lvalue.kind == LValueKind.Var:
+            var = lvalue.loc
+            c = a.accept(self)
+            var_addr = self.get_var_addr_text(var)
+            return c + f"""\
+    pop rax
+    mov [{var_addr}], rax
+    push rax\n"""
+
+        elif lvalue.kind == LValueKind.Pointer:
+            var = lvalue.loc
+            # *n = a
+            c = a.accept(self)
+            var_addr = self.get_var_addr_text(var)
+            return c + f"""\
+    pop rbx
+    mov rax, [{var_addr}]
+    mov [rax], rbx
+    push rbx\n"""
+
+        else:
+            raise NotImplementedError
+
+    def visit_StmExpr(self, a):
+        # we simply ignore the return value and pop the stack
+        c = a.accept(self)
+        return c + f"""
+    pop rax
+        """
+
     def visit_StmDecl(self, tp, var, a, kind):
         # TODO: do something depending on the kind
 
@@ -328,29 +359,9 @@ _or_ret{label_id}:
         #self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
-            return self.visit_StmAssign(lvalue_var(var), a)
+            return self.visit_StmExpr(ArithAssign(lvalue_var(var), a))
         else:
             return ""
-
-    def visit_StmAssign(self, lvalue, a):
-        if lvalue.kind == LValueKind.Var:
-            var = lvalue.loc
-            c = a.accept(self)
-            var_addr = self.get_var_addr_text(var)
-            return c + f"""\
-    pop rax
-    mov [{var_addr}], rax\n"""
-        elif lvalue.kind == LValueKind.Pointer:
-            var = lvalue.loc
-            # *n = a
-            c = a.accept(self)
-            var_addr = self.get_var_addr_text(var)
-            return c + f"""\
-    pop rbx
-    mov rax, [{var_addr}]
-    mov [rax], rbx\n"""
-        else:
-            raise NotImplementedError
 
     def visit_StmIf(self, b, ss1, ss2):
         bc = b.accept(self)

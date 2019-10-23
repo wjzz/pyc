@@ -128,6 +128,23 @@ class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
     def accept(self, visitor):
         return visitor.visit_ArithBinop(self.op, self.a1, self.a2)
 
+class ArithAssign(namedtuple("ArithAssign", "lvalue a")):
+    def __str__(self):
+        return f"{self.lvalue} = {self.a};"
+    
+    def accept(self, visitor):
+        return visitor.visit_ArithAssign(self.lvalue, self.a)
+
+# TODO: at first we will include this as syntactic sugar only!
+# 
+# class StmAssignCompound(namedtuple("StmAssign", "var op a")):
+#     def __str__(self):
+#         return f"{self.var} {self.op}= {self.a};"
+    
+#     def accept(self, visitor):
+#         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
+
+
 #-----------------------------------------
 # Boolean operations
 #-----------------------------------------
@@ -190,6 +207,13 @@ class FunCall(namedtuple("FunCall", "name args")):
 # Statements
 #-----------------------------------------
 
+class StmExpr(namedtuple("StmExpr", "a")):
+    def __str__(self):
+        return str(self.a)
+
+    def accept(self, visitor):
+        return visitor.visit_StmExpr(self.a)
+
 class StmDecl(namedtuple("StmDecl", "type var a kind", 
   defaults=(None, VarKind.Local))):
     def __str__(self):
@@ -201,22 +225,6 @@ class StmDecl(namedtuple("StmDecl", "type var a kind",
     def accept(self, visitor):
         return visitor.visit_StmDecl(
             self.type, self.var, self.a, self.kind)
-
-class StmAssign(namedtuple("StmAssign", "lvalue a")):
-    def __str__(self):
-        return f"{self.lvalue} = {self.a};"
-    
-    def accept(self, visitor):
-        return visitor.visit_StmAssign(self.lvalue, self.a)
-
-# TODO: at first we will include this as syntactic sugar only!
-# 
-# class StmAssignCompound(namedtuple("StmAssign", "var op a")):
-#     def __str__(self):
-#         return f"{self.var} {self.op}= {self.a};"
-    
-#     def accept(self, visitor):
-#         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
 
 class StmIf(namedtuple('StmIf', "b ss1 ss2")):
     def __str__(self):
@@ -304,7 +312,7 @@ if __name__ == "__main__":
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
     bex = BoolArithCmp(ArithCmp.Leq, var, lit)
-    assignex = StmAssign("x", abinop)
+    assignex = ArithAssign("x", abinop)
     exprs = [
         var,
         lit,

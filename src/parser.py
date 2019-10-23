@@ -205,30 +205,6 @@ class Parser:
             Token.MOD_EQ:    E.ArithOp.Mod,
         }
 
-    def parse_stm_assignment(self):
-        compounds = self._compound_assingments
-
-        lvalue = self.parse_lvalue()
-        assign = self.peek.tag
-        self.expect(Token.EQUAL, *compounds.keys())
-        a = self.parse_arith()
-        self.expect(Token.SEMI)
-
-        if assign == Token.EQUAL:
-            return E.StmAssign(lvalue, a)
-        elif assign in compounds.keys():
-            op = compounds[assign]
-            # rewrite x += 1 into x = x + 1
-            return E.StmAssign(
-                lvalue, 
-                E.ArithBinop(
-                    op,
-                    lvalue.expr,
-                    a))
-        else:
-            raise ParseError(token=assign,
-                msg = f"Wrong assignment {assign}")
-
     def parse_stm_while(self):
         self.expect(Token.WHILE)
         self.expect(Token.LPAREN)
@@ -288,18 +264,20 @@ class Parser:
         elif tag == Token.TYPE:
             return self.parse_stm_var_decl()
 
-        elif tag in [Token.ID, Token.TIMES]:
-            return self.parse_stm_assignment()
-
         elif tag == Token.WHILE:
             return self.parse_stm_while()
             
         elif tag == Token.IF:
             return self.parse_stm_if()
-            
+
         else:
-            msg = f"Unexpected tag = {tag}"
-            raise ParseError(token=token, msg=msg)
+            a = self.parse_super_expr()
+            self.expect(Token.SEMI)
+            return E.StmExpr(a)
+            
+        # else:
+        #     msg = f"Unexpected tag = {tag}"
+        #     raise ParseError(token=token, msg=msg)
 
     def parse_block_or_stm(self):
         token = self.peek
@@ -313,9 +291,39 @@ class Parser:
     # Boolean Expressions
 
     def parse_expr_top(self):
-        b = self.parse_expr()
+        b = self.parse_super_expr()
         self.expect(Token.EOF)
         return b
+
+    def parse_super_expr(self):
+        compounds = self._compound_assingments
+        assignments = [Token.EQUAL] + list(compounds.keys())
+        l = self.parse_expr()
+        assign = self.peek.tag
+        if assign in assignments:
+            if type(l) is E.Var:
+                lvalue = E.lvalue_var(l.var)
+            elif type(l) is E.ArithUnaryop and l.op == E.ArithUnaryOp.Deref:
+                assert type(l.a) is E.Var
+                lvalue = E.lvalue_pointer(l.a.var)
+            else:
+                raise ParseError(self.peek, f"wrong lvalue in assignment: {l}")
+
+            self.expect(*assignments)
+            r = self.parse_super_expr()
+            if assign == Token.EQUAL:
+                return E.ArithAssign(lvalue, r)
+            elif assign in compounds.keys():
+                op = compounds[assign]
+                # rewrite x += 1 into x = x + 1
+                return E.ArithAssign(
+                    lvalue, 
+                    E.ArithBinop(
+                        op,
+                        lvalue.expr,
+                        r))
+        else:
+            return l
 
     @property
     def _bool_ops(self):
