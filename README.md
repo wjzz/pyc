@@ -49,6 +49,7 @@ Add more backends:
 - [ ] WebAssembly
 - [ ] ARM (Raspberry PI)
 - [ ] Mac (PowerPC?)
+- [ ] MIPS (use the SPIM emulator)
 
 SIL Syntax
 ==========

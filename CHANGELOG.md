@@ -1,4 +1,5 @@
 2019/10/22
+
 * implemented early jumps for `return`
 
 `return` should jump to the function epilogue. We want the lexically closest one,
@@ -18,7 +19,7 @@ a stack of loop [start, end] label pairs.
 
 * removed many unused files, including a while-interpreter (I was not maintaining it anyways)
 
-* BUG: my implementation of local variables was *very* naive and it's incorrect. Locals have to be put on the stack along with parameters - otherwise recursive functions won't work properly!
+* BUG: my implementation of local variables was *very* naive and thus incorrect. Locals have to be put on the stack along with parameters - otherwise recursive functions won't work properly!
 
 * implemented putting local variables on the stack.
 I made the same mistake again - to allocate more memory we have to *substract* from rsp, not add - the stack grows downwards here!
@@ -39,14 +40,14 @@ Also it's important to always remember that we use a stack so if we allocate stu
 * StmAssign now takes a lvalue instead of var
 
 * implemented simple pointer operations: & and *
-I had to make a hack - we should not store variable addresses as `rbp - 8 * 3` because it's not possible to write
-`mov rax, rbp - 8 * 3` => we have to do the calculations
 
-We should therefore make a new data structure:
-  Address = BaseAddress, Offset?
-  Offset = Sign, WordSize, Count
-Then we will be able to write the calculations easily
+* Addresses are now stored as VarAddr
+
+First I made a hack - I stored variable addresses as `rbp - 8 * 3`, but it was not possible to write
+`mov rax, rbp - 8 * 3` => we had to do the calculations in assembly.
 
 * Pointers can now change values, `*n = 5;` works
 
 * Pointers as function parameters work out of the box! :) 
+
+* We can now use pointers to change function parameters values.

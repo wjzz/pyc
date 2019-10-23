@@ -7,6 +7,12 @@ from collections import defaultdict, namedtuple
 from enum import Enum
 import sys
 
+# Variables addresses in memory
+# They are of one of three forms:
+# * base                 (eg.  [rax])  (global variables)
+# * base + word * count  (e.g. [rbp + 8 * 3]) (parameters)
+# * base - word * count  (e.g. [rbp - 8 * 3]) (local vars)
+
 class Sign(Enum):
     Plus = "+"
     Minus = "-"
@@ -32,6 +38,8 @@ class VarAddr(namedtuple("VarAddr", "base offset",
         else:
             return f"{self.base} {offset.text}"
 
+# The code generator
+
 class CompileVisitor:
     labelId = 0
 
@@ -50,6 +58,7 @@ class CompileVisitor:
         
         # a stack of function epilogue labels
         self._epilogues = []
+        
         # a stack of loop end labels
         self._loop_labels = []
 
@@ -108,17 +117,14 @@ class CompileVisitor:
     def get_parameter_or_local_addr(self, var):
         return self._var_addr[var][-1]
 
-    def get_var_addr_text(self, var):
-        if self.is_parameter_or_local(var):
-            return self.get_parameter_or_local_addr(var).text
-        else:
-            return self.global_var_addr(var).text
-
     def get_var_addr(self, var):
         if self.is_parameter_or_local(var):
             return self.get_parameter_or_local_addr(var)
         else:
             return self.global_var_addr(var)
+
+    def get_var_addr_text(self, var):
+        return self.get_var_addr(var).text
 
     def add_parameter_of_local(self, var, addr):
         self._var_addr[var].append(addr)
@@ -164,34 +170,17 @@ class CompileVisitor:
     push rax
 """
 
-    def parse_addr(self, addr):
-        # TODO: this has to be changed into a data type
-        # HACK: 
-        (l, sep, r) = addr.partition("-")
-        if sep == "-":
-            base = l.strip()
-            (size, sep2, count) = r.partition("*")
-            if sep2 == "*":
-                size = int(size)
-                count = int(count)
-                return (base, size, count)
-        return None
-
     def visit_ArithUnaryop(self, op, a):
         if op == ArithUnaryOp.Addr:
             assert type(a) is Var
-            var = a.var
-            var_addr = self.get_var_addr(var)
+            var_addr = self.get_var_addr(a.var)
             base = var_addr.base
             if var_addr.offset is not None:
-                
                 (sign, size, count) = var_addr.offset
                 if sign == Sign.Plus:
                     neg = ""
                 else:
                     neg = "neg rax"
-            #try:
-            #    (base, size, count) = self.parse_addr(var_addr)
                 load_addr = f"""\
 mov rax, {size}
     mov rbx, {count}
@@ -202,16 +191,13 @@ mov rax, {size}
             # rax = base - size * count
             else:
                 load_addr = f"mov rax, {base}"
-            #finally:
-                # the same as in var, but without deferencing
             return f"""\
     {load_addr}
     push rax\n\
 """
         elif op == ArithUnaryOp.Deref:
             assert type(a) is Var
-            var = a.var
-            var_addr = self.get_var_addr_text(var)
+            var_addr = self.get_var_addr_text(a.var)
             return f"""\
     mov rax, [{var_addr}]
     mov rax, [rax]

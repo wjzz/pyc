@@ -194,48 +194,40 @@ class Parser:
             id_token = self.peek
             self.expect(Token.ID)
             return E.LValue(E.LValueKind.Pointer, id_token.value)
-        
+    
+    @property
+    def _compound_assingments(self):
+        return {
+            Token.PLUS_EQ:   E.ArithOp.Add,
+            Token.MINUS_EQ:  E.ArithOp.Sub,
+            Token.TIMES_EQ:  E.ArithOp.Mul,
+            Token.DIVIDE_EQ: E.ArithOp.Div,
+            Token.MOD_EQ:    E.ArithOp.Mod,
+        }
+
     def parse_stm_assignment(self):
+        compounds = self._compound_assingments
+
         lvalue = self.parse_lvalue()
-        compounds = [
-            Token.PLUS_EQ,
-            Token.MINUS_EQ,
-            Token.TIMES_EQ,
-            Token.DIVIDE_EQ,
-            Token.MOD_EQ,
-        ]
         assign = self.peek.tag
-        self.expect(Token.EQUAL, *compounds)
+        self.expect(Token.EQUAL, *compounds.keys())
         a = self.parse_arith()
         self.expect(Token.SEMI)
 
-        # TODO: refactor the elifs into compound get
-
         if assign == Token.EQUAL:
             return E.StmAssign(lvalue, a)
-        else:
-            if assign == Token.PLUS_EQ:
-                op = E.ArithOp.Add
-            elif assign == Token.MINUS_EQ:
-                op = E.ArithOp.Sub
-            elif assign == Token.TIMES_EQ:
-                op = E.ArithOp.Mul
-            elif assign == Token.DIVIDE_EQ:
-                op = E.ArithOp.Div
-            elif assign == Token.MOD_EQ:
-                op = E.ArithOp.Mod
-            else:
-                raise ParseError(token=assign,
-                    msg = f"Wrong assignment {assign}")
-                #raise Exception(f"Wrong assignment {assign}")
-            
-            # change x += 1 into x = x + 1
+        elif assign in compounds.keys():
+            op = compounds[assign]
+            # rewrite x += 1 into x = x + 1
             return E.StmAssign(
                 lvalue, 
                 E.ArithBinop(
                     op,
                     lvalue.expr,
                     a))
+        else:
+            raise ParseError(token=assign,
+                msg = f"Wrong assignment {assign}")
 
     def parse_stm_while(self):
         self.expect(Token.WHILE)
