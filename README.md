@@ -36,6 +36,7 @@ Add:
 - [ ] Structs
 - [ ] Static variables
 - [ ] Floating-point operations
+- [ ] Function pointers
 - [ ] Type checker
 - [ ] Cmd line arguments
 - [ ] Use a parser generator so that we can extend the parser more easily

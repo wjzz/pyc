@@ -85,9 +85,7 @@ class Parser:
     def parse_definitions(self):
         return self.parse_many(self.parse_definition, sep=None, end=Token.EOF)
 
-    def parse_type(self):
-        token = self.peek
-        self.expect(Token.TYPE)
+    def parse_atomic_type(self, token):
         tp = token.value
         if tp == "int":
             return E.AtomType.Int
@@ -98,8 +96,20 @@ class Parser:
         elif tp == "void":
             return E.AtomType.Void
         else:
-            raise ParseError(token, "unknown type expected "
+            raise ParseError(token, "unknown type, expected "
                 "int, long, char or void, got {tp}")
+        
+    def parse_type(self):
+        token = self.peek
+        self.expect(Token.TYPE)
+        atom_tp = self.parse_atomic_type(token)
+
+        # normal type or pointer?
+        if self.peek.tag == Token.TIMES:
+            self.expect(Token.TIMES)
+            return E.CType(E.TypeKind.Pointer, atom_tp)
+        else:
+            return E.CType(E.TypeKind.Normal, atom_tp)
         
     def parse_id(self):
         token = self.get_token

@@ -364,6 +364,22 @@ class ParserTests(unittest.TestCase):
                     Var("y"),
                     ArithLit(0))))
 
+    def test_parse_expr_pointers(self):
+        inputs = [
+            ("*n + 1",
+                []),
+            ("1 + *n",
+                []),
+            ("*n + *m",
+                [])
+        ]
+
+        for (input, expected) in inputs:
+            with self.subTest(input=input):
+                self.assertEqual(
+                    list(simplify(tokenize(input))),
+                    expected)
+
     def test_parser_bool(self):
         b1 = "x == 1"
         self.assertEqual(parse_expr(b1), 
@@ -389,22 +405,40 @@ class ParserTests(unittest.TestCase):
     def test_parser_decl(self):
         decl = "long x;"
         self.assertEqual(parse_stm(decl),
-            [StmDecl(AtomType.Long, 'x', None)]
-        )   
+            [StmDecl(tp_normal(AtomType.Long), 'x', None)]
+        )
+
+    def test_parser_decl_pointer(self):
+        decl = "long* x;"
+        self.assertEqual(parse_stm(decl),
+            []
+        )
+
+    def test_parser_decl_pointer_initialized(self):
+        decl = "long* x = 0;"
+        self.assertEqual(parse_stm(decl),
+            []
+        )
+
+    def test_parser_decl_pointer_initialized_address(self):
+        decl = "long* x = &n;"
+        self.assertEqual(parse_stm(decl),
+            []
+        )
 
     def test_parser_decl_initialized(self):
         decl = "long x = 123;"
         self.assertEqual(parse_stm(decl),
-            [StmDecl(AtomType.Long, 'x', ArithLit(num=123))]
+            [StmDecl(tp_normal(AtomType.Long), 'x', ArithLit(num=123))]
         )
 
     def test_parser_fundef(self):
         input_str = "void foo(long a, int b) { }"
-        output = FunDecl(AtomType.Void,
+        output = FunDecl(tp_normal(AtomType.Void),
                     "foo",
                     [
-                        FunArg(AtomType.Long, "a"),
-                        FunArg(AtomType.Int, "b")
+                        FunArg(tp_normal(AtomType.Long), "a"),
+                        FunArg(tp_normal(AtomType.Int), "b")
                     ],
                     [])
 
@@ -412,11 +446,12 @@ class ParserTests(unittest.TestCase):
 
     def test_parser_fundef_return(self):
         input_str = "void foo(long a, int b) { return a; }"
-        output = FunDecl(AtomType.Void,
+        output = FunDecl(
+            tp_normal(AtomType.Void),
                     "foo",
                     [
-                        FunArg(AtomType.Long, "a"),
-                        FunArg(AtomType.Int, "b")
+                        FunArg(tp_normal(AtomType.Long), "a"),
+                        FunArg(tp_normal(AtomType.Int), "b")
                     ],
                     [StmReturn(Var("a"))])
 
@@ -561,6 +596,19 @@ class ParserTests(unittest.TestCase):
             [
                 StmContinue()
             ])
+
+    def test_parse_stm_pointer_assign(self):
+        s3e = "*n = 1;"
+        self.assertEqual(parse_stm(s3e), 
+            [])
+
+        s3f = "*n += 1;"
+        self.assertEqual(parse_stm(s3f), 
+            [])
+
+        s3g = "n = &n;"
+        self.assertEqual(parse_stm(s3g), 
+            [])
         
 class ParserErrorTests(unittest.TestCase):
     def test_non_balanced_expr(self):

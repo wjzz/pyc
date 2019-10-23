@@ -15,6 +15,27 @@ class AtomType(Enum):
     def __str__(self):
         return self.value
 
+class TypeKind(Enum):
+    Normal = "normal"
+    Pointer = "pointer"
+
+    def __str__(self):
+        return self.value
+
+class CType(namedtuple("CType", "kind type")):
+    def __str__(self):
+        stype = str(self.type)
+        if self.kind == TypeKind.Normal:
+            return stype
+        elif self.kind == TypeKind.Pointer:
+            return f"{stype}*"
+
+def tp_normal(atomic):
+    return CType(TypeKind.Normal, atomic)
+
+def tp_pointer(atomic):
+    return CType(TypeKind.Pointer, atomic)
+
 class VarKind(Enum):
     Local = "local"
     Global = "global"
@@ -133,7 +154,6 @@ class StmDecl(namedtuple("StmDecl", "type var a kind",
         return visitor.visit_StmDecl(
             self.type, self.var, self.a, self.kind)
 
-
 class StmAssign(namedtuple("StmAssign", "var a")):
     def __str__(self):
         return f"{self.var} = {self.a};"
@@ -149,7 +169,6 @@ class StmAssign(namedtuple("StmAssign", "var a")):
     
 #     def accept(self, visitor):
 #         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
-
 
 class StmIf(namedtuple('StmIf', "b ss1 ss2")):
     def __str__(self):
