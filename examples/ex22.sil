@@ -1,3 +1,5 @@
+// global variables
+
 long n; // guaranteed to be initialized to 0
 
 long foo() {

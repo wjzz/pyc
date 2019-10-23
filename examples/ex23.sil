@@ -1,0 +1,11 @@
+// check if the global variable is initialized to 0 automatically
+
+long n;
+
+int main() {
+  print(n);
+  n = 25;
+  print(n);
+  return 0;
+}
+
