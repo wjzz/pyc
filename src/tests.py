@@ -22,6 +22,14 @@ class LexerTests(unittest.TestCase):
 
         self.assertEqual(expected, result)
 
+    def test_lexer_comment(self):
+        input_str = "// this is a comment\n+"
+        result = list(simplify(tokenize(input_str)))
+
+        expected = [ 'PLUS', 'EOF' ]
+
+        self.assertEqual(expected, result)
+
     def test_lexer_ident(self):
         inputs = [
             ("x",
@@ -132,17 +140,24 @@ class LexerTests(unittest.TestCase):
         self.assertEqual(expected, result)
 
     def test_lexer_fun_decl(self):
-        input_str = "void foo(long a, int b) { }"
+        input_str = "void foo(long a, int b, char c) { }"
 
         result = list(simplify(tokenize(input_str)))
 
         expected = [ ('TYPE', 'void'), ('ID', 'foo'),
             'LPAREN', ('TYPE', 'long'),
             ('ID', 'a'), 'COMMA', ('TYPE', 'int'), ('ID', 'b'),
+            'COMMA', ('TYPE', 'char'), ('ID', 'c'),
             'RPAREN', 'LBRACE', 'RBRACE', 'EOF'
         ]
 
         self.assertEqual(expected, result)
+
+    def test_lexer_incorrect_char(self):
+        input_str = "\b"
+
+        with self.assertRaises(Exception):
+            list(simplify(tokenize(input_str)))
 
     def test_lexer_break(self):
         input_str = "break;"

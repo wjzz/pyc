@@ -49,7 +49,7 @@ class Token(AutoName):
 # I always wanted to do this!!
 all_tokens = list(Token)
 
-TokenInfo = namedtuple('TokenInfo', 
+TokenInfo = namedtuple('TokenInfo',
     ['tag', 'value', 'line', 'offset'])
 
 def tokenize(s):
@@ -61,7 +61,7 @@ def tokenize(s):
     def token_info(*, tag, value):
         nonlocal line_no
         nonlocal offset
-        return TokenInfo(tag=tag, value=value, 
+        return TokenInfo(tag=tag, value=value,
             line=line_no, offset=offset)
 
     def token(tag):
@@ -81,13 +81,13 @@ def tokenize(s):
             offset += 1
             char = next(iterator)
         return char
-            
+
     def unchar(char):
         nonlocal unchar_v
         unchar_v = char
 
     # start of the proper lexel
-    
+
     simple_tokens = {
         "(": Token.LPAREN,
         ")": Token.RPAREN,
@@ -107,7 +107,7 @@ def tokenize(s):
     while True:
         try:
             char = getchar()
-            
+
             if char.isdigit():
                 number = 0
                 while char.isdigit():
@@ -219,7 +219,7 @@ def tokenize(s):
             else:
                 raise Exception(f"found unknown character while tokenizing: [{char}]")
         except StopIteration:
-            break    
+            break
     yield token(Token.EOF)
 
 def simplify(tokens):
@@ -229,12 +229,3 @@ def simplify(tokens):
             yield name, value
         else:
             yield name
-
-if __name__ == "__main__":
-    example = "(1 + 11 * 22)"
-    print(example)
-    print(list(simplify(tokenize(example))))
-
-    example2 = "let x := 1 in x + x end"
-    print(example2)
-    print(list(simplify(tokenize(example2))))
