@@ -1,10 +1,10 @@
 Overview
 ========
 
-A compiler from SIL (a simple imperative language) to x86-64 
+A compiler from SIL (a simple imperative language) to x86-64
 assembly for linux written in Python 3.7.
 
-The goal of the project is to learn how compilers work, so for 
+The goal of the project is to learn how compilers work, so for
 simplicity SIL will have many missing parts.
 
 Todo
@@ -14,7 +14,7 @@ Add:
 - [x] Parser
 - [x] Composite boolean operations (e.g. x <= 1 && x > -5)
 - [x] Compound assignment (as syntactic sugar)
-- [x] Add error handling to the parser	
+- [x] Add error handling to the parser
 - [x] Variable declarations
 - [x] No variable is used before declaration
 - [x] Block scoping
@@ -70,6 +70,11 @@ End to end tests:
 $ make e2e
 ```
 
+Check the coverage:
+```
+$ make cov
+```
+
 Updating the tests
 ==================
 
@@ -92,7 +97,7 @@ Prints the asm source code
 ```
 $ ./scripts/compile.sh examples/ex0.sil
 # OR
-# c examples/ex0.sil           # I have an alias on my machine :-) 
+# c examples/ex0.sil           # I have an alias on my machine :-)
 ```
 Compiles and runs the program
 
@@ -104,7 +109,7 @@ base = ex0
 Compiling the program... OK!
 Running the assembler... OK!
 Running the linker... OK!
-Running the program... 
+Running the program...
 15
 Return value = 1
 ```

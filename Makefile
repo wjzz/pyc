@@ -1,5 +1,5 @@
-.PHONY: std primes test e2e
-.SILENT: test e2e
+.PHONY: std primes test e2e cov-unit cov-e2e
+.SILENT: test e2e cov-unit cov-e2e
 
 CODE_DIR = src
 
@@ -12,6 +12,16 @@ e2e:
 	clear
 	echo "Running e2e tests..."
 	./scripts/test_all.sh
+
+cov-unit:
+	clear
+	echo "Generating test coverage info for unit tests...\n"
+	$(MAKE) -s coverage-unit -C $(CODE_DIR)
+
+cov-e2e:
+	clear
+	echo "Generating test coverage info for e2e tests...\n"
+	$(MAKE) -s coverage-e2e -C $(CODE_DIR)
 
 std:
 	# NOTE: this contains debugging flags

@@ -1,7 +1,19 @@
-.PHONY: std primes test
+.PHONY: std primes test coverage-unit coverage-e2e
 
 test:
 	python3.8 -B -m unittest -v
+
+coverage-unit:
+	python3.8 -m coverage run tests.py && \
+	coverage report && \
+	coverage html && \
+	firefox htmlcov/index.html
+
+coverage-e2e:
+	python3.8 -m coverage run main.py ../examples/*.sil >/dev/null && \
+	coverage report && \
+	coverage html && \
+	firefox htmlcov/index.html
 
 std:
 	# NOTE: this contains debugging flags

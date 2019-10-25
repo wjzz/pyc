@@ -61,7 +61,8 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * upgrade to python 3.8
 
-* try to install coverage => unfortunately it breaks :(
+* install coverage (wasn't easy! because I have many versions of python installed, it only works with `pyenv` for me).
+* Add `make cov` to the main makefile
 
 * install `pylint`:
 - trim trailing whitespace on save
