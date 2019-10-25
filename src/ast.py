@@ -83,7 +83,7 @@ class LValue(namedtuple("LValue", "kind loc")):
             return lvalue_pointer(var)
         else:
             return lvalue_var(var)
-    
+
     @property
     def expr(self):
         if self.kind == LValueKind.Var:
@@ -107,8 +107,8 @@ class Var(namedtuple('Var', 'var')):
 
 class ArithLit(namedtuple('ArithLit', 'num')):
     def __str__(self):
-        return str(self.num) 
-    
+        return str(self.num)
+
     def accept(self, visitor):
         return visitor.visit_ArithLit(self.num)
 
@@ -131,16 +131,16 @@ class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
 class ArithAssign(namedtuple("ArithAssign", "lvalue a")):
     def __str__(self):
         return f"{self.lvalue} = {self.a};"
-    
+
     def accept(self, visitor):
         return visitor.visit_ArithAssign(self.lvalue, self.a)
 
 # TODO: at first we will include this as syntactic sugar only!
-# 
+#
 # class StmAssignCompound(namedtuple("StmAssign", "var op a")):
 #     def __str__(self):
 #         return f"{self.var} {self.op}= {self.a};"
-    
+
 #     def accept(self, visitor):
 #         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
 
@@ -214,14 +214,14 @@ class StmExpr(namedtuple("StmExpr", "a")):
     def accept(self, visitor):
         return visitor.visit_StmExpr(self.a)
 
-class StmDecl(namedtuple("StmDecl", "type var a kind", 
+class StmDecl(namedtuple("StmDecl", "type var a kind",
   defaults=(None, VarKind.Local))):
     def __str__(self):
         if self.a is not None:
             return f"{self.type} {self.var} = {self.a};"
-        else: 
+        else:
             return f"{self.type} {self.var};"
-    
+
     def accept(self, visitor):
         return visitor.visit_StmDecl(
             self.type, self.var, self.a, self.kind)
@@ -246,7 +246,7 @@ class StmWhile(namedtuple('StmWhile', "b ss")):
 class StmPrint(namedtuple("StmPrint", "a")):
     def __str__(self):
         return f"print({self.a});"
-    
+
     def accept(self, visitor):
         return visitor.visit_StmPrint(self.a)
 
@@ -275,7 +275,7 @@ class StmBlock(namedtuple("StmBlock", "ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))
         return f"{{\n\t{ss}\n}}"
-    
+
     def accept(self, visitor):
         return visitor.visit_StmBlock(self.ss)
 

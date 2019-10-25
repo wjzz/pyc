@@ -48,7 +48,7 @@ First I made a hack - I stored variable addresses as `rbp - 8 * 3`, but it was n
 
 * Pointers can now change values, `*n = 5;` works
 
-* Pointers as function parameters work out of the box! :) 
+* Pointers as function parameters work out of the box! :)
 
 * We can now use pointers to change function parameters values.
 
@@ -56,3 +56,12 @@ First I made a hack - I stored variable addresses as `rbp - 8 * 3`, but it was n
 
 * Include all expressions in statements. The code generator for `a;`
 calculates `a` and then pops the stack (we don't use the value).
+
+2019/10/25
+
+* upgrade to python 3.8
+
+* try to install coverage => unfortunately it breaks :(
+
+* install `pylint`:
+- trim trailing whitespace on save

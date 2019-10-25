@@ -1,8 +1,17 @@
-import ast
-import parser
-import compile
+"""
+The main entry of the compiler.
+
+This module is putting everything together, the file is:
+- read
+- parsed
+- compiled
+and then the generated assembly is printed out.
+"""
 
 import sys
+
+import parser
+import code_generator
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -14,8 +23,8 @@ if __name__ == "__main__":
                 # parse
                 c = parser.parse_file(lines)
                 # compile
-                result = compile.compile_top(c)
-                # output 
+                result = code_generator.compile_top(c)
+                # output
                 print(result)
         except FileNotFoundError:
             with sys.stderr as dest:
@@ -27,8 +36,8 @@ if __name__ == "__main__":
                 line = err.token.line
                 pos = err.token.offset
                 print("\n/Error/ Parse Error:", file=dest)
-                print(f"\tError on line {line}:{pos}", 
-                    file=dest)
+                print(f"\tError on line {line}:{pos}",
+                      file=dest)
                 print(f"\t{err.msg}", file=dest)
                 sys.exit(1)
         except NotImplementedError:

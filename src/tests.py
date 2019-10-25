@@ -3,7 +3,7 @@ import unittest
 from ast import *
 from lexer import tokenize, simplify
 from parser import parse_file, parse_stm, parse_expr, parse_arith
-import compile
+import code_generator
 from local_vars import get_local_vars
 from rename import rename_vars
 
@@ -12,23 +12,23 @@ class LexerTests(unittest.TestCase):
         e1 = "1"
         self.assertEqual(list(simplify(tokenize(e1))),
             [('NUMBER', 1), 'EOF'])
-        
+
         input_str = "(1 + 11 * 22)"
 
         result = list(simplify(tokenize(input_str)))
 
-        expected = ['LPAREN', ('NUMBER', 1), 'PLUS', ('NUMBER', 11), 
+        expected = ['LPAREN', ('NUMBER', 1), 'PLUS', ('NUMBER', 11),
             'TIMES', ('NUMBER', 22), 'RPAREN', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_ident(self):
         inputs = [
-            ("x", 
+            ("x",
             [('ID', 'x'), 'EOF']),
-            ("x123", 
+            ("x123",
             [('ID', 'x123'), 'EOF']),
-            ("x_123", 
+            ("x_123",
             [('ID', 'x_123'), 'EOF']),
 
         ]
@@ -73,20 +73,20 @@ class LexerTests(unittest.TestCase):
 
     def test_lexer_ops(self):
         inputs = [
-            ("x == 0", 
+            ("x == 0",
                 [('ID', 'x'), 'DBL_EQ', ('NUMBER', 0), 'EOF']),
-            ("x != 0", 
+            ("x != 0",
                 [('ID', 'x'), 'NOT_EQ', ('NUMBER', 0), 'EOF']),
-            ("x >= 0", 
+            ("x >= 0",
                 [('ID', 'x'), 'GREATER_EQ', ('NUMBER', 0), 'EOF']),
-            ("x > 0", 
+            ("x > 0",
                 [('ID', 'x'), 'GREATER', ('NUMBER', 0), 'EOF']),
-            ("x <= 0", 
+            ("x <= 0",
                 [('ID', 'x'), 'LESS_EQ', ('NUMBER', 0), 'EOF']),
-            ("x < 0", 
+            ("x < 0",
                 [('ID', 'x'), 'LESS', ('NUMBER', 0), 'EOF']),
-            ("! (x == 0)", 
-                ['BANG', 'LPAREN', ('ID', 'x'), 'DBL_EQ', 
+            ("! (x == 0)",
+                ['BANG', 'LPAREN', ('ID', 'x'), 'DBL_EQ',
                     ('NUMBER', 0), 'RPAREN', 'EOF']),
         ]
         for (input, expected) in inputs:
@@ -104,7 +104,7 @@ class LexerTests(unittest.TestCase):
                    'GREATER', ('NUMBER', 0), 'RPAREN',
                    'LBRACE', ('ID', 'x'), 'EQUAL', ('NUMBER', 10),
                    'SEMI', 'RBRACE', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_if(self):
@@ -115,10 +115,10 @@ class LexerTests(unittest.TestCase):
         expected = ['IF', 'LPAREN', ('ID', 'x'),
                    'GREATER', ('NUMBER', 0), 'RPAREN',
                    'LBRACE', ('ID', 'x'), 'EQUAL', ('NUMBER', 10),
-                   'SEMI', 'RBRACE', 'ELSE', 
+                   'SEMI', 'RBRACE', 'ELSE',
                    'LBRACE', ('ID', 'x'), 'EQUAL', ('NUMBER', 5),
                    'SEMI', 'RBRACE', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_binops(self):
@@ -136,8 +136,8 @@ class LexerTests(unittest.TestCase):
 
         result = list(simplify(tokenize(input_str)))
 
-        expected = [ ('TYPE', 'void'), ('ID', 'foo'), 
-            'LPAREN', ('TYPE', 'long'), 
+        expected = [ ('TYPE', 'void'), ('ID', 'foo'),
+            'LPAREN', ('TYPE', 'long'),
             ('ID', 'a'), 'COMMA', ('TYPE', 'int'), ('ID', 'b'),
             'RPAREN', 'LBRACE', 'RBRACE', 'EOF'
         ]
@@ -150,7 +150,7 @@ class LexerTests(unittest.TestCase):
         result = list(simplify(tokenize(input_str)))
 
         expected = ['BREAK', 'SEMI', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_continue(self):
@@ -159,7 +159,7 @@ class LexerTests(unittest.TestCase):
         result = list(simplify(tokenize(input_str)))
 
         expected = ['CONTINUE', 'SEMI', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_return(self):
@@ -168,7 +168,7 @@ class LexerTests(unittest.TestCase):
         result = list(simplify(tokenize(input_str)))
 
         expected = ['RETURN', ('ID', 'x'), 'SEMI', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_print(self):
@@ -178,20 +178,20 @@ class LexerTests(unittest.TestCase):
 
         expected = ['PRINT', 'LPAREN', ('ID', 'x'),
                    'RPAREN', 'SEMI', 'EOF']
-        
+
         self.assertEqual(expected, result)
 
     def test_lexer_compound_assign(self):
         inputs = [
-            ("x += 1", 
+            ("x += 1",
             [('ID', 'x'), 'PLUS_EQ', ('NUMBER', 1), 'EOF']),
-            ("x -= 1", 
+            ("x -= 1",
             [('ID', 'x'), 'MINUS_EQ', ('NUMBER', 1), 'EOF']),
-            ("x *= 1", 
+            ("x *= 1",
             [('ID', 'x'), 'TIMES_EQ', ('NUMBER', 1), 'EOF']),
-            ("x /= 1", 
+            ("x /= 1",
             [('ID', 'x'), 'DIVIDE_EQ', ('NUMBER', 1), 'EOF']),
-            ("x %= 1", 
+            ("x %= 1",
             [('ID', 'x'), 'MOD_EQ', ('NUMBER', 1), 'EOF']),
         ]
 
@@ -288,9 +288,9 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(parse_expr(e3), r3)
 
         e4 = "2 + foo()"
-        r4 = ArithBinop(ArithOp.Add, 
+        r4 = ArithBinop(ArithOp.Add,
             ArithLit(2),
-            FunCall("foo", [])) 
+            FunCall("foo", []))
         self.assertEqual(parse_expr(e4), r4)
 
         e5 = "2 + foo() > 4"
@@ -298,7 +298,7 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(parse_expr(e5), r5)
 
         e6 = "foo(x, y, bar())"
-        r6 = FunCall("foo", 
+        r6 = FunCall("foo",
                 [Var("x"),
                 Var("y"),
                 FunCall("bar", [])])
@@ -306,14 +306,14 @@ class ParserTests(unittest.TestCase):
 
     def test_parser_bool_expr(self):
         b1a = "(x == 1)"
-        self.assertEqual(parse_expr(b1a), 
+        self.assertEqual(parse_expr(b1a),
             BoolArithCmp(
                 ArithCmp.Eq,
                 Var("x"),
                 ArithLit(1)))
 
         b4 = "(x > 1) && (y < 0)"
-        self.assertEqual(parse_expr(b4), 
+        self.assertEqual(parse_expr(b4),
             BoolBinop(
                 BoolOp.And,
                 BoolArithCmp(
@@ -326,7 +326,7 @@ class ParserTests(unittest.TestCase):
                     ArithLit(0))))
 
         b4a = "x > 1 && y < 0"
-        self.assertEqual(parse_expr(b4a), 
+        self.assertEqual(parse_expr(b4a),
             BoolBinop(
                 BoolOp.And,
                 BoolArithCmp(
@@ -339,7 +339,7 @@ class ParserTests(unittest.TestCase):
                     ArithLit(0))))
 
         b5 = "(x > 1) || (y < 0)"
-        self.assertEqual(parse_expr(b5), 
+        self.assertEqual(parse_expr(b5),
             BoolBinop(
                 BoolOp.Or,
                 BoolArithCmp(
@@ -352,7 +352,7 @@ class ParserTests(unittest.TestCase):
                     ArithLit(0))))
 
         b5a = "x > 1 || y < 0"
-        self.assertEqual(parse_expr(b5a), 
+        self.assertEqual(parse_expr(b5a),
             BoolBinop(
                 BoolOp.Or,
                 BoolArithCmp(
@@ -370,7 +370,7 @@ class ParserTests(unittest.TestCase):
                 ArithBinop(
                     ArithOp.Add,
                     ArithUnaryop(
-                        ArithUnaryOp.Deref, 
+                        ArithUnaryOp.Deref,
                         Var("n")),
                     ArithLit(1)
                 )),
@@ -379,17 +379,17 @@ class ParserTests(unittest.TestCase):
                     ArithOp.Add,
                     ArithLit(1),
                     ArithUnaryop(
-                        ArithUnaryOp.Deref, 
+                        ArithUnaryOp.Deref,
                         Var("n"))
                 )),
             ("*n + *m",
                 ArithBinop(
                     ArithOp.Add,
                     ArithUnaryop(
-                        ArithUnaryOp.Deref, 
+                        ArithUnaryOp.Deref,
                         Var("n")),
                     ArithUnaryop(
-                        ArithUnaryOp.Deref, 
+                        ArithUnaryOp.Deref,
                         Var("m"))
                 ))
         ]
@@ -411,21 +411,21 @@ class ParserTests(unittest.TestCase):
 
     def test_parser_bool(self):
         b1 = "x == 1"
-        self.assertEqual(parse_expr(b1), 
+        self.assertEqual(parse_expr(b1),
             BoolArithCmp(
                 ArithCmp.Eq,
                 Var("x"),
                 ArithLit(1)))
 
         b2 = "x != 1"
-        self.assertEqual(parse_expr(b2), 
+        self.assertEqual(parse_expr(b2),
             BoolArithCmp(
                 ArithCmp.Neq,
                 Var("x"),
                 ArithLit(1)))
 
         b3 = "x > 1"
-        self.assertEqual(parse_expr(b3), 
+        self.assertEqual(parse_expr(b3),
             BoolArithCmp(
                 ArithCmp.Gt,
                 Var("x"),
@@ -441,8 +441,8 @@ class ParserTests(unittest.TestCase):
         decl = "long* x;"
         self.assertEqual(parse_stm(decl),
             [StmDecl(
-                tp_pointer(AtomType.Long), 
-                "x", 
+                tp_pointer(AtomType.Long),
+                "x",
                 None,
                 VarKind.Local
             )]
@@ -452,9 +452,9 @@ class ParserTests(unittest.TestCase):
         decl = "long* x = 0;"
         self.assertEqual(parse_stm(decl),
             [StmDecl(
-                tp_pointer(AtomType.Long), 
-                "x", 
-                ArithLit(0), 
+                tp_pointer(AtomType.Long),
+                "x",
+                ArithLit(0),
                 VarKind.Local
             )]
         )
@@ -508,25 +508,25 @@ class ParserTests(unittest.TestCase):
 
     def test_parser_stm(self):
         s1 = "print(x);"
-        self.assertEqual(parse_stm(s1), 
+        self.assertEqual(parse_stm(s1),
             [StmPrint(Var("x"))])
 
         s1a = "print(x_);"
-        self.assertEqual(parse_stm(s1a), 
+        self.assertEqual(parse_stm(s1a),
             [StmPrint(Var("x_"))])
 
 
         s2 = "print(15);"
-        self.assertEqual(parse_stm(s2), 
+        self.assertEqual(parse_stm(s2),
             [StmPrint(ArithLit(15))])
 
         s3 = "x = 1;"
-        self.assertEqual(parse_stm(s3), 
+        self.assertEqual(parse_stm(s3),
             [StmExpr(ArithAssign(lvalue_var("x"), ArithLit(1)))])
 
         s3a = "x += 1;"
-        self.assertEqual(parse_stm(s3a), 
-            [StmExpr(ArithAssign(lvalue_var("x"), 
+        self.assertEqual(parse_stm(s3a),
+            [StmExpr(ArithAssign(lvalue_var("x"),
                 ArithBinop(
                     ArithOp.Add,
                     Var("x"),
@@ -534,8 +534,8 @@ class ParserTests(unittest.TestCase):
                 )))])
 
         s3b = "x -= 1;"
-        self.assertEqual(parse_stm(s3b), 
-            [StmExpr(ArithAssign(lvalue_var("x"), 
+        self.assertEqual(parse_stm(s3b),
+            [StmExpr(ArithAssign(lvalue_var("x"),
                 ArithBinop(
                     ArithOp.Sub,
                     Var("x"),
@@ -543,8 +543,8 @@ class ParserTests(unittest.TestCase):
                 )))])
 
         s3c = "x *= 1;"
-        self.assertEqual(parse_stm(s3c), 
-            [StmExpr(ArithAssign(lvalue_var("x"), 
+        self.assertEqual(parse_stm(s3c),
+            [StmExpr(ArithAssign(lvalue_var("x"),
                 ArithBinop(
                     ArithOp.Mul,
                     Var("x"),
@@ -552,8 +552,8 @@ class ParserTests(unittest.TestCase):
                 )))])
 
         s3d = "x /= 1;"
-        self.assertEqual(parse_stm(s3d), 
-            [StmExpr(ArithAssign(lvalue_var("x"), 
+        self.assertEqual(parse_stm(s3d),
+            [StmExpr(ArithAssign(lvalue_var("x"),
                 ArithBinop(
                     ArithOp.Div,
                     Var("x"),
@@ -561,8 +561,8 @@ class ParserTests(unittest.TestCase):
                 )))])
 
         s3d = "x %= 1;"
-        self.assertEqual(parse_stm(s3d), 
-            [StmExpr(ArithAssign(lvalue_var("x"), 
+        self.assertEqual(parse_stm(s3d),
+            [StmExpr(ArithAssign(lvalue_var("x"),
                 ArithBinop(
                     ArithOp.Mod,
                     Var("x"),
@@ -570,7 +570,7 @@ class ParserTests(unittest.TestCase):
                 )))])
 
         s4 = "while (x == 1) {}"
-        self.assertEqual(parse_stm(s4), 
+        self.assertEqual(parse_stm(s4),
             [
                 StmWhile(
                     BoolArithCmp(
@@ -582,7 +582,7 @@ class ParserTests(unittest.TestCase):
             ])
 
         s5 = "while (x == 1) { x = x + 1; }"
-        self.assertEqual(parse_stm(s5), 
+        self.assertEqual(parse_stm(s5),
             [
                 StmWhile(
                     BoolArithCmp(
@@ -591,7 +591,7 @@ class ParserTests(unittest.TestCase):
                         ArithLit(1)
                     ),
                     [
-                        StmExpr(ArithAssign(lvalue_var("x"), 
+                        StmExpr(ArithAssign(lvalue_var("x"),
                             ArithBinop(
                                 ArithOp.Add,
                                 Var("x"),
@@ -601,7 +601,7 @@ class ParserTests(unittest.TestCase):
             ])
 
         s6 = "if (x == 1) {}"
-        self.assertEqual(parse_stm(s6), 
+        self.assertEqual(parse_stm(s6),
             [
                 StmIf(
                     BoolArithCmp(
@@ -614,7 +614,7 @@ class ParserTests(unittest.TestCase):
             ])
 
         s7 = "if (x == 1) {} else {}"
-        self.assertEqual(parse_stm(s7), 
+        self.assertEqual(parse_stm(s7),
             [
                 StmIf(
                     BoolArithCmp(
@@ -633,7 +633,7 @@ class ParserTests(unittest.TestCase):
                     []
                 )
             ])
-        
+
         s9 = "break;"
         self.assertEqual(parse_stm(s9),
             [
@@ -648,20 +648,20 @@ class ParserTests(unittest.TestCase):
 
     def test_parse_stm_pointer_assign(self):
         s3e = "*n = 1;"
-        self.assertEqual(parse_stm(s3e), 
+        self.assertEqual(parse_stm(s3e),
             [StmExpr(ArithAssign(
                 lvalue_pointer("n"),
-                ArithLit(1) 
+                ArithLit(1)
             ))])
 
         s3f = "*n += 1;"
-        self.assertEqual(parse_stm(s3f), 
+        self.assertEqual(parse_stm(s3f),
             [StmExpr(ArithAssign(
                 lvalue_pointer("n"),
                 ArithBinop(
                     ArithOp.Add,
                     ArithUnaryop(
-                        ArithUnaryOp.Deref, 
+                        ArithUnaryOp.Deref,
                         Var("n")),
                     ArithLit(1)
                 )
@@ -669,7 +669,7 @@ class ParserTests(unittest.TestCase):
 
     def test_parse_stm_deref(self):
         s3g = "n = &m;"
-        self.assertEqual(parse_stm(s3g), 
+        self.assertEqual(parse_stm(s3g),
             [
                 StmExpr(ArithAssign(
                     lvalue_var("n"),
@@ -679,7 +679,7 @@ class ParserTests(unittest.TestCase):
                     )
                 ))
             ])
-        
+
 class ParserErrorTests(unittest.TestCase):
     def test_non_balanced_expr(self):
         inputs = [
@@ -691,7 +691,7 @@ class ParserErrorTests(unittest.TestCase):
             with self.subTest(i = input):
                 with self.assertRaises(Exception):
                     parse_expr(input)
-    
+
     def test_non_balanced_stm(self):
         inputs = [
             "while (1) {",

@@ -1,11 +1,11 @@
-from ast import *
-from optimize import optimize
-from local_vars import get_local_vars
-from rename import rename_vars
-
 from collections import defaultdict, namedtuple
 from enum import Enum
 import sys
+
+import ast as E
+from optimize import optimize
+from local_vars import get_local_vars
+from rename import rename_vars
 
 # Variables addresses in memory
 # They are of one of three forms:
@@ -28,7 +28,7 @@ class MemOffset(namedtuple("MemOffset", "sign word_len count")):
         count = self.count
         return f"{sign} {size} * {count}"
 
-class VarAddr(namedtuple("VarAddr", "base offset", 
+class VarAddr(namedtuple("VarAddr", "base offset",
   defaults=(None,))):
     @property
     def text(self):
@@ -51,11 +51,11 @@ class CompileVisitor:
     def __init__(self):
         # static vars
         self._static_vars = set()
-        
+
         # symbol table for parameters
         # we keep a separate stack for every variable
         self._var_addr = defaultdict(list)
-        
+
         # a stack of function epilogue labels
         self._epilogues = []
 
@@ -66,7 +66,7 @@ class CompileVisitor:
 
     def push_epilogue(self, label):
         self._epilogues.append(label)
-    
+
     @property
     def top_epilogue(self):
         return self._epilogues[-1]
@@ -79,7 +79,7 @@ class CompileVisitor:
 
     def push_loop_labels(self, labels):
         self._loop_labels.append(labels)
-    
+
     @property
     def top_loop_start_label(self):
         return self._loop_labels[-1][0]
@@ -96,7 +96,7 @@ class CompileVisitor:
 
     def add_static_var(self, var):
         self._static_vars.add(var)
-    
+
     @property
     def static_vars(self):
         return self._static_vars
@@ -155,12 +155,12 @@ class CompileVisitor:
         cc = ""
         for arg in reversed(args):
             cc += arg.accept(self)   # we have implicit pushes over here
-        
+
         # adjust the stack to remove the arguments
         count = len(args)
         word_len = 8
         arg_popping = f"add rsp, {word_len * count}"
-        
+
         # next - call the function
         funname = mangle_fun(name)
 
@@ -171,8 +171,8 @@ class CompileVisitor:
 """
 
     def visit_ArithUnaryop(self, op, a):
-        if op == ArithUnaryOp.Addr:
-            assert type(a) is Var
+        if op == E.ArithUnaryOp.Addr:
+            assert type(a) is E.Var
             var_addr = self.get_var_addr(a.var)
             base = var_addr.base
             if var_addr.offset is not None:
@@ -195,8 +195,8 @@ mov rax, {size}
     {load_addr}
     push rax\n\
 """
-        elif op == ArithUnaryOp.Deref:
-            assert type(a) is Var
+        elif op == E.ArithUnaryOp.Deref:
+            assert type(a) is E.Var
             var_addr = self.get_var_addr_text(a.var)
             return f"""\
     mov rax, [{var_addr}]
@@ -210,17 +210,17 @@ mov rax, {size}
         c1 = a1.accept(self)
         c2 = a2.accept(self)
 
-        if op == ArithOp.Add:
+        if op == E.ArithOp.Add:
             operation = "add r10, r11"
-        if op == ArithOp.Sub:
+        if op == E.ArithOp.Sub:
             operation = "sub r10, r11"
-        if op == ArithOp.Mul:
+        if op == E.ArithOp.Mul:
             operation = """
     mov rax, r10
     mul r11
     mov r10, rax
             """
-        if op == ArithOp.Div:
+        if op == E.ArithOp.Div:
             # TODO: we reset the rdx register here
             operation = """
     mov rax, r10
@@ -228,7 +228,7 @@ mov rax, {size}
     div r11
     mov r10, rax
             """
-        if op == ArithOp.Mod:
+        if op == E.ArithOp.Mod:
             # TODO: we reset the rdx register here
             operation = """
     mov rax, r10
@@ -243,7 +243,7 @@ mov rax, {size}
     {operation}
     push r10\n\
 """
-        
+
     def visit_BoolArithCmp(self, op, a1, a2):
         c1 = a1.accept(self)
         c2 = a2.accept(self)
@@ -251,17 +251,17 @@ mov rax, {size}
         label_id = CompileVisitor.fresh_id()
         label = f"_cmp_change{label_id}"
 
-        if op == ArithCmp.Eq:
+        if op == E.ArithCmp.Eq:
             operator = "je"
-        if op == ArithCmp.Neq:
+        if op == E.ArithCmp.Neq:
             operator = "jne"
-        if op == ArithCmp.Leq:
+        if op == E.ArithCmp.Leq:
             operator = "jle"
-        if op == ArithCmp.Lt:
+        if op == E.ArithCmp.Lt:
             operator = "jl"
-        if op == ArithCmp.Geq:
+        if op == E.ArithCmp.Geq:
             operator = "jge"
-        if op == ArithCmp.Gt:
+        if op == E.ArithCmp.Gt:
             operator = "jg"
 
         return c1 + c2 + f"""
@@ -295,7 +295,7 @@ _cmp_ret{label_id}:
         c2 = b2.accept(self)
         label_id = CompileVisitor.fresh_id()
 
-        if op == BoolOp.And:
+        if op == E.BoolOp.And:
             return c1 + f"""
     pop rax
     cmp rax, 0
@@ -306,7 +306,7 @@ _and_right{label_id}:
 {c2}
 _and_ret{label_id}:
 """
-        elif op == BoolOp.Or:
+        elif op == E.BoolOp.Or:
             return c1 + f"""
     pop rax
     cmp rax, 0
@@ -319,7 +319,7 @@ _or_ret{label_id}:
 """
 
     def visit_ArithAssign(self, lvalue, a):
-        if lvalue.kind == LValueKind.Var:
+        if lvalue.kind == E.LValueKind.Var:
             var = lvalue.loc
             c = a.accept(self)
             var_addr = self.get_var_addr_text(var)
@@ -328,7 +328,7 @@ _or_ret{label_id}:
     mov [{var_addr}], rax
     push rax\n"""
 
-        elif lvalue.kind == LValueKind.Pointer:
+        elif lvalue.kind == E.LValueKind.Pointer:
             var = lvalue.loc
             # *n = a
             c = a.accept(self)
@@ -359,7 +359,7 @@ _or_ret{label_id}:
         #self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
-            return self.visit_StmExpr(ArithAssign(lvalue_var(var), a))
+            return self.visit_StmExpr(E.ArithAssign(E.lvalue_var(var), a))
         else:
             return ""
 
@@ -380,14 +380,14 @@ _if_false{label_id}:
 {cc2}\
 _if_ret{label_id}:
 """
-    
+
     def visit_StmWhile(self, b, ss):
         label_id = CompileVisitor.fresh_id()
         while_start_lbl = f"_loop_while{label_id}"
         while_end_lbl = f"_while_ret{label_id}"
         labels = (while_start_lbl, while_end_lbl)
         bc = b.accept(self)
-        
+
         self.push_loop_labels(labels)
         cc = self.visit_many(ss)
         self.pop_loop_labels(labels)
@@ -436,12 +436,12 @@ _if_ret{label_id}:
     def visit_FunDecl(self, _type, name, params, body):
         funname = mangle_fun(name)
         # prepare the prologue
-        # 
+        #
         # at this moment [rsp] contains the return address
         # [rsp] +  8 contains arg #1
         # [rsp] + 16 contains arg #2
         # etc
-        # 
+        #
         # We store rsp in rbp at the very start of the prologue
         # so we can reference the vars using offsets of rbp.
         #
@@ -452,11 +452,11 @@ _if_ret{label_id}:
         # [rbp + 16] == arg #1
         # [rbp + 24] == arg #2
         # etc!
-        # 
+        #
         # Note that the value of rsp changes as we change the stack.
         # rbp is a callee-save register, so we don't have to worry
         # about it being changed when calling other functions.
-        # 
+        #
         # Local variables are stored on the other side of rbp, ie:
         # [rbp -  8] == first local variable
         # [rbp - 16] == second local variable
@@ -468,18 +468,18 @@ _if_ret{label_id}:
             var = param.var
             index = i + 2
             # offset = word_len * index
-            addr = VarAddr("rbp", 
+            addr = VarAddr("rbp",
                 MemOffset(Sign.Plus, word_len, index))
             self.add_parameter_of_local(var, addr)
-        
+
         # Allocate local variables
         local_vars = get_local_vars(body)
         for i, var in enumerate(local_vars):
             index = i + 1
-            addr = VarAddr("rbp", 
+            addr = VarAddr("rbp",
                 MemOffset(Sign.Minus, word_len, index))
             self.add_parameter_of_local(var, addr)
-        
+
         # update the rsp to make space for local variables
         locals_size = word_len * len(local_vars)
         local_vars_add_space = f"sub rsp, {locals_size}"
@@ -541,7 +541,7 @@ def mangle_fun(name):
     return f"__{name}__"
 
 def define_vars(vars):
-    return "\n".join([ f"  {mangle(var)} dq 0" 
+    return "\n".join([ f"  {mangle(var)} dq 0"
         for var in vars])
 
 def compile_global_defs(defs):
@@ -551,13 +551,13 @@ def compile_global_defs(defs):
     return code, static_vars
 
 def compile_file(defs):
-    fun_names = [defn.name for defn in defs if type(defn) == FunDecl]
+    fun_names = [defn.name for defn in defs if type(defn) == E.FunDecl]
     if "main" not in fun_names:
         print("A program with function definition must have"
           " a 'main' function! Aborting...", file=sys.stderr)
         raise Exception("No main function")
 
-    global_vars = [decl.var for decl in defs if type(decl) == StmDecl]
+    global_vars = [decl.var for decl in defs if type(decl) == E.StmDecl]
 
     # TODO: check that all functions have different names
     # TODO: implement static vars
