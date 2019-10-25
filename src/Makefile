@@ -1,7 +1,7 @@
 .PHONY: std primes test
 
 test:
-	python3.7 -B -m unittest -v
+	python3.8 -B -m unittest -v
 
 std:
 	# NOTE: this contains debugging flags
