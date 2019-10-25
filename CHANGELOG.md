@@ -66,3 +66,5 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * install `pylint`:
 - trim trailing whitespace on save
+
+* install `flake8`:

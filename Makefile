@@ -1,5 +1,5 @@
-.PHONY: std primes test e2e cov-unit cov-e2e
-.SILENT: test e2e cov-unit cov-e2e
+.PHONY: std primes test e2e cov-unit cov-e2e lint
+.SILENT: test e2e cov-unit cov-e2e lint
 
 CODE_DIR = src
 
@@ -22,6 +22,11 @@ cov-e2e:
 	clear
 	echo "Generating test coverage info for e2e tests...\n"
 	$(MAKE) -s coverage-e2e -C $(CODE_DIR)
+
+lint:
+	clear
+	echo "Generating linting information...\n"
+	python3.8 -m flake8
 
 std:
 	# NOTE: this contains debugging flags
