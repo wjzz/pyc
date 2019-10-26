@@ -1,10 +1,12 @@
 from enum import Enum, auto
 from collections import namedtuple
 
+
 class AutoName(Enum):
     @staticmethod
     def _generate_next_value_(name, start, count, last_values):
         return name
+
 
 class Token(AutoName):
     LPAREN = auto()
@@ -46,11 +48,12 @@ class Token(AutoName):
     COMMA = auto()
     EOF = auto()
 
+
 # I always wanted to do this!!
 all_tokens = list(Token)
 
-TokenInfo = namedtuple('TokenInfo',
-    ['tag', 'value', 'line', 'offset'])
+TokenInfo = namedtuple("TokenInfo", ["tag", "value", "line", "offset"])
+
 
 def tokenize(s):
     """Tokenize the given string s into a generator of tokens."""
@@ -61,8 +64,7 @@ def tokenize(s):
     def token_info(*, tag, value):
         nonlocal line_no
         nonlocal offset
-        return TokenInfo(tag=tag, value=value,
-            line=line_no, offset=offset)
+        return TokenInfo(tag=tag, value=value, line=line_no, offset=offset)
 
     def token(tag):
         return token_info(tag=tag, value=None)
@@ -114,9 +116,9 @@ def tokenize(s):
                     number *= 10
                     number += int(char)
                     char = getchar()
-                assert(char is not None)
+                assert char is not None
                 unchar(char)
-                yield token_info(tag = Token.NUMBER, value = number)
+                yield token_info(tag=Token.NUMBER, value=number)
             elif char == "/":
                 char2 = getchar()
                 if char2 == "/":
@@ -190,7 +192,7 @@ def tokenize(s):
                 while char.isalnum() or char == "_":
                     value += char
                     char = getchar()
-                assert(char is not None)
+                assert char is not None
                 unchar(char)
                 if value == "while":
                     yield token(Token.WHILE)
@@ -207,20 +209,21 @@ def tokenize(s):
                 elif value == "continue":
                     yield token(Token.CONTINUE)
                 elif value == "long":
-                    yield token_info(tag = Token.TYPE, value = "long")
+                    yield token_info(tag=Token.TYPE, value="long")
                 elif value == "int":
-                    yield token_info(tag = Token.TYPE, value = "int")
+                    yield token_info(tag=Token.TYPE, value="int")
                 elif value == "char":
-                    yield token_info(tag = Token.TYPE, value = "char")
+                    yield token_info(tag=Token.TYPE, value="char")
                 elif value == "void":
-                    yield token_info(tag = Token.TYPE, value = "void")
+                    yield token_info(tag=Token.TYPE, value="void")
                 else:
-                    yield token_info(tag = Token.ID, value = value)
+                    yield token_info(tag=Token.ID, value=value)
             else:
                 raise Exception(f"found unknown character while tokenizing: [{char}]")
         except StopIteration:
             break
     yield token(Token.EOF)
+
 
 def simplify(tokens):
     for (tag, value, _line, _offset) in tokens:

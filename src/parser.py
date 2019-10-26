@@ -15,8 +15,8 @@ import sys
 #       | WHILE ( <BOOL> ) <BLOCK>
 #       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
 #       | <BLOCK>
-# 
-# BLOCK ::= 
+#
+# BLOCK ::=
 #        | { <STM_LIST> }
 
 # ARITH_CMP ::= == | != | > | >= | < | <=
@@ -29,6 +29,7 @@ import sys
 # FACTOR ::= <ATOM> | <ATOM> [*/%] <FACTOR>
 # ATOM = NUM | ID ( <EXPR> )
 
+
 class ParseError(Exception):
     def __init__(self, token, msg):
         self.token = token
@@ -37,6 +38,7 @@ class ParseError(Exception):
     def __str__(self):
         return f"{self.msg}"
 
+
 class Parser:
     def __init__(self, tokens):
         self._tokens = tokens
@@ -44,7 +46,7 @@ class Parser:
     @property
     def get_token(self):
         return next(self._tokens)
-        #print(f"  {token.tag}, {token.line}", file=sys.stderr)
+        # print(f"  {token.tag}, {token.line}", file=sys.stderr)
 
     @property
     def peek(self):
@@ -61,9 +63,10 @@ class Parser:
         token = self.get_token
         if token.tag not in expected_tags:
             tags = [str(tok) for tok in expected_tags]
-            raise ParseError(token=token,
-                msg=f"Found {token.tag}, expected one of {tags}")
-        assert(token.tag in expected_tags)
+            raise ParseError(
+                token=token, msg=f"Found {token.tag}, expected one of {tags}"
+            )
+        assert token.tag in expected_tags
 
     def parse_many(self, parser, *, sep=None, end):
         results = []
@@ -76,7 +79,7 @@ class Parser:
         self.expect(end)
         return results
 
-    #-----------------------------------
+    # -----------------------------------
     # Top-level definitions
 
     def parse_file_top(self):
@@ -96,9 +99,10 @@ class Parser:
         elif tp == "void":
             return E.AtomType.Void
         else:
-            raise ParseError(token, "unknown type, expected "
-                "int, long, char or void, got {tp}")
-        
+            raise ParseError(
+                token, "unknown type, expected " "int, long, char or void, got {tp}"
+            )
+
     def parse_type(self):
         token = self.peek
         self.expect(Token.TYPE)
@@ -110,10 +114,10 @@ class Parser:
             return E.CType(E.TypeKind.Pointer, atom_tp)
         else:
             return E.CType(E.TypeKind.Normal, atom_tp)
-        
+
     def parse_id(self):
         token = self.get_token
-        assert(token.tag == Token.ID)
+        assert token.tag == Token.ID
         return token.value
 
     def parse_param(self):
@@ -145,7 +149,7 @@ class Parser:
         else:
             return self.parse_var_decl(tp, name, E.VarKind.Global)
 
-    #-----------------------------------
+    # -----------------------------------
     # Statements
 
     def parse_stm_top(self):
@@ -194,15 +198,15 @@ class Parser:
             id_token = self.peek
             self.expect(Token.ID)
             return E.LValue(E.LValueKind.Pointer, id_token.value)
-    
+
     @property
     def _compound_assingments(self):
         return {
-            Token.PLUS_EQ:   E.ArithOp.Add,
-            Token.MINUS_EQ:  E.ArithOp.Sub,
-            Token.TIMES_EQ:  E.ArithOp.Mul,
+            Token.PLUS_EQ: E.ArithOp.Add,
+            Token.MINUS_EQ: E.ArithOp.Sub,
+            Token.TIMES_EQ: E.ArithOp.Mul,
             Token.DIVIDE_EQ: E.ArithOp.Div,
-            Token.MOD_EQ:    E.ArithOp.Mod,
+            Token.MOD_EQ: E.ArithOp.Mod,
         }
 
     def parse_stm_while(self):
@@ -246,7 +250,7 @@ class Parser:
         token = self.peek
         tag = token.tag
 
-        if tag == Token.LBRACE: 
+        if tag == Token.LBRACE:
             return self.parse_stm_block()
 
         elif tag == Token.PRINT:
@@ -266,7 +270,7 @@ class Parser:
 
         elif tag == Token.WHILE:
             return self.parse_stm_while()
-            
+
         elif tag == Token.IF:
             return self.parse_stm_if()
 
@@ -274,7 +278,7 @@ class Parser:
             a = self.parse_super_expr()
             self.expect(Token.SEMI)
             return E.StmExpr(a)
-            
+
     def parse_block_or_stm(self):
         token = self.peek
         if token.tag == Token.LBRACE:
@@ -283,7 +287,7 @@ class Parser:
         else:
             return self.parse_stm()
 
-    #-----------------------------------
+    # -----------------------------------
     # Boolean Expressions
 
     def parse_expr_top(self):
@@ -312,32 +316,24 @@ class Parser:
             elif assign in compounds.keys():
                 op = compounds[assign]
                 # rewrite x += 1 into x = x + 1
-                return E.ArithAssign(
-                    lvalue, 
-                    E.ArithBinop(
-                        op,
-                        lvalue.expr,
-                        r))
+                return E.ArithAssign(lvalue, E.ArithBinop(op, lvalue.expr, r))
         else:
             return l
 
     @property
     def _bool_ops(self):
-        operators = {
-            Token.AND: E.BoolOp.And,
-            Token.OR: E.BoolOp.Or,
-        }
+        operators = {Token.AND: E.BoolOp.And, Token.OR: E.BoolOp.Or}
         return operators
 
     @property
     def _arith_cmps(self):
         operators = {
-            Token.DBL_EQ : E.ArithCmp.Eq,
-            Token.NOT_EQ : E.ArithCmp.Neq,
-            Token.GREATER_EQ : E.ArithCmp.Geq,
-            Token.GREATER : E.ArithCmp.Gt,
-            Token.LESS_EQ : E.ArithCmp.Leq,
-            Token.LESS : E.ArithCmp.Lt,
+            Token.DBL_EQ: E.ArithCmp.Eq,
+            Token.NOT_EQ: E.ArithCmp.Neq,
+            Token.GREATER_EQ: E.ArithCmp.Geq,
+            Token.GREATER: E.ArithCmp.Gt,
+            Token.LESS_EQ: E.ArithCmp.Leq,
+            Token.LESS: E.ArithCmp.Lt,
         }
         return operators
 
@@ -349,11 +345,7 @@ class Parser:
         if token.tag in operators.keys():
             self.expect(*operators.keys())
             b2 = self.parse_bool_atom()
-            return E.BoolBinop(
-                operators[token.tag],
-                b1, 
-                b2
-            )
+            return E.BoolBinop(operators[token.tag], b1, b2)
         else:
             return b1
 
@@ -364,14 +356,11 @@ class Parser:
         if operator in operators.keys():
             self.expect(*operators.keys())
             a2 = self.parse_arith()
-            return E.BoolArithCmp(
-                operators[operator],
-                a1,
-                a2)
+            return E.BoolArithCmp(operators[operator], a1, a2)
         else:
             return a1
 
-    #-----------------------------------
+    # -----------------------------------
     # Arith Expressions
 
     def parse_arith_top(self):
@@ -385,10 +374,7 @@ class Parser:
         if token.tag not in [Token.PLUS, Token.MINUS]:
             return factor
         else:
-            tags = {
-                Token.PLUS : E.ArithOp.Add,
-                Token.MINUS : E.ArithOp.Sub,
-            }
+            tags = {Token.PLUS: E.ArithOp.Add, Token.MINUS: E.ArithOp.Sub}
             self.expect(Token.PLUS, Token.MINUS)
             expr = self.parse_arith()
             tag = tags[token.tag]
@@ -398,9 +384,9 @@ class Parser:
         atom = self.parse_unary()
         token = self.peek
         tags = {
-            Token.TIMES : E.ArithOp.Mul,
-            Token.DIVIDE : E.ArithOp.Div,
-            Token.MOD : E.ArithOp.Mod,
+            Token.TIMES: E.ArithOp.Mul,
+            Token.DIVIDE: E.ArithOp.Div,
+            Token.MOD: E.ArithOp.Mod,
         }
 
         if token.tag not in tags.keys():
@@ -411,14 +397,11 @@ class Parser:
             binop = tags[token.tag]
             return E.ArithBinop(binop, atom, factor)
 
-    #-----------------------------------
+    # -----------------------------------
     # Unary operators
 
     def parse_unary(self):
-        tags = {
-            Token.TIMES : E.ArithUnaryOp.Deref,
-            Token.AMPERSAND : E.ArithUnaryOp.Addr,
-        }
+        tags = {Token.TIMES: E.ArithUnaryOp.Deref, Token.AMPERSAND: E.ArithUnaryOp.Addr}
 
         token = self.peek
         if token.tag not in tags.keys():
@@ -428,12 +411,12 @@ class Parser:
             atom = self.parse_atom()
             unary = tags[token.tag]
             return E.ArithUnaryop(unary, atom)
-    
-    #-----------------------------------
+
+    # -----------------------------------
     # Function calls
 
     def parse_args(self):
-        return self.parse_many(self.parse_expr, sep=Token.COMMA, end=Token.RPAREN)        
+        return self.parse_many(self.parse_expr, sep=Token.COMMA, end=Token.RPAREN)
 
     def parse_atom(self):
         token = self.get_token
@@ -453,10 +436,13 @@ class Parser:
             else:
                 return E.Var(token.value)
         else:
-            msg = f"Unexpected token: {token.tag}\n" \
-                "Expected expression, namely one of LPAREN, " \
+            msg = (
+                f"Unexpected token: {token.tag}\n"
+                "Expected expression, namely one of LPAREN, "
                 "NUMBER or ID"
+            )
             raise ParseError(token, msg)
+
 
 def parse_arith(s):
     """
@@ -465,6 +451,7 @@ def parse_arith(s):
     tokens = tokenize(s)
     return Parser(tokens).parse_expr_top()
 
+
 def parse_expr(s):
     """
     Takes an input string and outputs a bool expr AST
@@ -472,12 +459,14 @@ def parse_expr(s):
     tokens = tokenize(s)
     return Parser(tokens).parse_expr_top()
 
+
 def parse_stm(s):
     """
     Takes an input string and outputs a stm AST
     """
     tokens = tokenize(s)
     return Parser(tokens).parse_stm_top()
+
 
 def parse_file(s):
     """

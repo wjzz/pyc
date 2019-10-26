@@ -16,7 +16,7 @@ import code_generator
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         for file_name in sys.argv[1:]:
-            #print("got file name =", sys.argv[1])
+            # print("got file name =", sys.argv[1])
             try:
                 with open(file_name, "r") as f:
                     lines = "".join(f.readlines())
@@ -36,8 +36,7 @@ if __name__ == "__main__":
                     line = err.token.line
                     pos = err.token.offset
                     print("\n/Error/ Parse Error:", file=dest)
-                    print(f"\tError on line {line}:{pos}",
-                        file=dest)
+                    print(f"\tError on line {line}:{pos}", file=dest)
                     print(f"\t{err.msg}", file=dest)
                     sys.exit(1)
             except NotImplementedError:

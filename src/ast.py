@@ -2,9 +2,10 @@ from enum import Enum
 from collections import namedtuple
 
 
-#-----------------------------------------
+# -----------------------------------------
 # Types
-#-----------------------------------------
+# -----------------------------------------
+
 
 class AtomType(Enum):
     Int = "int"
@@ -15,12 +16,14 @@ class AtomType(Enum):
     def __str__(self):
         return self.value
 
+
 class TypeKind(Enum):
     Normal = "normal"
     Pointer = "pointer"
 
     def __str__(self):
         return self.value
+
 
 class CType(namedtuple("CType", "kind type")):
     def __str__(self):
@@ -30,11 +33,14 @@ class CType(namedtuple("CType", "kind type")):
         elif self.kind == TypeKind.Pointer:
             return f"{stype}*"
 
+
 def tp_normal(atomic):
     return CType(TypeKind.Normal, atomic)
 
+
 def tp_pointer(atomic):
     return CType(TypeKind.Pointer, atomic)
+
 
 class VarKind(Enum):
     Local = "local"
@@ -44,13 +50,16 @@ class VarKind(Enum):
     def __str__(self):
         return self.value
 
-#-----------------------------------------
+
+# -----------------------------------------
 # Arithmetic operations
-#-----------------------------------------
+# -----------------------------------------
+
 
 class ArithUnaryOp(Enum):
     Deref = "*"
-    Addr  = "&"
+    Addr = "&"
+
 
 class ArithOp(Enum):
     Add = "+"
@@ -61,6 +70,7 @@ class ArithOp(Enum):
 
     def __str__(self):
         return self.value
+
 
 class LValueKind(Enum):
     Var = "var"
@@ -89,30 +99,34 @@ class LValue(namedtuple("LValue", "kind loc")):
         if self.kind == LValueKind.Var:
             return Var(self.loc)
         else:
-            return ArithUnaryop(
-                ArithUnaryOp.Deref, Var(self.loc))
+            return ArithUnaryop(ArithUnaryOp.Deref, Var(self.loc))
+
 
 def lvalue_var(var):
     return LValue(LValueKind.Var, var)
 
+
 def lvalue_pointer(var):
     return LValue(LValueKind.Pointer, var)
 
-class Var(namedtuple('Var', 'var')):
+
+class Var(namedtuple("Var", "var")):
     def __str__(self):
         return self.var
 
     def accept(self, visitor):
         return visitor.visit_Var(self.var)
 
-class ArithLit(namedtuple('ArithLit', 'num')):
+
+class ArithLit(namedtuple("ArithLit", "num")):
     def __str__(self):
         return str(self.num)
 
     def accept(self, visitor):
         return visitor.visit_ArithLit(self.num)
 
-class ArithUnaryop(namedtuple('ArithUnaryop', 'op a')):
+
+class ArithUnaryop(namedtuple("ArithUnaryop", "op a")):
     def __str__(self):
         [op, a] = [self.op, self.a]
         return f"({op} {a})"
@@ -120,7 +134,8 @@ class ArithUnaryop(namedtuple('ArithUnaryop', 'op a')):
     def accept(self, visitor):
         return visitor.visit_ArithUnaryop(self.op, self.a)
 
-class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
+
+class ArithBinop(namedtuple("ArithBinop", "op a1 a2")):
     def __str__(self):
         [op, a1, a2] = [self.op, self.a1, self.a2]
         return f"({a1} {op} {a2})"
@@ -128,12 +143,14 @@ class ArithBinop(namedtuple('ArithBinop', 'op a1 a2')):
     def accept(self, visitor):
         return visitor.visit_ArithBinop(self.op, self.a1, self.a2)
 
+
 class ArithAssign(namedtuple("ArithAssign", "lvalue a")):
     def __str__(self):
         return f"{self.lvalue} = {self.a};"
 
     def accept(self, visitor):
         return visitor.visit_ArithAssign(self.lvalue, self.a)
+
 
 # TODO: at first we will include this as syntactic sugar only!
 #
@@ -145,20 +162,22 @@ class ArithAssign(namedtuple("ArithAssign", "lvalue a")):
 #         return visitor.visit_StmAssignCompound(self.var, self.op, self.a)
 
 
-#-----------------------------------------
+# -----------------------------------------
 # Boolean operations
-#-----------------------------------------
+# -----------------------------------------
+
 
 class ArithCmp(Enum):
-    Eq  = "=="
+    Eq = "=="
     Neq = "!="
     Leq = "<="
-    Lt  = "<"
+    Lt = "<"
     Geq = ">="
-    Gt  = ">"
+    Gt = ">"
 
     def __str__(self):
         return self.value
+
 
 class BoolArithCmp(namedtuple("BoolArithCmp", "op a1 a2")):
     def __str__(self):
@@ -168,6 +187,7 @@ class BoolArithCmp(namedtuple("BoolArithCmp", "op a1 a2")):
     def accept(self, visitor):
         return visitor.visit_BoolArithCmp(self.op, self.a1, self.a2)
 
+
 class BoolNeg(namedtuple("BoolNeg", "b")):
     def __str__(self):
         return f"(not {self.b})"
@@ -175,12 +195,14 @@ class BoolNeg(namedtuple("BoolNeg", "b")):
     def accept(self, visitor):
         return visitor.visit_BoolNeg(self.b)
 
+
 class BoolOp(Enum):
     And = "&&"
-    Or  = "||"
+    Or = "||"
 
     def __str__(self):
         return self.value
+
 
 class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
     def __str__(self):
@@ -190,12 +212,13 @@ class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
     def accept(self, visitor):
         return visitor.visit_BoolBinop(self.op, self.b1, self.b2)
 
-#-----------------------------------------
+
+# -----------------------------------------
 # Other expressions
-#-----------------------------------------
+# -----------------------------------------
+
 
 class FunCall(namedtuple("FunCall", "name args")):
-
     def __str__(self):
         args = ", ".join(map(str, self.args))
         return f"{self.name}({args})"
@@ -203,9 +226,11 @@ class FunCall(namedtuple("FunCall", "name args")):
     def accept(self, visitor):
         return visitor.visit_FunCall(self.name, self.args)
 
-#-----------------------------------------
+
+# -----------------------------------------
 # Statements
-#-----------------------------------------
+# -----------------------------------------
+
 
 class StmExpr(namedtuple("StmExpr", "a")):
     def __str__(self):
@@ -214,8 +239,8 @@ class StmExpr(namedtuple("StmExpr", "a")):
     def accept(self, visitor):
         return visitor.visit_StmExpr(self.a)
 
-class StmDecl(namedtuple("StmDecl", "type var a kind",
-  defaults=(None, VarKind.Local))):
+
+class StmDecl(namedtuple("StmDecl", "type var a kind", defaults=(None, VarKind.Local))):
     def __str__(self):
         if self.a is not None:
             return f"{self.type} {self.var} = {self.a};"
@@ -223,10 +248,10 @@ class StmDecl(namedtuple("StmDecl", "type var a kind",
             return f"{self.type} {self.var};"
 
     def accept(self, visitor):
-        return visitor.visit_StmDecl(
-            self.type, self.var, self.a, self.kind)
+        return visitor.visit_StmDecl(self.type, self.var, self.a, self.kind)
 
-class StmIf(namedtuple('StmIf', "b ss1 ss2")):
+
+class StmIf(namedtuple("StmIf", "b ss1 ss2")):
     def __str__(self):
         ss1 = "\n".join(map(str, self.ss1))
         ss2 = "\n".join(map(str, self.ss2))
@@ -235,13 +260,15 @@ class StmIf(namedtuple('StmIf', "b ss1 ss2")):
     def accept(self, visitor):
         return visitor.visit_StmIf(self.b, self.ss1, self.ss2)
 
-class StmWhile(namedtuple('StmWhile', "b ss")):
+
+class StmWhile(namedtuple("StmWhile", "b ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))
         return f"while {self.b} {{\n\t{ss}\n}}"
 
     def accept(self, visitor):
         return visitor.visit_StmWhile(self.b, self.ss)
+
 
 class StmPrint(namedtuple("StmPrint", "a")):
     def __str__(self):
@@ -250,12 +277,14 @@ class StmPrint(namedtuple("StmPrint", "a")):
     def accept(self, visitor):
         return visitor.visit_StmPrint(self.a)
 
+
 class StmReturn(namedtuple("StmReturn", "a")):
     def __str__(self):
         return f"return {self.a};"
 
     def accept(self, visitor):
         return visitor.visit_StmReturn(self.a)
+
 
 class StmBreak(namedtuple("StmBreak", "")):
     def __str__(self):
@@ -264,12 +293,14 @@ class StmBreak(namedtuple("StmBreak", "")):
     def accept(self, visitor):
         return visitor.visit_StmBreak()
 
+
 class StmContinue(namedtuple("StmContinue", "")):
     def __str__(self):
         return f"continue;"
 
     def accept(self, visitor):
         return visitor.visit_StmContinue()
+
 
 class StmBlock(namedtuple("StmBlock", "ss")):
     def __str__(self):
@@ -279,13 +310,16 @@ class StmBlock(namedtuple("StmBlock", "ss")):
     def accept(self, visitor):
         return visitor.visit_StmBlock(self.ss)
 
-#-----------------------------------------
+
+# -----------------------------------------
 # Top level declarations
-#-----------------------------------------
+# -----------------------------------------
+
 
 class FunArg(namedtuple("FunArg", "type var")):
     def __str__(self):
         return f"{self.type} {self.var}"
+
 
 class FunDecl(namedtuple("FunDecl", "type name params body")):
     def __str__(self):
@@ -296,13 +330,14 @@ class FunDecl(namedtuple("FunDecl", "type name params body")):
     def accept(self, visitor):
         return visitor.visit_FunDecl(self.type, self.name, self.params, self.body)
 
-#-----------------------------------------
+
+# -----------------------------------------
 # Tests
-#-----------------------------------------
+# -----------------------------------------
 
 if __name__ == "__main__":
     ops = list(ArithOp)
-    print(ops) # uses repr
+    print(ops)  # uses repr
     print(list(map(str, ops)))
 
     bops = list(ArithCmp)
@@ -319,16 +354,8 @@ if __name__ == "__main__":
         abinop,
         bex,
         BoolNeg(bex),
-        BoolBinop(
-            BoolOp.And,
-            bex,
-            BoolNeg(bex)
-        ),
-        BoolBinop(
-            BoolOp.Or,
-            bex,
-            BoolNeg(bex)
-        ),
+        BoolBinop(BoolOp.And, bex, BoolNeg(bex)),
+        BoolBinop(BoolOp.Or, bex, BoolNeg(bex)),
         assignex,
         StmIf(bex, [assignex], [assignex]),
         StmWhile(bex, [assignex, assignex]),

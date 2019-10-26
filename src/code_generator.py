@@ -13,12 +13,14 @@ from rename import rename_vars
 # * base + word * count  (e.g. [rbp + 8 * 3]) (parameters)
 # * base - word * count  (e.g. [rbp - 8 * 3]) (local vars)
 
+
 class Sign(Enum):
     Plus = "+"
     Minus = "-"
 
     def __str__(self):
         return self.value
+
 
 class MemOffset(namedtuple("MemOffset", "sign word_len count")):
     @property
@@ -28,8 +30,8 @@ class MemOffset(namedtuple("MemOffset", "sign word_len count")):
         count = self.count
         return f"{sign} {size} * {count}"
 
-class VarAddr(namedtuple("VarAddr", "base offset",
-  defaults=(None,))):
+
+class VarAddr(namedtuple("VarAddr", "base offset", defaults=(None,))):
     @property
     def text(self):
         offset = self.offset
@@ -38,7 +40,9 @@ class VarAddr(namedtuple("VarAddr", "base offset",
         else:
             return f"{self.base} {offset.text}"
 
+
 # The code generator
+
 
 class CompileVisitor:
     labelId = 0
@@ -72,7 +76,7 @@ class CompileVisitor:
         return self._epilogues[-1]
 
     def pop_epilogue(self, label):
-        assert(self.top_epilogue == label)
+        assert self.top_epilogue == label
         self._epilogues.pop()
 
     # Loop end stack
@@ -154,7 +158,7 @@ class CompileVisitor:
         # we evaluate them right-to-left (seems natural here)
         cc = ""
         for arg in reversed(args):
-            cc += arg.accept(self)   # we have implicit pushes over here
+            cc += arg.accept(self)  # we have implicit pushes over here
 
         # adjust the stack to remove the arguments
         count = len(args)
@@ -164,11 +168,14 @@ class CompileVisitor:
         # next - call the function
         funname = mangle_fun(name)
 
-        return cc + f"""\
+        return (
+            cc
+            + f"""\
     call {funname}
 {arg_popping}
     push rax
 """
+        )
 
     def visit_ArithUnaryop(self, op, a):
         if op == E.ArithUnaryOp.Addr:
@@ -237,12 +244,16 @@ mov rax, {size}
     mov r10, rdx
             """
 
-        return c1 + c2 + f"""\
+        return (
+            c1
+            + c2
+            + f"""\
     pop r11
     pop r10
     {operation}
     push r10\n\
 """
+        )
 
     def visit_BoolArithCmp(self, op, a1, a2):
         c1 = a1.accept(self)
@@ -264,7 +275,10 @@ mov rax, {size}
         if op == E.ArithCmp.Gt:
             operator = "jg"
 
-        return c1 + c2 + f"""
+        return (
+            c1
+            + c2
+            + f"""
     pop r11
     pop r10
     mov r9, 0
@@ -276,6 +290,7 @@ mov rax, {size}
 _cmp_ret{label_id}:
     push r9\
     """
+        )
 
     def visit_BoolNeg(self, b):
         # trick:
@@ -283,12 +298,15 @@ _cmp_ret{label_id}:
         #       not 1 = 0
         # we can implement not b as 1 - b = -(b - 1)
         c = b.accept(self)
-        return c + """
+        return (
+            c
+            + """
     pop rax
     dec rax
     neg rax
     push rax\
 """
+        )
 
     def visit_BoolBinop(self, op, b1, b2):
         c1 = b1.accept(self)
@@ -296,7 +314,9 @@ _cmp_ret{label_id}:
         label_id = CompileVisitor.fresh_id()
 
         if op == E.BoolOp.And:
-            return c1 + f"""
+            return (
+                c1
+                + f"""
     pop rax
     cmp rax, 0
     jne _and_right{label_id}
@@ -306,8 +326,11 @@ _and_right{label_id}:
 {c2}
 _and_ret{label_id}:
 """
+            )
         elif op == E.BoolOp.Or:
-            return c1 + f"""
+            return (
+                c1
+                + f"""
     pop rax
     cmp rax, 0
     je _or_right{label_id}
@@ -317,27 +340,34 @@ _or_right{label_id}:
 {c2}
 _or_ret{label_id}:
 """
+            )
 
     def visit_ArithAssign(self, lvalue, a):
         if lvalue.kind == E.LValueKind.Var:
             var = lvalue.loc
             c = a.accept(self)
             var_addr = self.get_var_addr_text(var)
-            return c + f"""\
+            return (
+                c
+                + f"""\
     pop rax
     mov [{var_addr}], rax
     push rax\n"""
+            )
 
         elif lvalue.kind == E.LValueKind.Pointer:
             var = lvalue.loc
             # *n = a
             c = a.accept(self)
             var_addr = self.get_var_addr_text(var)
-            return c + f"""\
+            return (
+                c
+                + f"""\
     pop rbx
     mov rax, [{var_addr}]
     mov [rax], rbx
     push rbx\n"""
+            )
 
         else:
             raise NotImplementedError
@@ -345,9 +375,12 @@ _or_ret{label_id}:
     def visit_StmExpr(self, a):
         # we simply ignore the return value and pop the stack
         c = a.accept(self)
-        return c + f"""
+        return (
+            c
+            + f"""
     pop rax
         """
+        )
 
     def visit_StmDecl(self, tp, var, a, kind):
         # TODO: do something depending on the kind
@@ -355,8 +388,8 @@ _or_ret{label_id}:
         # a == None means that we only declare the var,
         # without initializing it
 
-        #self.extend_environment(var)
-        #self.add_static_var(self.add_occur_suffix(var))
+        # self.extend_environment(var)
+        # self.add_static_var(self.add_occur_suffix(var))
 
         if a is not None:
             return self.visit_StmExpr(E.ArithAssign(E.lvalue_var(var), a))
@@ -369,7 +402,9 @@ _or_ret{label_id}:
         cc2 = self.visit_many(ss2)
         label_id = CompileVisitor.fresh_id()
 
-        return bc + f"""
+        return (
+            bc
+            + f"""
     pop rax
     cmp rax, 0
     je _if_false{label_id}
@@ -380,6 +415,7 @@ _if_false{label_id}:
 {cc2}\
 _if_ret{label_id}:
 """
+        )
 
     def visit_StmWhile(self, b, ss):
         label_id = CompileVisitor.fresh_id()
@@ -392,7 +428,10 @@ _if_ret{label_id}:
         cc = self.visit_many(ss)
         self.pop_loop_labels(labels)
 
-        return f"{while_start_lbl}:\n" + bc + f"""
+        return (
+            f"{while_start_lbl}:\n"
+            + bc
+            + f"""
     pop rax
     cmp rax, 0
     je {while_end_lbl}
@@ -400,6 +439,7 @@ _if_ret{label_id}:
     jmp {while_start_lbl}
 {while_end_lbl}:\n\
 """
+        )
 
     def visit_StmPrint(self, a):
         cval = a.accept(self)
@@ -430,7 +470,7 @@ _if_ret{label_id}:
         return self.visit_many(stms)
 
     def visit_many(self, stms):
-        ss = "\n".join([ stm.accept(self) for stm in stms ])
+        ss = "\n".join([stm.accept(self) for stm in stms])
         return ss
 
     def visit_FunDecl(self, _type, name, params, body):
@@ -468,16 +508,14 @@ _if_ret{label_id}:
             var = param.var
             index = i + 2
             # offset = word_len * index
-            addr = VarAddr("rbp",
-                MemOffset(Sign.Plus, word_len, index))
+            addr = VarAddr("rbp", MemOffset(Sign.Plus, word_len, index))
             self.add_parameter_of_local(var, addr)
 
         # Allocate local variables
         local_vars = get_local_vars(body)
         for i, var in enumerate(local_vars):
             index = i + 1
-            addr = VarAddr("rbp",
-                MemOffset(Sign.Minus, word_len, index))
+            addr = VarAddr("rbp", MemOffset(Sign.Minus, word_len, index))
             self.add_parameter_of_local(var, addr)
 
         # update the rsp to make space for local variables
@@ -529,20 +567,24 @@ _if_ret{label_id}:
 """
 
     def visit_many_defs(self, defs):
-        ss = "\n".join([ defn.accept(self) for defn in defs])
+        ss = "\n".join([defn.accept(self) for defn in defs])
         return ss
 
+
 # End of code generator cases
+
 
 def mangle(var):
     return f"var_{var}"
 
+
 def mangle_fun(name):
     return f"__{name}__"
 
+
 def define_vars(vars):
-    return "\n".join([ f"  {mangle(var)} dq 0"
-        for var in vars])
+    return "\n".join([f"  {mangle(var)} dq 0" for var in vars])
+
 
 def compile_global_defs(defs):
     visitor = CompileVisitor()
@@ -550,11 +592,15 @@ def compile_global_defs(defs):
     static_vars = visitor.static_vars
     return code, static_vars
 
+
 def compile_file(defs):
     fun_names = [defn.name for defn in defs if type(defn) == E.FunDecl]
     if "main" not in fun_names:
-        print("A program with function definition must have"
-          " a 'main' function! Aborting...", file=sys.stderr)
+        print(
+            "A program with function definition must have"
+            " a 'main' function! Aborting...",
+            file=sys.stderr,
+        )
         raise Exception("No main function")
 
     global_vars = [decl.var for decl in defs if type(decl) == E.StmDecl]
@@ -581,6 +627,7 @@ _start:
     """
 
     return template
+
 
 def compile_top(decls):
     renamed_decls = rename_vars(decls)

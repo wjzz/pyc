@@ -1,5 +1,6 @@
 from ast import *
 
+
 class LocalVarsVisitor:
     def __init__(self):
         pass
@@ -30,10 +31,10 @@ class LocalVarsVisitor:
 
     def visit_StmIf(self, b, ss1, ss2):
         return self.visit_many(ss1) + self.visit_many(ss2)
-        
+
     def visit_StmWhile(self, b, ss):
         return self.visit_many(ss)
-        
+
     def visit_StmPrint(self, a):
         return []
 
@@ -53,7 +54,7 @@ class LocalVarsVisitor:
         return []
 
     def visit_FunCall(self, name, args):
-        return []            
+        return []
 
     def visit_StmDecl(self, tp, var, a, kind):
         # a == None means that we only declare the var,
@@ -65,6 +66,7 @@ class LocalVarsVisitor:
         for stm in stms:
             results += stm.accept(self)
         return results
+
 
 def get_local_vars(stms):
     """

@@ -1,10 +1,11 @@
 from ast import *
 from collections import defaultdict
 
+
 class RenameVarsVisitor:
     def __init__(self):
         self._var_counts = defaultdict(int)
-        self._history = [ self._var_counts.copy() ]
+        self._history = [self._var_counts.copy()]
 
     def push_variable(self, var):
         self._var_counts[var] += 1
@@ -62,13 +63,13 @@ class RenameVarsVisitor:
     def visit_StmExpr(self, a):
         a1 = a.accept(self)
         return StmExpr(a1)
-    
+
     def visit_StmIf(self, b, ss1, ss2):
         b1 = b.accept(self)
         ss11 = self.visit_many(ss1)
-        ss21 = self.visit_many(ss2)    
+        ss21 = self.visit_many(ss2)
         return StmIf(b1, ss11, ss21)
-        
+
     def visit_StmWhile(self, b, ss):
         b1 = b.accept(self)
         ss1 = self.visit_many(ss)
@@ -110,6 +111,7 @@ class RenameVarsVisitor:
         stms1 = [stm.accept(self) for stm in stms]
         self.pop_block()
         return stms1
+
 
 def rename_vars(stms):
     """

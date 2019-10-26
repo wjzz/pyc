@@ -1,17 +1,17 @@
 def optimize(asm):
     start_label = "_start:"
-    lines = asm.split(start_label,maxsplit=1)
-    assert(len(lines) == 2)
+    lines = asm.split(start_label, maxsplit=1)
+    assert len(lines) == 2
     preamble = lines[0] + start_label + "\n"
     print("===", preamble, "===")
-    rest = [ s.strip() for s in lines[1].splitlines() 
-      if s != ""]
+    rest = [s.strip() for s in lines[1].splitlines() if s != ""]
     print(rest)
 
     optimized_rest = apply_reductions_top(rest)
 
     optimized_asm = preamble + optimized_rest
     return asm
+
 
 def apply_reductions_top(commands):
     total = len(commands)
@@ -30,6 +30,7 @@ def apply_reductions_top(commands):
                     break
     print(commands)
     return "\n".join(commands)
+
 
 def red_push_pop_star(commands):
     """
@@ -50,9 +51,10 @@ def red_push_pop_star(commands):
     """
     if len(commands) < 2:
         return None
-    
+
     pushes = []
     ...
+
 
 def red_push_pop(commands):
     if len(commands) < 2:
@@ -73,6 +75,7 @@ def red_push_pop(commands):
     print()
     return [cmd] + rest
 
+
 def red_mov_r_r(commands):
     if len(commands) < 1:
         return None
@@ -90,6 +93,7 @@ def red_mov_r_r(commands):
     print(f"==> noop")
     print()
     return rest
+
 
 def red_mov_trans(commands):
     if len(commands) < 2:
@@ -110,8 +114,8 @@ def red_mov_trans(commands):
 
     print(f"mov Y, X; mov X, Z detected")
     print(f"X = {arg1b}, Y = {arg1a}, Z = {arg2b}")
-    #cmd = f"mov {args2}, {args1}"
-    #print(f"==> {cmd}")
+    # cmd = f"mov {args2}, {args1}"
+    # print(f"==> {cmd}")
     print()
     return None
     return [cmd1, cmd2] + rest

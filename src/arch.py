@@ -4,6 +4,7 @@ x86-64 architecture instructions
 
 from enum import Enum
 
+
 class ITag(Enum):
     Label = "label"
     Mov = "mov"
@@ -11,11 +12,11 @@ class ITag(Enum):
     Pop = "pop"
     Cmp = "cmp"
     Jmp = "jmp"
-    Je  = "je"
+    Je = "je"
     Jne = "jne"
-    Jg  = "jg"
+    Jg = "jg"
     Jge = "jge"
-    Jl  = "jl"
+    Jl = "jl"
     Jle = "jle"
     Add = "add"
     Inc = "inc"
