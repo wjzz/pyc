@@ -13,12 +13,14 @@ from typing import Any, Optional, List, Dict
 from visitor import Visitor
 from ast import FunDecl, LValue, FunArg
 
+
 class CTypeError(Exception):
     def __init__(self, msg):
         self.msg = msg
 
     def __str__(self):
         return f"{self.msg}"
+
 
 Stm = Any
 Var = str
@@ -27,7 +29,7 @@ Params = List[FunArg]
 
 
 class Env:
-    env : Dict[Var, Tp] = {}
+    env: Dict[Var, Tp] = {}
 
     def __contains__(self, var: Var):
         return var in self.env
@@ -41,16 +43,17 @@ class Env:
         return cp
 
     def __str__(self):
-        inside = ",".join([f"{k}:{v}" for k,v in self.env.items()])
+        inside = ",".join([f"{k}:{v}" for k, v in self.env.items()])
         return f"[{inside}]"
+
 
 class SymbolTable:
     pass
 
 
 class TypeCheckingVisitor(Visitor):
-    symbol_table : SymbolTable = SymbolTable()
-    env : Env = Env()
+    symbol_table: SymbolTable = SymbolTable()
+    env: Env = Env()
 
     # environment
 
@@ -153,11 +156,12 @@ class TypeCheckingVisitor(Visitor):
         self.env = env
 
     def visit_many_defs(self, defs):
-        fun_names = [defn.name for defn in defs
-             if isinstance(defn, FunDecl) ]
+        fun_names = [defn.name for defn in defs if isinstance(defn, FunDecl)]
         if "main" not in fun_names:
-            msg = ("A program with function definition must have" +
-                " a 'main' function! Aborting...")
+            msg = (
+                "A program with function definition must have"
+                + " a 'main' function! Aborting..."
+            )
             raise CTypeError(msg)
 
         return self.visit_many(defs)
