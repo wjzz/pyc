@@ -92,8 +92,15 @@ $ make cov-e2e        # end to end tests
 ./scripts/generate_outputs.sh           # compiles all examples, runs them and writes their output
 ```
 
-
 ## Code quality tooling
+
+Run all the tooling (format, linter and typechecker):
+
+```
+$ make pedantic
+```
+
+### Linter
 
 Run the linter (flake8):
 
@@ -101,12 +108,20 @@ Run the linter (flake8):
 $ make lint
 ```
 
-## Autoformating
+### Autoformating
 
 Autoformat all the python files using black:
 
 ```
 $ make format
+```
+
+### Type checking
+
+Typecheck the whole codebase using `mypy` (currently we don't have many type annotations yet...):
+
+```
+$ make typecheck
 ```
 
 ## Author
