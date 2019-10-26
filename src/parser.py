@@ -1,7 +1,5 @@
-from lexer import tokenize, Token, TokenInfo
+from lexer import tokenize, Token
 import ast as E
-
-import sys
 
 # TODO: update the grammar
 
@@ -134,7 +132,7 @@ class Parser:
     def parse_definition(self):
         """
         Parses a top-level definition, which can be:
-        - a global variable, e.g. 
+        - a global variable, e.g.
             long n; OR long n = 123;
         - a function definition, e.g.
             long foo(long arg1, long arg2) { ... }

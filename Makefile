@@ -23,10 +23,14 @@ cov-e2e:
 	echo "Generating test coverage info for e2e tests...\n"
 	$(MAKE) -s coverage-e2e -C $(CODE_DIR)
 
+format:
+	@echo "Formatting the code using black...\n"
+	@python3.8 -m black -t py38 --exclude tests.py src/
+
 lint:
 	clear
 	echo "Generating linting information...\n"
-	python3.8 -m flake8
+	python3.8 -m flake8 --exclude tests.py --max-line-length 88 src
 
 std:
 	# NOTE: this contains debugging flags

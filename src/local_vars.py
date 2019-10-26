@@ -1,6 +1,3 @@
-from ast import *
-
-
 class LocalVarsVisitor:
     def __init__(self):
         pass
