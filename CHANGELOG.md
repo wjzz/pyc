@@ -73,3 +73,5 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * split the TODO from README
 
+* install `black` and autoformat the code (`tests.py` is left as is)
+
