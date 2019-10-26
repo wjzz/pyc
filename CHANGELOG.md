@@ -80,3 +80,7 @@ calculates `a` and then pops the stack (we don't use the value).
 * put the project to Travis CI
 
 * add e2e tests for incorrect programs
+
+* add `mypy` and start writing type annotations
+
+* create a Visitor ABC (abstract base class)
