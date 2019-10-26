@@ -11,6 +11,7 @@ from typing import List, Any
 Stm = Any
 SymbolTable = Any
 
+
 class CTypeError(Exception):
     def __init__(self, msg):
         self.msg = msg
