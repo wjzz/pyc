@@ -1,11 +1,18 @@
-class LocalVarsVisitor:
+"""
+Calculation of all local variables visible inside a given functions body.
+"""
+
+from visitor import Visitor
+
+
+class LocalVarsVisitor(Visitor):
     def __init__(self):
         pass
 
-    def visit_ArithLit(self, val):
+    def visit_Var(self, var):
         return []
 
-    def visit_ArithVar(self, var):
+    def visit_ArithLit(self, val):
         return []
 
     def visit_ArithUnaryop(self, op, a):
@@ -21,6 +28,9 @@ class LocalVarsVisitor:
         return []
 
     def visit_BoolArithCmp(self, op, a1, a2):
+        return []
+
+    def visit_BoolBinop(self, op, b1, b2):
         return []
 
     def visit_StmExpr(self, a):
