@@ -3,6 +3,7 @@ from enum import Enum
 import sys
 
 import ast as E
+
 # from optimize import optimize
 from local_vars import get_local_vars
 from rename import rename_vars

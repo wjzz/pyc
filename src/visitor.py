@@ -6,8 +6,8 @@ This way we will know if some methods are missing even before we run the code.
 
 from abc import ABC, abstractmethod
 
-class Visitor(ABC):
 
+class Visitor(ABC):
     @abstractmethod
     def visit_ArithLit(self, val):
         ...
