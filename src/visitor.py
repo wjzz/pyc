@@ -88,6 +88,6 @@ class Visitor(ABC):
     def visit_FunDecl(self, type, name, params, body):
         ...
 
-    @abstractmethod
+    # TODO: perhaps we don't need this method
     def visit_many_defs(self, defs):
-        ...
+        return self.visit_many(defs)

@@ -1,8 +1,10 @@
-from ast import *
+import ast as E
 from collections import defaultdict
 
+from visitor import Visitor
 
-class RenameVarsVisitor:
+
+class RenameVarsVisitor(Visitor):
     def __init__(self):
         self._var_counts = defaultdict(int)
         self._history = [self._var_counts.copy()]
@@ -24,87 +26,87 @@ class RenameVarsVisitor:
         self._var_counts = self._history.pop()
 
     def visit_ArithLit(self, val):
-        return ArithLit(val)
+        return E.ArithLit(val)
 
     def visit_Var(self, var):
         var1 = self.mangle_var(var)
-        return Var(var1)
+        return E.Var(var1)
 
     def visit_ArithUnaryop(self, op, a):
         a1 = a.accept(self)
-        return ArithUnaryop(op, a1)
+        return E.ArithUnaryop(op, a1)
 
     def visit_ArithBinop(self, op, a1, a2):
         a11 = a1.accept(self)
         a21 = a2.accept(self)
-        return ArithBinop(op, a11, a21)
+        return E.ArithBinop(op, a11, a21)
 
     def visit_BoolNeg(self, b):
         b1 = b.accept(self)
-        return BoolNeg(b1)
+        return E.BoolNeg(b1)
 
     def visit_BoolArithCmp(self, op, a1, a2):
         a11 = a1.accept(self)
         a21 = a2.accept(self)
-        return BoolArithCmp(op, a11, a21)
+        return E.BoolArithCmp(op, a11, a21)
 
     def visit_BoolBinop(self, op, b1, b2):
         b11 = b1.accept(self)
         b21 = b2.accept(self)
-        return BoolBinop(op, b11, b21)
+        return E.BoolBinop(op, b11, b21)
 
     def visit_ArithAssign(self, lvalue, a):
         var = lvalue.loc
         var1 = self.mangle_var(var)
         lvalue1 = lvalue.rename(var1)
         a1 = a.accept(self)
-        return ArithAssign(lvalue1, a1)
+        return E.ArithAssign(lvalue1, a1)
 
     def visit_StmExpr(self, a):
         a1 = a.accept(self)
-        return StmExpr(a1)
+        return E.StmExpr(a1)
 
     def visit_StmIf(self, b, ss1, ss2):
         b1 = b.accept(self)
         ss11 = self.visit_many(ss1)
         ss21 = self.visit_many(ss2)
-        return StmIf(b1, ss11, ss21)
+        return E.StmIf(b1, ss11, ss21)
 
     def visit_StmWhile(self, b, ss):
         b1 = b.accept(self)
         ss1 = self.visit_many(ss)
-        return StmWhile(b1, ss1)
+        return E.StmWhile(b1, ss1)
 
     def visit_StmPrint(self, a):
         a1 = a.accept(self)
-        return StmPrint(a1)
+        return E.StmPrint(a1)
 
     def visit_StmReturn(self, a):
         a1 = a.accept(self)
-        return StmReturn(a1)
+        return E.StmReturn(a1)
 
     def visit_StmBreak(self):
-        return StmBreak()
+        return E.StmBreak()
 
     def visit_StmContinue(self):
-        return StmContinue()
+        return E.StmContinue()
 
     def visit_StmBlock(self, stms):
-        return StmBlock(self.visit_many(stms))
+        return E.StmBlock(self.visit_many(stms))
 
     def visit_FunDecl(self, type, name, params, body):
         body1 = self.visit_many(body)
-        return FunDecl(type, name, params, body1)
+        return E.FunDecl(type, name, params, body1)
 
     def visit_FunCall(self, name, args):
         args1 = self.visit_many(args)
-        return FunCall(name, args1)
+        return E.FunCall(name, args1)
 
     def visit_StmDecl(self, tp, var, a, kind):
         self.push_variable(var)
         var1 = self.mangle_var(var)
         a1 = a.accept(self) if a is not None else None
-        return StmDecl(tp, var1, a1, kind)
+        return E.StmDecl(tp, var1, a1, kind)
 
     def visit_many(self, stms):
         self.push_block()
