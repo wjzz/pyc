@@ -75,3 +75,5 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * install `black` and autoformat the code (`tests.py` is left as is)
 
+* remove a flaky e2e test (it was printing the address of a variable and the result changed every single time)
+
