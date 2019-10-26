@@ -4,4 +4,4 @@ target/
 .coverage
 src/.coverage
 src/htmlcov/
-
+.vscode

@@ -270,27 +270,27 @@ class Parser:
     def parse_super_expr(self):
         compounds = self._compound_assingments
         assignments = [Token.EQUAL] + list(compounds.keys())
-        l = self.parse_expr()
+        lhs = self.parse_expr()
         assign = self.peek.tag
         if assign in assignments:
-            if type(l) is E.Var:
-                lvalue = E.lvalue_var(l.var)
-            elif type(l) is E.ArithUnaryop and l.op == E.ArithUnaryOp.Deref:
-                assert type(l.a) is E.Var
-                lvalue = E.lvalue_pointer(l.a.var)
+            if isinstance(lhs, E.Var):
+                lvalue = E.lvalue_var(lhs.var)
+            elif isinstance(lhs, E.ArithUnaryop) and lhs.op == E.ArithUnaryOp.Deref:
+                assert isinstance(lhs.a, E.Var)
+                lvalue = E.lvalue_pointer(lhs.a.var)
             else:
-                raise ParseError(self.peek, f"wrong lvalue in assignment: {l}")
+                raise ParseError(self.peek, f"wrong lvalue in assignment: {lhs}")
 
             self.expect(*assignments)
-            r = self.parse_super_expr()
+            rhs = self.parse_super_expr()
             if assign == Token.EQUAL:
-                return E.ArithAssign(lvalue, r)
+                return E.ArithAssign(lvalue, rhs)
             elif assign in compounds.keys():
                 op = compounds[assign]
                 # rewrite x += 1 into x = x + 1
-                return E.ArithAssign(lvalue, E.ArithBinop(op, lvalue.expr, r))
+                return E.ArithAssign(lvalue, E.ArithBinop(op, lvalue.expr, rhs))
         else:
-            return l
+            return lhs
 
     @property
     def _bool_ops(self):
