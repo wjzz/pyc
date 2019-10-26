@@ -62,9 +62,14 @@ calculates `a` and then pops the stack (we don't use the value).
 * upgrade to python 3.8
 
 * install coverage (wasn't easy! because I have many versions of python installed, it only works with `pyenv` for me).
-* Add `make cov` to the main makefile
+* Add `make cov-unit` and `make cov-e2e` to the main makefile
 
-* install `pylint`:
+* install `pylint` and `flake8`
 - trim trailing whitespace on save
 
-* install `flake8`:
+2019/10/26
+
+* extract the project to a separate repository (https://help.github.com/en/github/using-git/splitting-a-subfolder-out-into-a-new-repository)
+
+* split the TODO from README
+
