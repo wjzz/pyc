@@ -7,7 +7,7 @@ target="target/"
 mkdir -p $target
 
 echo -n "Compiling the program... "
-python3.8 -B src/main.py $1 > $target$base.asm \
+python -B src/main.py $1 > $target$base.asm \
   && echo "OK!" \
   && echo -n "Running the assembler... " \
   && nasm -f elf64 -o $target$base.o $target$base.asm \

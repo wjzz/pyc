@@ -1,6 +1,6 @@
 .PHONY: test coverage-unit coverage-e2e
 
-PYTHON=python3.8
+PYTHON=python
 
 test:
 	$(PYTHON) -B -m unittest -v
