@@ -3,7 +3,7 @@
 int main() {
   long n = 5;
   int* d = &n;
-  print(d);
+  // print(d);  // This changes everytime, so the tests become flaky
   print(*d);
   return 0;
 }
