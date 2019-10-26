@@ -20,31 +20,8 @@ I'm (ab)using a lot of f-strings and I intend to add typing annotations at some 
 
 Check the examples in the `examples` directory to see which language features are currently supported.
 
-## Running the tests
 
-Unit tests:
-```
-$ make test
-```
-
-End to end tests:
-```
-$ make e2e
-```
-
-Check the coverage:
-```
-$ make cov-unit       # unit tests
-$ make cov-e2e        # end to end tests
-```
-
-### Updating the example outputs for e2e tests
-
-```
-./scripts/generate_outputs.sh           # compiles all examples, runs them and writes their output
-```
-
-## Running the code
+## Compiling the code
 
 ### Print the generated assembly
 
@@ -75,6 +52,47 @@ Running the linker... OK!
 Running the program...
 15
 Return value = 1
+```
+
+## Running the tests
+
+Unit tests:
+```
+$ make test
+```
+
+End to end tests:
+```
+$ make e2e
+```
+
+Check the coverage:
+```
+$ make cov-unit       # unit tests
+$ make cov-e2e        # end to end tests
+```
+
+### Updating the example outputs for e2e tests
+
+```
+./scripts/generate_outputs.sh           # compiles all examples, runs them and writes their output
+```
+
+
+## Code quality tooling
+
+Run the linter (flake8):
+
+```
+$ make lint
+```
+
+## Autoformating
+
+Autoformat all the python files using black:
+
+```
+$ make format
 ```
 
 ## Author
