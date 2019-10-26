@@ -9,6 +9,7 @@ and then the generated assembly is printed out.
 """
 
 import sys
+import traceback
 
 import parser
 import type_checker
@@ -41,22 +42,23 @@ if __name__ == "__main__":
                     print("\n/Error/ Parse Error:", file=dest)
                     print(f"\tError on line {line}:{pos}", file=dest)
                     print(f"\t{err.msg}", file=dest)
-                    sys.exit(1)
+                    sys.exit(2)
             except type_checker.CTypeError as err:
                 with sys.stderr as dest:
                     # TODO: add line information
                     print("\n/Error/ Type Error:", file=dest)
                     # print(f"\tError on line {line}:{pos}", file=dest)
                     print(f"\t{err.msg}", file=dest)
-                    sys.exit(1)
-            except NotImplementedError:
+                    sys.exit(2)
+            except NotImplementedError as e:
                 print("Work in progress, NonImplmentedError", file=sys.stderr)
+                print(f"Error: {e}", file=sys.stderr)
+                print(traceback.format_exc(), file=sys.stderr)
                 sys.exit(1)
             except AssertionError as e:
                 print("Work in progress, AssertionError", file=sys.stderr)
                 print(f"Error: {e}", file=sys.stderr)
-                raise e
-                # sys.exit(1)
+                sys.exit(1)
             except Exception as e:
                 print("Got lines:\n\t", lines)
                 print("Failed to compile the file", file=sys.stderr)
