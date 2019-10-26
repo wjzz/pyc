@@ -1,6 +1,5 @@
 from collections import defaultdict, namedtuple
 from enum import Enum
-import sys
 
 import ast as E
 from visitor import Visitor
