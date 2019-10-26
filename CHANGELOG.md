@@ -77,3 +77,5 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * remove a flaky e2e test (it was printing the address of a variable and the result changed every single time)
 
+* put the project to Travis CI
+
