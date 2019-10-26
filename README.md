@@ -1,4 +1,4 @@
-# PyC 
+# PyC
 
 [![Build Status](https://travis-ci.org/wjzz/pyc.svg?branch=master)](https://travis-ci.org/wjzz/pyc)
 
@@ -32,7 +32,7 @@ Check the examples in the `examples` directory to see which language features ar
 To print the asm source code:
 
 ```
-$ python3 src/main.py examples/ex0.sil
+$ python src/main.py examples/ex0.sil
 ```
 
 ### Compile and run the code
@@ -60,14 +60,24 @@ Return value = 1
 
 ## Running the tests
 
-Unit tests:
+The whole test suite:
 ```
 $ make test
+```
+
+Unit tests:
+```
+$ make unit
 ```
 
 End to end tests:
 ```
 $ make e2e
+```
+
+End to end tests for incorrect input programs:
+```
+$ make test-errors
 ```
 
 Check the coverage:
@@ -102,4 +112,3 @@ $ make format
 ## Author
 
 Wojciech Jedynak, 2019
-
