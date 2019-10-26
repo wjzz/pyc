@@ -34,7 +34,7 @@ format:
 lint:
 	clear
 	echo "Generating linting information...\n"
-	python -m flake8 --exclude tests.py --max-line-length 88 src
+	python -m flake8 --exclude tests.py,optimize.py --max-line-length 88 src
 
 typecheck:
 	clear
