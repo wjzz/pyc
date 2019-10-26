@@ -1,32 +1,6 @@
 from lexer import tokenize, Token
 import ast as E
 
-# TODO: update the grammar
-
-# STM_TOP ::= <STM_LIST> EOF
-# STM_LIST ::= <STM> | <STM> <STM_LIST>
-# STM ::= PRINT ( <EXPR> ) SEMI
-#       | <TYPE> VAR SEMI
-#       | <TYPE> VAR = <EXPR> SEMI
-#       | VAR = <EXPR> SEMI
-#       | VAR op= <EXPR> SEMI
-#       | WHILE ( <BOOL> ) <BLOCK>
-#       | IF ( <BOOL> ) <BLOCK> (ELSE <BLOCK>)?
-#       | <BLOCK>
-#
-# BLOCK ::=
-#        | { <STM_LIST> }
-
-# ARITH_CMP ::= == | != | > | >= | < | <=
-# BOOL_OP ::= && | ||
-
-# EXPR_TOP ::= <EXPR> EOF
-# EXPR   ::= <B_ATOM> | <B_ATOM> <BOOL_OP> <B_ATOM>
-# B_ATOM ::= <ARITH> | <ARITH> <ARITH_CMP> <ARITH>
-# ARITH  ::= <FACTOR> | <FACTOR> [+-] <ARITH>
-# FACTOR ::= <ATOM> | <ATOM> [*/%] <FACTOR>
-# ATOM = NUM | ID ( <EXPR> )
-
 
 class ParseError(Exception):
     def __init__(self, token, msg):
