@@ -11,6 +11,7 @@ and then the generated assembly is printed out.
 import sys
 
 import parser
+import type_checker
 import code_generator
 
 if __name__ == "__main__":
@@ -22,6 +23,8 @@ if __name__ == "__main__":
                     lines = "".join(f.readlines())
                     # parse
                     c = parser.parse_file(lines)
+                    # type check
+                    symbol_table = type_checker.check(c)
                     # compile
                     result = code_generator.compile_top(c)
                     # output
@@ -37,6 +40,13 @@ if __name__ == "__main__":
                     pos = err.token.offset
                     print("\n/Error/ Parse Error:", file=dest)
                     print(f"\tError on line {line}:{pos}", file=dest)
+                    print(f"\t{err.msg}", file=dest)
+                    sys.exit(1)
+            except type_checker.CTypeError as err:
+                with sys.stderr as dest:
+                    # TODO: add line information
+                    print("\n/Error/ Type Error:", file=dest)
+                    # print(f"\tError on line {line}:{pos}", file=dest)
                     print(f"\t{err.msg}", file=dest)
                     sys.exit(1)
             except NotImplementedError:

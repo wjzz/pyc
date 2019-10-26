@@ -1,5 +1,5 @@
-.PHONY: std primes test unit e2e test-errors cov-unit cov-e2e lint format
-.SILENT: test e2e unit test-errors cov-unit cov-e2e lint format
+.PHONY:  test unit e2e test-errors cov-unit cov-e2e lint format typecheck std primes
+.SILENT: test unit e2e test-errors cov-unit cov-e2e lint format typecheck std primes
 
 CODE_DIR = src
 
@@ -29,12 +29,17 @@ cov-e2e:
 
 format:
 	@echo "Formatting the code using black...\n"
-	@python3.8 -m black -t py38 --exclude tests.py src/
+	@python -m black -t py38 --exclude tests.py src
 
 lint:
 	clear
 	echo "Generating linting information...\n"
-	python3.8 -m flake8 --exclude tests.py --max-line-length 88 src
+	python -m flake8 --exclude tests.py --max-line-length 88 src
+
+typecheck:
+	clear
+	echo "Typechecking the python source files...\n"
+	python -m mypy src
 
 std:
 	# NOTE: this contains debugging flags
