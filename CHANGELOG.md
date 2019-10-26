@@ -85,4 +85,6 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * add a `make pedantic` command for formatting, linting and typechecking in one go
 
-* create a Visitor ABC (abstract base class)
+* created a Visitor ABC (abstract base class)
+
+* implemented a simple scope checker for variables and functions

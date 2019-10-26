@@ -1,5 +1,4 @@
-Todo
-====
+# Todo
 
 Features to add:
 - [x] Parser
@@ -20,6 +19,8 @@ Features to add:
 - [x] Pointers (declaration, dereferencing and taking addresses)
 - [x] Assignment using pointers
 - [x] Include expressions in statements (so we can write `foo(n);`)
+- [x] Scope checker
+- [ ] Type checker
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Add true and false
 - [ ] x++, x--, ++x, --x
@@ -29,7 +30,6 @@ Features to add:
 - [ ] Static variables
 - [ ] Floating-point operations
 - [ ] Function pointers
-- [ ] Type checker
 - [ ] Cmd line arguments
 - [ ] Cstrings
 - [ ] Use a parser generator so that we can extend the parser more easily
@@ -42,4 +42,3 @@ Add more backends:
 - [ ] ARM (Raspberry PI)
 - [ ] Mac (PowerPC?)
 - [ ] MIPS (use the SPIM emulator)
-
