@@ -1,5 +1,5 @@
-.PHONY:  test unit e2e test-errors cov-unit cov-e2e lint format typecheck std primes
-.SILENT: test unit e2e test-errors cov-unit cov-e2e lint format typecheck std primes
+.PHONY:  test unit e2e test-errors cov-unit cov-e2e lint format typecheck pedantic std primes
+.SILENT: test unit e2e test-errors cov-unit cov-e2e lint format typecheck pedantic std primes
 
 CODE_DIR = src
 
@@ -27,17 +27,17 @@ cov-e2e:
 	echo "Generating test coverage info for e2e tests...\n"
 	$(MAKE) -s coverage-e2e -C $(CODE_DIR)
 
+pedantic: format lint typecheck
+
 format:
 	@echo "Formatting the code using black...\n"
 	@python -m black -t py38 --exclude tests.py src
 
 lint:
-	clear
 	echo "Generating linting information...\n"
 	python -m flake8 --exclude tests.py,optimize.py --max-line-length 88 src
 
 typecheck:
-	clear
 	echo "Typechecking the python source files...\n"
 	python -m mypy src
 

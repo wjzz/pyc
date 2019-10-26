@@ -83,4 +83,6 @@ calculates `a` and then pops the stack (we don't use the value).
 
 * add `mypy` and start writing type annotations
 
+* add a `make pedantic` command for formatting, linting and typechecking in one go
+
 * create a Visitor ABC (abstract base class)
