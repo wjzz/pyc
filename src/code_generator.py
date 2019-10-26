@@ -3,6 +3,7 @@ from enum import Enum
 import sys
 
 import ast as E
+from visitor import Visitor
 
 # from optimize import optimize
 from local_vars import get_local_vars
@@ -45,7 +46,7 @@ class VarAddr(namedtuple("VarAddr", "base offset", defaults=(None,))):
 # The code generator
 
 
-class CompileVisitor:
+class CompileVisitor(Visitor):
     labelId = 0
 
     @staticmethod
