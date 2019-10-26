@@ -596,15 +596,6 @@ def compile_global_defs(defs):
 
 
 def compile_file(defs):
-    fun_names = [defn.name for defn in defs if type(defn) == E.FunDecl]
-    if "main" not in fun_names:
-        print(
-            "A program with function definition must have"
-            " a 'main' function! Aborting...",
-            file=sys.stderr,
-        )
-        raise Exception("No main function")
-
     global_vars = [decl.var for decl in defs if type(decl) == E.StmDecl]
 
     # TODO: check that all functions have different names
