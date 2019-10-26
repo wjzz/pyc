@@ -17,4 +17,6 @@ python -B src/main.py $1 > $target$base.asm \
   && echo "OK!" \
   && echo "Running the program... " \
   && ./$target$base
-  echo "Return value = $?"
+result=$?
+echo "Return value = $result"
+exit $result
