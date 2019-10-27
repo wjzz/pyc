@@ -1,5 +1,5 @@
-.PHONY:  test unit e2e test-errors cov-unit cov-e2e lint format typecheck pedantic std primes
-.SILENT: test unit e2e test-errors cov-unit cov-e2e lint format typecheck pedantic std primes
+.PHONY:  test unit e2e test-errors cov cov-unit cov-e2e lint format typecheck pedantic std primes
+.SILENT: test unit e2e test-errors cov cov-unit cov-e2e lint format typecheck pedantic std primes
 
 CODE_DIR = src
 
@@ -16,6 +16,11 @@ e2e:
 test-errors:
 	echo "Running e2e tests on incorrect inputs..."
 	./scripts/test_errors.sh
+
+cov:
+	clear
+	echo "Generating test coverage info for the whole test suite...\n"
+	$(MAKE) -s coverage -C $(CODE_DIR)
 
 cov-unit:
 	clear

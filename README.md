@@ -82,6 +82,7 @@ $ make test-errors
 
 Check the coverage:
 ```
+$ make cov            # check everything: unit tests, e2e tests and e2e-failing tests
 $ make cov-unit       # unit tests
 $ make cov-e2e        # end to end tests
 ```

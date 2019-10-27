@@ -110,7 +110,7 @@ class TypeCheckingVisitor(Visitor):
         if expected_num != given_num:
             raise CTypeError(
                 f"function {name} got {given_num} args, "
-                + "but {expected_num} args were expected"
+                + f"but {expected_num} args were expected"
             )
 
         self.visit_many(args)

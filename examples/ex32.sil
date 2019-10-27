@@ -1,0 +1,6 @@
+// missing test: boolean negation
+int main() {
+  long n = 1;
+  print(0 - n);
+  print(!n);
+}
