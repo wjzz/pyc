@@ -93,6 +93,8 @@ class LexerTests(unittest.TestCase):
                 [('ID', 'x'), 'LESS_EQ', ('NUMBER', 0), 'EOF']),
             ("x < 0",
                 [('ID', 'x'), 'LESS', ('NUMBER', 0), 'EOF']),
+            ("!x",
+                ['BANG', ('ID', 'x'), 'EOF']),
             ("! (x == 0)",
                 ['BANG', 'LPAREN', ('ID', 'x'), 'DBL_EQ',
                     ('NUMBER', 0), 'RPAREN', 'EOF']),
@@ -289,6 +291,11 @@ class ParserTests(unittest.TestCase):
                 ArithLit(2))
         self.assertEqual(parse_arith(e11), r11)
 
+    def test_parser_bool_neg(self):
+        b1 = "!x"
+        r1 = BoolNeg(Var("x"))
+        self.assertEqual(parse_expr(b1), r1)
+
     def test_parser_expr_funcall(self):
         e1 = "foo()"
         r1 = FunCall("foo", [])
@@ -326,6 +333,15 @@ class ParserTests(unittest.TestCase):
                 ArithCmp.Eq,
                 Var("x"),
                 ArithLit(1)))
+
+        b1b = "!(x == 1)"
+        self.assertEqual(parse_expr(b1b),
+            BoolNeg(
+                BoolArithCmp(
+                    ArithCmp.Eq,
+                    Var("x"),
+                    ArithLit(1))))
+
 
         b4 = "(x > 1) && (y < 0)"
         self.assertEqual(parse_expr(b4),
@@ -520,6 +536,11 @@ class ParserTests(unittest.TestCase):
                     [StmReturn(Var("a"))])
 
         self.assertEqual(parse_file(input_str), [output])
+
+    def test_parse_stm_neg(self):
+        s1 = "print(!x);"
+        self.assertEqual(parse_stm(s1),
+            [StmPrint(BoolNeg(Var("x")))])
 
     def test_parser_stm(self):
         s1 = "print(x);"

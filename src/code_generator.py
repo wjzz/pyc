@@ -289,7 +289,7 @@ mov rax, {size}
 {label}:
     mov r9, 1
 _cmp_ret{label_id}:
-    push r9\
+    push r9
     """
         )
 
@@ -305,7 +305,7 @@ _cmp_ret{label_id}:
     pop rax
     dec rax
     neg rax
-    push rax\
+    push rax
 """
         )
 

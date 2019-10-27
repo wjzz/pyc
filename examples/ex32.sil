@@ -3,4 +3,12 @@ int main() {
   long n = 1;
   print(0 - n);
   print(!n);
+
+  long m = 5;
+  print(0 - m);
+  print(!m);
+
+  print(m >= n);
+  print(!(m >= n));
+  print(m < n);
 }

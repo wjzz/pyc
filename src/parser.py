@@ -133,7 +133,7 @@ class Parser:
     def parse_stm_print(self):
         self.expect(Token.PRINT)
         self.expect(Token.LPAREN)
-        a = self.parse_arith()
+        a = self.parse_expr()
         self.expect(Token.RPAREN)
         self.expect(Token.SEMI)
         return E.StmPrint(a)
@@ -247,7 +247,7 @@ class Parser:
             return self.parse_stm_if()
 
         else:
-            a = self.parse_super_expr()
+            a = self.parse_expr()
             self.expect(Token.SEMI)
             return E.StmExpr(a)
 
@@ -263,14 +263,14 @@ class Parser:
     # Boolean Expressions
 
     def parse_expr_top(self):
-        b = self.parse_super_expr()
+        b = self.parse_expr()
         self.expect(Token.EOF)
         return b
 
-    def parse_super_expr(self):
+    def parse_expr(self):
         compounds = self._compound_assingments
         assignments = [Token.EQUAL] + list(compounds.keys())
-        lhs = self.parse_expr()
+        lhs = self.parse_expr4()
         assign = self.peek.tag
         if assign in assignments:
             if isinstance(lhs, E.Var):
@@ -282,7 +282,7 @@ class Parser:
                 raise ParseError(self.peek, f"wrong lvalue in assignment: {lhs}")
 
             self.expect(*assignments)
-            rhs = self.parse_super_expr()
+            rhs = self.parse_expr()
             if assign == Token.EQUAL:
                 return E.ArithAssign(lvalue, rhs)
             elif assign in compounds.keys():
@@ -309,7 +309,16 @@ class Parser:
         }
         return operators
 
-    def parse_expr(self):
+    def parse_expr4(self):
+        token = self.peek
+        if token.tag == Token.BANG:
+            self.expect(Token.BANG)
+            b = self.parse_expr4()
+            return E.BoolNeg(b)
+        else:
+            return self.parse_expr5()
+
+    def parse_expr5(self):
         operators = self._bool_ops
 
         b1 = self.parse_bool_atom()
