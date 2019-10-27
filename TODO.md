@@ -19,8 +19,10 @@ Features to add:
 - [x] Pointers (declaration, dereferencing and taking addresses)
 - [x] Assignment using pointers
 - [x] Include expressions in statements (so we can write `foo(n);`)
-- [x] Scope checker
 - [ ] Type checker
+- - [x] Scope checker
+- - [x] Function arg number checking
+- - [ ] Argument type checking
 - [ ] Start using registers in the code instead of pushing everything on the stack
 - [ ] Add true and false
 - [ ] x++, x--, ++x, --x
