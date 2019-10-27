@@ -1,0 +1,10 @@
+// function called with wrong number of arguments
+int foo(int a, int b) {
+  return a + b;
+}
+
+int main() {
+  int x = 1;
+  foo(x);
+  return 0;
+}

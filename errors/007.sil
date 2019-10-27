@@ -1,0 +1,11 @@
+// calling a undefined function
+int foo(int a, int b) {
+  return a + b;
+}
+
+int main() {
+  int x = 1;
+  int y = 2;
+  bar(x,y);
+  return 0;
+}
