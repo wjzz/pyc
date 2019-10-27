@@ -22,6 +22,7 @@ Features to add:
 - [ ] Type checker
 - - [x] Scope checker
 - - [x] Function arg number checking
+- - [ ] Achieve 100% code coverage for the type checker
 - - [ ] Argument type checking
 - [ ] BUG: fix the result of `!n`
 - [ ] Start using registers in the code instead of pushing everything on the stack
