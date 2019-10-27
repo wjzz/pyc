@@ -17,6 +17,12 @@ class AtomType(Enum):
         return self.value
 
 
+class FunType(namedtuple("FunType", "ret args")):
+    def __str__(self):
+        args = ",".join(map(str, self.args))
+        return f"({args}) -> {self.ret}"
+
+
 class TypeKind(Enum):
     Normal = "normal"
     Pointer = "pointer"

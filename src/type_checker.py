@@ -11,7 +11,7 @@ We check that:
 from typing import Any, Optional, List, Dict
 
 from visitor import Visitor
-from ast import FunDecl, LValue, FunArg
+from ast import FunDecl, LValue, FunArg, FunType
 
 
 class CTypeError(Exception):
@@ -43,8 +43,8 @@ class Env:
         return cp
 
     def __str__(self):
-        inside = ",".join([f"{k}:{v}" for k, v in self.env.items()])
-        return f"[{inside}]"
+        inside = "\n\t\t".join([f"{k}:{v}" for k, v in self.env.items()])
+        return f"[\n\t\t{inside}\n\t]"
 
 
 class SymbolTable:
@@ -142,9 +142,12 @@ class TypeCheckingVisitor(Visitor):
             stm.accept(self)
 
     def visit_FunDecl(self, tp: Tp, name: Var, params: Params, body: List[Stm]):
+        args = [arg.type for arg in params]
+        fn_type = FunType(tp, args)
+
         # TODO: extend the env to handle recursive calls
 
-        self.add_binding(name, tp)
+        self.add_binding(name, fn_type)
 
         env = self.env.copy()
 
