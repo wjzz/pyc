@@ -92,3 +92,5 @@ calculates `a` and then pops the stack (we don't use the value).
 2019/10/27
 
 * started implementing a simple type checker, we now check the number of arguments passed to functions => this found some mistakes in our example programs (ex17-19) :)
+
+* found out that I have never tested the boolean negation operator, it wasn't even parsed! This exposed some simple formatting bugs in the code generator.
