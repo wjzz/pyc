@@ -12,6 +12,7 @@ from typing import Any, Optional, List, Dict
 
 from visitor import Visitor
 from ast import FunDecl, LValue, FunArg, FunType
+import ast as AST
 
 
 class CTypeError(Exception):
@@ -24,7 +25,7 @@ class CTypeError(Exception):
 
 Stm = Any
 Var = str
-Tp = str
+Tp = AST.CType
 Params = List[FunArg]
 
 
@@ -36,6 +37,9 @@ class Env:
 
     def add(self, var: Var, tp: Tp):
         self.env[var] = tp
+
+    def get(self, var: Var) -> Tp:
+        return self.env[var]
 
     def copy(self) -> Env:
         cp = Env()
@@ -60,9 +64,29 @@ class TypeCheckingVisitor(Visitor):
     def add_binding(self, var: Var, tp: Tp):
         self.env.add(var, tp)
 
+    def get_binding(self, var: Var) -> Tp:
+        return self.env.get(var)
+
     def expect_bound_var(self, var: Var):
         if var not in self.env:
             raise CTypeError(f"name {var} is not defined in env: {self.env}")
+
+    def expect_function_type(self, var: Var) -> FunType:
+        self.expect_bound_var(var)
+        c_type: AST.CType = self.get_binding(var)
+
+        if c_type.kind == AST.TypeKind.Pointer:
+            raise CTypeError(
+                f"{var} should be a function, but it is a pointer type {c_type}"
+            )
+        assert c_type.kind == AST.TypeKind.Normal
+
+        tp = c_type.type
+        if not isinstance(tp, FunType):
+            raise CTypeError(f"{var} should be a function, but found type {c_type}")
+
+        assert isinstance(tp, FunType)
+        return tp
 
     # type checking
 
@@ -77,7 +101,18 @@ class TypeCheckingVisitor(Visitor):
 
     def visit_FunCall(self, name: Var, args: List[Any]):
         # TODO: check if C has a different namespace for functions
-        self.expect_bound_var(name)
+        # TODO: check if the args have correct types
+
+        fn_type = self.expect_function_type(name)
+
+        expected_num = len(fn_type.args)
+        given_num = len(args)
+        if expected_num != given_num:
+            raise CTypeError(
+                f"function {name} got {given_num} args, "
+                + "but {expected_num} args were expected"
+            )
+
         self.visit_many(args)
 
     def visit_ArithUnaryop(self, op, a):
@@ -143,9 +178,7 @@ class TypeCheckingVisitor(Visitor):
 
     def visit_FunDecl(self, tp: Tp, name: Var, params: Params, body: List[Stm]):
         args = [arg.type for arg in params]
-        fn_type = FunType(tp, args)
-
-        # TODO: extend the env to handle recursive calls
+        fn_type = AST.tp_normal(FunType(tp, args))
 
         self.add_binding(name, fn_type)
 

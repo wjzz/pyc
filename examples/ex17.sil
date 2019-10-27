@@ -12,6 +12,6 @@ long early() {
 }
 
 int main() {
-  early(4);
+  early();
   return 0;
 }
