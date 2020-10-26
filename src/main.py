@@ -11,7 +11,7 @@ and then the generated assembly is printed out.
 import sys
 import traceback
 
-import parser
+import pyc_parser
 import type_checker
 import code_generator
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
                 with open(file_name, "r") as f:
                     lines = "".join(f.readlines())
                     # parse
-                    c = parser.parse_file(lines)
+                    c = pyc_parser.parse_file(lines)
                     # type check
                     symbol_table = type_checker.check(c)
                     # compile
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                     print("\n/Error/ File not found:", file=dest)
                     print(f"\t{file_name}", file=dest)
                     sys.exit(1)
-            except parser.ParseError as err:
+            except pyc_parser.ParseError as err:
                 with sys.stderr as dest:
                     line = err.token.line
                     pos = err.token.offset

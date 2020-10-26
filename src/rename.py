@@ -1,4 +1,4 @@
-import ast as E
+import pyc_ast as E
 from collections import defaultdict
 
 from visitor import Visitor

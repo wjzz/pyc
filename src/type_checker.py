@@ -11,8 +11,8 @@ We check that:
 from typing import Any, Optional, List, Dict
 
 from visitor import Visitor
-from ast import FunDecl, LValue, FunArg, FunType
-import ast as AST
+from pyc_ast import FunDecl, LValue, FunArg, FunType
+import pyc_ast as AST
 
 
 class CTypeError(Exception):

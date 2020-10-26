@@ -1,5 +1,5 @@
 from lexer import tokenize, Token
-import ast as E
+import pyc_ast as E
 
 
 class ParseError(Exception):

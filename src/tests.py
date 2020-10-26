@@ -1,8 +1,8 @@
 import unittest
 
-from ast import *
+from pyc_ast import *
 from lexer import tokenize, simplify
-from parser import parse_file, parse_stm, parse_expr, parse_arith
+from pyc_parser import parse_file, parse_stm, parse_expr, parse_arith
 import code_generator
 from local_vars import get_local_vars
 from rename import rename_vars

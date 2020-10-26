@@ -1,7 +1,7 @@
 from collections import defaultdict, namedtuple
 from enum import Enum
 
-import ast as E
+import pyc_ast as E
 from visitor import Visitor
 
 # from optimize import optimize
