@@ -8,7 +8,7 @@ We check that:
 - there are no type errors
 """
 
-from typing import Any, Optional, List, Dict
+from typing import Any, Optional
 
 from visitor import Visitor
 from pyc_ast import FunDecl, LValue, FunArg, FunType
@@ -26,11 +26,11 @@ class CTypeError(Exception):
 Stm = Any
 Var = str
 Tp = AST.CType
-Params = List[FunArg]
+Params = list[FunArg]
 
 
 class Env:
-    env: Dict[Var, Tp] = {}
+    env: dict[Var, Tp] = {}
 
     def __contains__(self, var: Var):
         return var in self.env
@@ -99,7 +99,7 @@ class TypeCheckingVisitor(Visitor):
     def visit_Var(self, var: Var):
         self.expect_bound_var(var)
 
-    def visit_FunCall(self, name: Var, args: List[Any]):
+    def visit_FunCall(self, name: Var, args: list[Any]):
         # TODO: check if C has a different namespace for functions
         # TODO: check if the args have correct types
 
@@ -176,7 +176,7 @@ class TypeCheckingVisitor(Visitor):
         for stm in stms:
             stm.accept(self)
 
-    def visit_FunDecl(self, tp: Tp, name: Var, params: Params, body: List[Stm]):
+    def visit_FunDecl(self, tp: Tp, name: Var, params: Params, body: list[Stm]):
         args = [arg.type for arg in params]
         fn_type = AST.tp_normal(FunType(tp, args))
 
@@ -203,7 +203,7 @@ class TypeCheckingVisitor(Visitor):
         return self.visit_many(defs)
 
 
-def check(defs: List[Stm]) -> SymbolTable:
+def check(defs: list[Stm]) -> SymbolTable:
     """
     Type checks the given program and returns a symbol table
     containing the type information for all nodes in the program.

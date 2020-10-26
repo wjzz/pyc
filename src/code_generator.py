@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 from enum import Enum
+from typing import NamedTuple, Optional
 
 import pyc_ast as E
 from visitor import Visitor
@@ -32,7 +33,12 @@ class MemOffset(namedtuple("MemOffset", "sign word_len count")):
         return f"{sign} {size} * {count}"
 
 
-class VarAddr(namedtuple("VarAddr", "base offset", defaults=(None,))):
+# class VarAddr(namedtuple("VarAddr", "base offset", defaults=(None,))):
+
+class VarAddr(NamedTuple):
+    base: str # var
+    offset: Optional[MemOffset] = None
+
     @property
     def text(self):
         offset = self.offset
@@ -218,6 +224,7 @@ mov rax, {size}
         c1 = a1.accept(self)
         c2 = a2.accept(self)
 
+        operation = ""
         if op == E.ArithOp.Add:
             operation = "add r10, r11"
         if op == E.ArithOp.Sub:
@@ -263,6 +270,7 @@ mov rax, {size}
         label_id = CompileVisitor.fresh_id()
         label = f"_cmp_change{label_id}"
 
+        operator = ""
         if op == E.ArithCmp.Eq:
             operator = "je"
         if op == E.ArithCmp.Neq:
