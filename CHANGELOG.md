@@ -100,3 +100,5 @@ calculates `a` and then pops the stack (we don't use the value).
 * started working on pyc again (after a year!)
 
 * bumped the version to 3.9 so that we can use all the nice type anotations (list[int] instead of List[int] etc)
+
+* Problem: NamedTuple doesnt allow multiple inheritance, so we can't mark types as Arith, Bool, Stm etc. Maybe we should just get rid of NamedTuples and just hardcode the classes ourselves?

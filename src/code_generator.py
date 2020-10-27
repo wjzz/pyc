@@ -35,8 +35,9 @@ class MemOffset(namedtuple("MemOffset", "sign word_len count")):
 
 # class VarAddr(namedtuple("VarAddr", "base offset", defaults=(None,))):
 
+
 class VarAddr(NamedTuple):
-    base: str # var
+    base: str  # var
     offset: Optional[MemOffset] = None
 
     @property
@@ -386,7 +387,7 @@ _or_ret{label_id}:
         c = a.accept(self)
         return (
             c
-            + f"""
+            + """
     pop rax
         """
         )

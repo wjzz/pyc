@@ -1,7 +1,7 @@
 from enum import Enum
 from collections import namedtuple
 from typing import NamedTuple, Optional, Any
-
+from dataclasses import dataclass
 
 # -----------------------------------------
 # Types
@@ -117,7 +117,14 @@ def lvalue_pointer(var):
     return LValue(LValueKind.Pointer, var)
 
 
-class Var(namedtuple("Var", "var")):
+class Arith:
+    """Abstract Arith class"""
+
+
+@dataclass
+class Var(Arith):
+    var: str
+
     def __str__(self):
         return self.var
 
@@ -125,7 +132,10 @@ class Var(namedtuple("Var", "var")):
         return visitor.visit_Var(self.var)
 
 
-class ArithLit(namedtuple("ArithLit", "num")):
+@dataclass
+class ArithLit(Arith):
+    num: int
+
     def __str__(self):
         return str(self.num)
 
@@ -133,7 +143,11 @@ class ArithLit(namedtuple("ArithLit", "num")):
         return visitor.visit_ArithLit(self.num)
 
 
-class ArithUnaryop(namedtuple("ArithUnaryop", "op a")):
+@dataclass
+class ArithUnaryop(Arith):
+    op: ArithUnaryOp
+    a: Arith
+
     def __str__(self):
         [op, a] = [self.op, self.a]
         return f"({op} {a})"
@@ -142,7 +156,12 @@ class ArithUnaryop(namedtuple("ArithUnaryop", "op a")):
         return visitor.visit_ArithUnaryop(self.op, self.a)
 
 
-class ArithBinop(namedtuple("ArithBinop", "op a1 a2")):
+@dataclass
+class ArithBinop(Arith):
+    op: ArithOp
+    a1: Arith
+    a2: Arith
+
     def __str__(self):
         [op, a1, a2] = [self.op, self.a1, self.a2]
         return f"({a1} {op} {a2})"
@@ -151,7 +170,11 @@ class ArithBinop(namedtuple("ArithBinop", "op a1 a2")):
         return visitor.visit_ArithBinop(self.op, self.a1, self.a2)
 
 
-class ArithAssign(namedtuple("ArithAssign", "lvalue a")):
+@dataclass
+class ArithAssign(Arith):
+    lvalue: LValue
+    a: Arith
+
     def __str__(self):
         return f"{self.lvalue} = {self.a};"
 
@@ -225,7 +248,11 @@ class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
 # -----------------------------------------
 
 
-class FunCall(namedtuple("FunCall", "name args")):
+@dataclass
+class FunCall(Arith):
+    name: str
+    args: list[Any]
+
     def __str__(self):
         args = ", ".join(map(str, self.args))
         return f"{self.name}({args})"
@@ -247,12 +274,10 @@ class StmExpr(namedtuple("StmExpr", "a")):
         return visitor.visit_StmExpr(self.a)
 
 
-# class StmDecl(namedtuple("StmDecl", "type var a kind", defaults=(None, VarKind.Local))):
-
 class StmDecl(NamedTuple):
     type: CType
     var: str
-    a: Optional[Any] # Arith
+    a: Optional[Any]  # Arith
     kind: VarKind = VarKind.Local
 
     def __str__(self):
@@ -302,7 +327,7 @@ class StmReturn(namedtuple("StmReturn", "a")):
 
 class StmBreak(namedtuple("StmBreak", "")):
     def __str__(self):
-        return f"break;"
+        return "break;"
 
     def accept(self, visitor):
         return visitor.visit_StmBreak()
@@ -310,7 +335,7 @@ class StmBreak(namedtuple("StmBreak", "")):
 
 class StmContinue(namedtuple("StmContinue", "")):
     def __str__(self):
-        return f"continue;"
+        return "continue;"
 
     def accept(self, visitor):
         return visitor.visit_StmContinue()
@@ -361,7 +386,7 @@ if __name__ == "__main__":
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
     bex = BoolArithCmp(ArithCmp.Leq, var, lit)
-    assignex = ArithAssign("x", abinop)
+    assignex = ArithAssign(lvalue_var("x"), abinop)
     exprs = [
         var,
         lit,
