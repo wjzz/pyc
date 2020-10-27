@@ -465,7 +465,7 @@ class ParserTests(unittest.TestCase):
     def test_parser_decl(self):
         decl = "long x;"
         self.assertEqual(parse_stm(decl),
-            [StmDecl(tp_normal(AtomType.Long), 'x', None)]
+            [StmDecl(type=tp_normal(AtomType.Long), var='x', a=None)]
         )
 
     def test_parser_decl_pointer(self):

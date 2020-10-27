@@ -1,5 +1,6 @@
 from enum import Enum
 from collections import namedtuple
+from typing import NamedTuple, Optional, Any
 
 
 # -----------------------------------------
@@ -246,7 +247,14 @@ class StmExpr(namedtuple("StmExpr", "a")):
         return visitor.visit_StmExpr(self.a)
 
 
-class StmDecl(namedtuple("StmDecl", "type var a kind", defaults=(None, VarKind.Local))):
+# class StmDecl(namedtuple("StmDecl", "type var a kind", defaults=(None, VarKind.Local))):
+
+class StmDecl(NamedTuple):
+    type: CType
+    var: str
+    a: Optional[Any] # Arith
+    kind: VarKind = VarKind.Local
+
     def __str__(self):
         if self.a is not None:
             return f"{self.type} {self.var} = {self.a};"
