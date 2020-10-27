@@ -44,7 +44,11 @@ lint:
 
 typecheck:
 	echo "Typechecking the python source files...\n"
-	python -m mypy src
+	#echo "Mypy"
+	#python -m mypy src
+	#mypy src
+	echo "Pyright"
+	pyright -p src
 
 std:
 	# NOTE: this contains debugging flags
