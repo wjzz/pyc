@@ -19,6 +19,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         for file_name in sys.argv[1:]:
             # print("got file name =", sys.argv[1])
+            lines = ""
             try:
                 with open(file_name, "r") as f:
                     lines = "".join(f.readlines())

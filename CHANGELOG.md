@@ -94,3 +94,9 @@ calculates `a` and then pops the stack (we don't use the value).
 * started implementing a simple type checker, we now check the number of arguments passed to functions => this found some mistakes in our example programs (ex17-19) :)
 
 * found out that I have never tested the boolean negation operator, it wasn't even parsed! This exposed some simple formatting bugs in the code generator.
+
+2020/10/27
+
+* started working on pyc again (after a year!)
+
+* bumped the version to 3.9 so that we can use all the nice type anotations (list[int] instead of List[int] etc)
