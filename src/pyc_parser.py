@@ -1,27 +1,28 @@
-from lexer import tokenize, Token
+from typing import Iterator
+from lexer import tokenize, Token, TokenInfo
 import pyc_ast as E
-
+from pyc_ast import StmDecl
 
 class ParseError(Exception):
     def __init__(self, token, msg):
         self.token = token
         self.msg = msg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.msg}"
 
 
 class Parser:
-    def __init__(self, tokens):
+    def __init__(self, tokens: Iterator[TokenInfo]):
         self._tokens = tokens
 
     @property
-    def get_token(self):
+    def get_token(self) -> TokenInfo:
         return next(self._tokens)
         # print(f"  {token.tag}, {token.line}", file=sys.stderr)
 
     @property
-    def peek(self):
+    def peek(self) -> TokenInfo:
         self._tokens = self.peekable(self._tokens)
         return next(self._tokens)
 
@@ -75,7 +76,10 @@ class Parser:
                 token, "unknown type, expected " "int, long, char or void, got {tp}"
             )
 
-    def parse_type(self):
+    def parse_type(self) -> E.Type:
+        ...
+
+    def parse_ctype(self) -> E.CType:
         token = self.peek
         self.expect(Token.TYPE)
         atom_tp = self.parse_atomic_type(token)
@@ -87,23 +91,23 @@ class Parser:
         else:
             return E.CType(E.TypeKind.Normal, atom_tp)
 
-    def parse_id(self):
+    def parse_id(self) -> str:
         token = self.get_token
         assert token.tag == Token.ID
         return token.value
 
-    def parse_param(self):
+    def parse_param(self) -> E.FunArg:
         "E.g. long a"
-        tp = self.parse_type()
+        tp = self.parse_ctype()
         var = self.parse_id()
         return E.FunArg(tp, var)
 
-    def parse_params(self):
+    def parse_params(self) -> list[E.FunArg]:
         self.expect(Token.LPAREN)
         params = self.parse_many(self.parse_param, sep=Token.COMMA, end=Token.RPAREN)
         return params
 
-    def parse_definition(self):
+    def parse_definition(self) -> E.Decl:
         """
         Parses a top-level definition, which can be:
         - a global variable, e.g.
@@ -111,7 +115,7 @@ class Parser:
         - a function definition, e.g.
             long foo(long arg1, long arg2) { ... }
         """
-        tp = self.parse_type()
+        tp = self.parse_ctype()
         name = self.parse_id()
         if self.peek.tag == Token.LPAREN:
             params = self.parse_params()
@@ -143,7 +147,7 @@ class Parser:
         ss = self.parse_stms(end=Token.RBRACE)
         return E.StmBlock(ss)
 
-    def parse_var_decl(self, tp, var, kind):
+    def parse_var_decl(self, tp, var, kind) -> StmDecl:
         if self.peek.tag == Token.SEMI:
             self.expect(Token.SEMI)
             # only declaration
@@ -154,9 +158,11 @@ class Parser:
             e = self.parse_expr()
             self.expect(Token.SEMI)
             return E.StmDecl(tp, var, e, kind)
+        else:
+            raise ParseError(msg="expected SEMI or EQUAL", token=self.peek.tag)
 
     def parse_stm_var_decl(self, kind=E.VarKind.Local):
-        tp = self.parse_type()
+        tp = self.parse_ctype()
         var = self.parse_id()
         return self.parse_var_decl(tp, var, kind)
 
@@ -267,7 +273,7 @@ class Parser:
         self.expect(Token.EOF)
         return b
 
-    def parse_expr(self):
+    def parse_expr(self) -> E.Expr:
         compounds = self._compound_assingments
         assignments = [Token.EQUAL] + list(compounds.keys())
         lhs = self.parse_expr4()
@@ -285,7 +291,8 @@ class Parser:
             rhs = self.parse_expr()
             if assign == Token.EQUAL:
                 return E.ArithAssign(lvalue, rhs)
-            elif assign in compounds.keys():
+            else:
+                assert assign in compounds.keys()
                 op = compounds[assign]
                 # rewrite x += 1 into x = x + 1
                 return E.ArithAssign(lvalue, E.ArithBinop(op, lvalue.expr, rhs))

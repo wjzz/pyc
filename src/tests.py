@@ -3,7 +3,6 @@ import unittest
 from pyc_ast import *
 from lexer import tokenize, simplify
 from pyc_parser import parse_file, parse_stm, parse_expr, parse_arith
-import code_generator
 from local_vars import get_local_vars
 from rename import rename_vars
 

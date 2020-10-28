@@ -102,3 +102,8 @@ calculates `a` and then pops the stack (we don't use the value).
 * bumped the version to 3.9 so that we can use all the nice type anotations (list[int] instead of List[int] etc)
 
 * Problem: NamedTuple doesnt allow multiple inheritance, so we can't mark types as Arith, Bool, Stm etc. Maybe we should just get rid of NamedTuples and just hardcode the classes ourselves?
+=> Next day we replaced 99% of NamedTuples with frozen dataclasses. This way we get the nice stuff and can use mixins
+
+2020/10/28
+
+* Finish adding type annotations for the pyc_parser module

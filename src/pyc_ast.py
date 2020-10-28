@@ -1,14 +1,16 @@
+from __future__ import annotations
 from enum import Enum
-from collections import namedtuple
-from typing import NamedTuple, Optional, Any
+from typing import Optional, Any
 from dataclasses import dataclass
 
 # -----------------------------------------
 # Types
 # -----------------------------------------
 
+class Type:
+    """Abstract Type class"""
 
-class AtomType(Enum):
+class AtomType(Type, Enum):
     Int = "int"
     Long = "long"
     Void = "void"
@@ -18,7 +20,11 @@ class AtomType(Enum):
         return self.value
 
 
-class FunType(namedtuple("FunType", "ret args")):
+@dataclass(frozen=True)
+class FunType(Type):
+    ret: CType
+    args: list[CType]
+
     def __str__(self):
         args = ",".join(map(str, self.args))
         return f"({args}) -> {self.ret}"
@@ -32,7 +38,11 @@ class TypeKind(Enum):
         return self.value
 
 
-class CType(namedtuple("CType", "kind type")):
+@dataclass(frozen=True)
+class CType():
+    kind: TypeKind
+    type: Type
+
     def __str__(self):
         stype = str(self.type)
         if self.kind == TypeKind.Normal:
@@ -87,37 +97,44 @@ class LValueKind(Enum):
         return self.value
 
 
-class LValue(namedtuple("LValue", "kind loc")):
-    def __str__(self):
+@dataclass(frozen=True)
+class LValue:
+    kind: LValueKind
+    loc: str
+
+    def __str__(self) -> str:
         s = str(self.loc)
         if self.kind == LValueKind.Pointer:
             return f"*{s}"
         else:
             return s
 
-    def rename(self, var):
+    def rename(self, var: str) -> LValue:
         if self.kind == LValueKind.Pointer:
             return lvalue_pointer(var)
         else:
             return lvalue_var(var)
 
     @property
-    def expr(self):
+    def expr(self) -> Arith:
         if self.kind == LValueKind.Var:
             return Var(self.loc)
         else:
             return ArithUnaryop(ArithUnaryOp.Deref, Var(self.loc))
 
 
-def lvalue_var(var):
+def lvalue_var(var: str) -> LValue:
     return LValue(LValueKind.Var, var)
 
 
-def lvalue_pointer(var):
+def lvalue_pointer(var: str) -> LValue:
     return LValue(LValueKind.Pointer, var)
 
 
-class Arith:
+class Expr:
+    """Absract Expr class"""
+
+class Arith(Expr):
     """Abstract Arith class"""
 
 
@@ -146,7 +163,7 @@ class ArithLit(Arith):
 @dataclass(frozen=True)
 class ArithUnaryop(Arith):
     op: ArithUnaryOp
-    a: Arith
+    a: Expr
 
     def __str__(self):
         [op, a] = [self.op, self.a]
@@ -159,8 +176,8 @@ class ArithUnaryop(Arith):
 @dataclass(frozen=True)
 class ArithBinop(Arith):
     op: ArithOp
-    a1: Arith
-    a2: Arith
+    a1: Expr
+    a2: Expr
 
     def __str__(self):
         [op, a1, a2] = [self.op, self.a1, self.a2]
@@ -173,7 +190,7 @@ class ArithBinop(Arith):
 @dataclass(frozen=True)
 class ArithAssign(Arith):
     lvalue: LValue
-    a: Arith
+    a: Expr
 
     def __str__(self):
         return f"{self.lvalue} = {self.a};"
@@ -208,8 +225,15 @@ class ArithCmp(Enum):
     def __str__(self):
         return self.value
 
+class BoolExpr(Expr):
+    """Abstract BoolExpr class"""
 
-class BoolArithCmp(namedtuple("BoolArithCmp", "op a1 a2")):
+@dataclass(frozen=True)
+class BoolArithCmp(BoolExpr):
+    op: ArithCmp
+    a1: Expr
+    a2: Expr
+
     def __str__(self):
         [op, a1, a2] = [self.op, self.a1, self.a2]
         return f"({a1} {op} {a2})"
@@ -217,8 +241,10 @@ class BoolArithCmp(namedtuple("BoolArithCmp", "op a1 a2")):
     def accept(self, visitor):
         return visitor.visit_BoolArithCmp(self.op, self.a1, self.a2)
 
+@dataclass(frozen=True)
+class BoolNeg(BoolExpr):
+    b: Expr
 
-class BoolNeg(namedtuple("BoolNeg", "b")):
     def __str__(self):
         return f"(not {self.b})"
 
@@ -234,7 +260,12 @@ class BoolOp(Enum):
         return self.value
 
 
-class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
+@dataclass(frozen=True)
+class BoolBinop(BoolExpr):
+    op: BoolOp
+    b1: Expr
+    b2: Expr
+
     def __str__(self):
         [op, b1, b2] = [self.op, self.b1, self.b2]
         return f"({b1} {op} {b2})"
@@ -265,19 +296,27 @@ class FunCall(Arith):
 # Statements
 # -----------------------------------------
 
+class Decl:
+    """Abstract declaration type"""
 
-class StmExpr(namedtuple("StmExpr", "a")):
+class Stm:
+    """Abstract Statement class"""
+
+@dataclass(frozen=True)
+class StmExpr(Stm):
+    a: Expr
+
     def __str__(self):
         return str(self.a)
 
     def accept(self, visitor):
         return visitor.visit_StmExpr(self.a)
 
-
-class StmDecl(NamedTuple):
+@dataclass(frozen=True)
+class StmDecl(Stm, Decl):
     type: CType
     var: str
-    a: Optional[Any]  # Arith
+    a: Optional[Expr]
     kind: VarKind = VarKind.Local
 
     def __str__(self):
@@ -289,8 +328,12 @@ class StmDecl(NamedTuple):
     def accept(self, visitor):
         return visitor.visit_StmDecl(self.type, self.var, self.a, self.kind)
 
+@dataclass(frozen=True)
+class StmIf(Stm):
+    b: Expr
+    ss1: list[Stm]
+    ss2: list[Stm]
 
-class StmIf(namedtuple("StmIf", "b ss1 ss2")):
     def __str__(self):
         ss1 = "\n".join(map(str, self.ss1))
         ss2 = "\n".join(map(str, self.ss2))
@@ -299,8 +342,11 @@ class StmIf(namedtuple("StmIf", "b ss1 ss2")):
     def accept(self, visitor):
         return visitor.visit_StmIf(self.b, self.ss1, self.ss2)
 
+@dataclass(frozen=True)
+class StmWhile(Stm):
+    b: Expr
+    ss: list[Stm]
 
-class StmWhile(namedtuple("StmWhile", "b ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))
         return f"while {self.b} {{\n\t{ss}\n}}"
@@ -308,8 +354,10 @@ class StmWhile(namedtuple("StmWhile", "b ss")):
     def accept(self, visitor):
         return visitor.visit_StmWhile(self.b, self.ss)
 
+@dataclass(frozen=True)
+class StmPrint(Stm):
+    a: Expr
 
-class StmPrint(namedtuple("StmPrint", "a")):
     def __str__(self):
         return f"print({self.a});"
 
@@ -317,31 +365,36 @@ class StmPrint(namedtuple("StmPrint", "a")):
         return visitor.visit_StmPrint(self.a)
 
 
-class StmReturn(namedtuple("StmReturn", "a")):
+@dataclass(frozen=True)
+class StmReturn(Stm):
+    a: Expr
+
     def __str__(self):
         return f"return {self.a};"
 
     def accept(self, visitor):
         return visitor.visit_StmReturn(self.a)
 
-
-class StmBreak(namedtuple("StmBreak", "")):
+@dataclass(frozen=True)
+class StmBreak(Stm):
     def __str__(self):
         return "break;"
 
     def accept(self, visitor):
         return visitor.visit_StmBreak()
 
-
-class StmContinue(namedtuple("StmContinue", "")):
+@dataclass(frozen=True)
+class StmContinue(Stm):
     def __str__(self):
         return "continue;"
 
     def accept(self, visitor):
         return visitor.visit_StmContinue()
 
+@dataclass(frozen=True)
+class StmBlock(Stm):
+    ss: list[Stm]
 
-class StmBlock(namedtuple("StmBlock", "ss")):
     def __str__(self):
         ss = "\n".join(map(str, self.ss))
         return f"{{\n\t{ss}\n}}"
@@ -354,13 +407,21 @@ class StmBlock(namedtuple("StmBlock", "ss")):
 # Top level declarations
 # -----------------------------------------
 
+@dataclass(frozen=True)
+class FunArg():
+    type: CType
+    var: str
 
-class FunArg(namedtuple("FunArg", "type var")):
     def __str__(self):
         return f"{self.type} {self.var}"
 
+@dataclass(frozen=True)
+class FunDecl(Decl):
+    type: CType
+    name: str
+    params: list[FunArg]
+    body: list[Stm]
 
-class FunDecl(namedtuple("FunDecl", "type name params body")):
     def __str__(self):
         params = ", ".join(map(str, self.params))
         ss = "\n".join(map(str, self.body))
@@ -386,7 +447,7 @@ if __name__ == "__main__":
     lit = ArithLit(123)
     abinop = ArithBinop(ArithOp.Add, var, lit)
     bex = BoolArithCmp(ArithCmp.Leq, var, lit)
-    assignex = ArithAssign(lvalue_var("x"), abinop)
+    assignex = StmExpr(ArithAssign(lvalue_var("x"), abinop))
     exprs = [
         var,
         lit,

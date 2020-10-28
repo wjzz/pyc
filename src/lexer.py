@@ -1,6 +1,5 @@
 from enum import Enum, auto
-from collections import namedtuple
-
+from typing import Any, Iterator, NamedTuple
 
 class AutoName(Enum):
     @staticmethod
@@ -52,10 +51,16 @@ class Token(AutoName):
 # I always wanted to do this!!
 all_tokens = list(Token)
 
-TokenInfo = namedtuple("TokenInfo", ["tag", "value", "line", "offset"])
+class TokenInfo(NamedTuple):
+    tag: Token
+    value: Any
+    line: int
+    offset: int
+
+# TokenInfo = namedtuple("TokenInfo", ["tag", "value", "line", "offset"])
 
 
-def tokenize(s):
+def tokenize(s) -> Iterator[TokenInfo]:
     """Tokenize the given string s into a generator of tokens."""
 
     line_no = 1
