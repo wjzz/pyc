@@ -121,7 +121,7 @@ class Arith:
     """Abstract Arith class"""
 
 
-@dataclass
+@dataclass(frozen=True)
 class Var(Arith):
     var: str
 
@@ -132,7 +132,7 @@ class Var(Arith):
         return visitor.visit_Var(self.var)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ArithLit(Arith):
     num: int
 
@@ -143,7 +143,7 @@ class ArithLit(Arith):
         return visitor.visit_ArithLit(self.num)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ArithUnaryop(Arith):
     op: ArithUnaryOp
     a: Arith
@@ -156,7 +156,7 @@ class ArithUnaryop(Arith):
         return visitor.visit_ArithUnaryop(self.op, self.a)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ArithBinop(Arith):
     op: ArithOp
     a1: Arith
@@ -170,7 +170,7 @@ class ArithBinop(Arith):
         return visitor.visit_ArithBinop(self.op, self.a1, self.a2)
 
 
-@dataclass
+@dataclass(frozen=True)
 class ArithAssign(Arith):
     lvalue: LValue
     a: Arith
@@ -248,7 +248,7 @@ class BoolBinop(namedtuple("BoolBinop", "op b1 b2")):
 # -----------------------------------------
 
 
-@dataclass
+@dataclass(frozen=True)
 class FunCall(Arith):
     name: str
     args: list[Any]
