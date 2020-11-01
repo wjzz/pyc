@@ -46,6 +46,7 @@ Add more backends:
 - [ ] ARM (Raspberry PI)
 - [ ] Mac (PowerPC?)
 - [ ] MIPS (use the SPIM emulator)
+- - [x] SPIM installed
 
 Tooling:
 - [ ] Enable pydoc generation
